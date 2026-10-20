@@ -1,19 +1,21 @@
 /// <reference types="node" />
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { companionReply, extractWithClaude, localStamp, parseLocal } from '../claude';
+import { claudeErrorMessage, companionReply, extractWithClaude, localStamp, parseLocal } from '../claude';
 import { journalVocabulary } from '../vocabulary';
 
 /** Replaces fetch with canned Messages API replies and records each request body. */
 function mockClaude(replies: object[]) {
   const requests: any[] = [];
+  const headers: any[] = [];
   const original = globalThis.fetch;
   globalThis.fetch = (async (_url: any, init: any) => {
     requests.push(JSON.parse(init.body));
+    headers.push(init.headers);
     const body = replies[Math.min(requests.length - 1, replies.length - 1)];
     return new Response(JSON.stringify(body), { status: 200, headers: { 'content-type': 'application/json' } });
   }) as typeof fetch;
-  return { requests, restore: () => (globalThis.fetch = original) };
+  return { requests, headers, restore: () => (globalThis.fetch = original) };
 }
 
 const message = (content: object[], stop_reason = 'end_turn') => ({
@@ -42,6 +44,8 @@ test('extraction asks for structured output and maps the answer', async () => {
     const result = await extractWithClaude('sk-ant-test', 'entry text', new Date(2026, 9, 20, 9, 0));
     const req = mock.requests[0];
     assert.equal(req.model, 'claude-opus-5-5');
+    assert.equal(mock.headers[0]['x-api-key'], 'sk-ant-test');
+    assert.equal(mock.headers[0]['anthropic-version'], '2023-06-01');
     assert.equal(req.output_config.format.type, 'json_schema');
     assert.match(req.messages[0].content, /Tuesday 2026-10-20 09:00/);
     assert.deepEqual(result.items.map((i) => [i.kind, i.title]), [
@@ -90,4 +94,14 @@ test('companion runs its tools and then answers', async () => {
 
 test('journal vocabulary picks out names', () => {
   assert.deepEqual(journalVocabulary(['Had lunch with Priya. Simran called.', 'Need to call Priya about Blinkit.']), ['Priya', 'Simran', 'Blinkit']);
+});
+
+test('API errors become readable messages', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = (async () => new Response(JSON.stringify({ type: 'error', error: { type: 'authentication_error', message: 'invalid x-api-key' } }), { status: 401 })) as typeof fetch;
+  try {
+    await assert.rejects(extractWithClaude('bad', 'x', new Date()), (e: unknown) => claudeErrorMessage(e).includes('not accepted'));
+  } finally {
+    globalThis.fetch = original;
+  }
 });
