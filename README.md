@@ -50,7 +50,28 @@ swift run --package-path JournalKit journal-classify --eval
 swift test --package-path JournalKit
 ```
 
-## Run it on the iPhone 17 Pro simulator
+## Try it in your browser (Windows, any computer)
+
+Apple's iOS Simulator only runs on Macs, so every CI build is also packaged as a simulator
+app and streamed to the browser through [Appetize](https://appetize.io), on an iPhone 17 Pro.
+
+One-time setup:
+
+1. Sign up at [appetize.io](https://appetize.io) (the free plan is enough to start) and create
+   an API token under *Account → API token*.
+2. On GitHub, open this repo's *Settings → Secrets and variables → Actions → New repository
+   secret*, name it `APPETIZE_API_TOKEN` and paste the token.
+
+After that, every push builds the app and updates the same browser link. The link is on the
+CI run's summary page and in `.github/appetize-public-key`.
+
+Limits: the browser simulator has no microphone, so use *Write* there. Widgets, Control
+Center and notifications are best tried on a real iPhone.
+
+Without Appetize you can still download `VoiceJournal-simulator` from any CI run's
+*Artifacts* and drag it onto [appetize.io/upload](https://appetize.io/upload).
+
+## Run it on the iPhone 17 Pro simulator (Mac)
 
 You need a Mac with Xcode 26 or later (which includes the iPhone 17 Pro simulator) and Homebrew.
 

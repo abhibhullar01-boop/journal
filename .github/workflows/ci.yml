@@ -23,6 +23,9 @@ jobs:
   ios:
     name: iOS app build
     runs-on: macos-15
+    concurrency:
+      group: ios-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - name: Install XcodeGen
@@ -37,3 +40,39 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             build
+
+      # The simulator build doubles as a browser preview, so the app can be
+      # tried from any computer (no Mac needed). See "Try it in your browser" in the README.
+      - name: Package the simulator app
+        run: |
+          cd App/build/Build/Products/Debug-iphonesimulator
+          ditto -c -k --sequesterRsrc --keepParent VoiceJournal.app "$GITHUB_WORKSPACE/VoiceJournal-simulator.zip"
+      - name: Save the simulator app
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoiceJournal-simulator
+          path: VoiceJournal-simulator.zip
+          retention-days: 14
+      - name: Update the browser preview (Appetize)
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+          APPETIZE_PUBLIC_KEY: ${{ vars.APPETIZE_PUBLIC_KEY }}
+        run: |
+          if [ -z "$APPETIZE_API_TOKEN" ]; then
+            echo "No APPETIZE_API_TOKEN secret yet, skipping the browser preview."
+            exit 0
+          fi
+          KEY="${APPETIZE_PUBLIC_KEY:-$(cat .github/appetize-public-key 2>/dev/null || true)}"
+          URL="https://api.appetize.io/v1/apps${KEY:+/$KEY}"
+          RESPONSE=$(curl -sS --fail-with-body -X POST "$URL" \
+            -H "X-API-KEY: $APPETIZE_API_TOKEN" \
+            -F "file=@VoiceJournal-simulator.zip" \
+            -F "platform=ios" \
+            -F "note=Voice Journal ${GITHUB_HEAD_REF:-$GITHUB_REF_NAME} @ ${GITHUB_SHA::7}")
+          KEY=$(echo "$RESPONSE" | jq -r '.publicKey')
+          echo "Appetize public key: $KEY"
+          {
+            echo "### Try Voice Journal in your browser"
+            echo ""
+            echo "https://appetize.io/app/$KEY?device=iphone17pro"
+          } >> "$GITHUB_STEP_SUMMARY"
