@@ -24,7 +24,13 @@ export default function BrainScreen() {
     ]);
 
   return (
-    <ScrollView style={{ backgroundColor: p.background }} contentContainerStyle={{ paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={{ backgroundColor: p.background }}
+      contentContainerStyle={{ paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
+      automaticallyAdjustKeyboardInsets
+    >
       <SectionTitle>Try it</SectionTitle>
       <Card>
         <TextInput
@@ -32,6 +38,8 @@ export default function BrainScreen() {
           onChangeText={setSample}
           multiline
           placeholder="Type a sentence"
+          returnKeyType="done"
+          submitBehavior="blurAndSubmit"
           placeholderTextColor={p.secondary}
           style={[styles.input, { color: p.text, borderColor: p.border }]}
         />

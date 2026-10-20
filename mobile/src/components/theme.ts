@@ -28,7 +28,13 @@ const palette = {
   secondary: '#6F6A5F',
   border: '#E6DDCB',
   accent: '#1F6F64',
+  /** A pale wash of the accent, for chips and highlights. */
+  accentSoft: '#E3EFEB',
   danger: '#B93A26',
+  /** Your own chat bubbles. */
+  mine: '#1F6F64',
+  mineText: '#FFFFFF',
+  shadow: '#5A4A2A',
 };
 
 export type Palette = typeof palette;

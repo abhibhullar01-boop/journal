@@ -1,17 +1,20 @@
 import * as Notifications from 'expo-notifications';
 import { KIND_LABEL } from '../brain';
+import { formatDue } from './format';
 import type { TrackedItem } from './types';
 
 /**
  * Local notifications drawn from what you said:
  * - a reminder at the time a task mentioned ("tomorrow", "at 5 pm", "by Friday")
- * - a morning digest of open tasks
+ * - a heads-up when something is saved
+ * - a morning digest of open tasks and an evening nudge
  * - a Sunday evening check-in on a skill or goal
  */
 export const TASK_CATEGORY = 'task-reminder';
 export const MARK_DONE = 'mark-done';
 export const SNOOZE = 'snooze-hour';
 const DIGEST_ID = 'daily-digest';
+const EVENING_ID = 'evening-wrap';
 const CHECK_IN_ID = 'weekly-check-in';
 
 Notifications.setNotificationHandler({
@@ -24,6 +27,8 @@ Notifications.setNotificationHandler({
 });
 
 export async function setUpNotifications(): Promise<void> {
+  // Ask up front, so the first reminder isn't lost waiting for an answer.
+  await ensurePermission().catch(() => false);
   try {
     await Notifications.setNotificationCategoryAsync(TASK_CATEGORY, [
       { identifier: MARK_DONE, buttonTitle: 'Mark done' },
@@ -61,6 +66,33 @@ export async function scheduleReminder(item: TrackedItem): Promise<string | null
   });
 }
 
+const KIND_LINE: Record<string, string> = { task: 'Task', shopping: 'To buy', skill: 'Skill', goal: 'Goal' };
+
+/** A heads-up right away with what was saved from a message, and when the reminders will come. */
+export async function notifySaved(items: TrackedItem[]): Promise<void> {
+  if (!items.length || !(await Notifications.getPermissionsAsync()).granted) return;
+  const lines: string[] = [];
+  for (const kind of ['task', 'shopping', 'skill', 'goal']) {
+    const ofKind = items.filter((i) => i.kind === kind);
+    if (!ofKind.length) continue;
+    if (kind === 'shopping') {
+      lines.push(`${KIND_LINE[kind]}: ${ofKind.map((i) => i.title.toLowerCase()).join(', ')}`);
+      continue;
+    }
+    for (const i of ofKind) lines.push(`${KIND_LINE[kind]}: ${i.title}${i.dueDate ? ` · 🔔 ${formatDue(i.dueDate)}` : ''}`);
+  }
+  const reminders = items.filter((i) => i.dueDate && new Date(i.dueDate).getTime() > Date.now()).length;
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: reminders ? `Saved, with ${reminders === 1 ? 'a reminder' : `${reminders} reminders`}` : 'Saved to your lists',
+      body: lines.join('\n'),
+      sound: false,
+      data: { kind: 'saved' },
+    },
+    trigger: null,
+  });
+}
+
 export async function cancelReminder(notificationId: string | null): Promise<void> {
   if (notificationId) await Notifications.cancelScheduledNotificationAsync(notificationId).catch(() => {});
 }
@@ -69,6 +101,7 @@ export async function cancelReminder(notificationId: string | null): Promise<voi
 export async function refreshDigests(items: TrackedItem[]): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(DIGEST_ID).catch(() => {});
   await Notifications.cancelScheduledNotificationAsync(CHECK_IN_ID).catch(() => {});
+  await Notifications.cancelScheduledNotificationAsync(EVENING_ID).catch(() => {});
   if (!(await Notifications.getPermissionsAsync()).granted) return;
 
   const open = items.filter((i) => i.kind === 'task' && !i.done);
@@ -90,6 +123,20 @@ export async function refreshDigests(items: TrackedItem[]): Promise<void> {
         sound: true,
       },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: 8, minute: 30 },
+    });
+  }
+
+  // An evening nudge with what's still open, so nothing slips to tomorrow unnoticed.
+  if (open.length) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: EVENING_ID,
+      content: {
+        title: open.length === 1 ? 'One thing still open' : `${open.length} things still open`,
+        body: `${open.slice(0, 3).map((i) => i.title).join(' · ')}\nTap to tick them off or tell me how the day went.`,
+        sound: true,
+        data: { kind: 'evening' },
+      },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: 20, minute: 30 },
     });
   }
 

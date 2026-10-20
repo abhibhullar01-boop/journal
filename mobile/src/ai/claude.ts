@@ -78,8 +78,8 @@ function textOf(message: Anthropic.Message): string {
   return message.content
     .filter((b): b is Anthropic.TextBlock => b.type === 'text')
     .map((b) => b.text)
-    .join('\n')
-    .trim();
+    // Web search splits a reply into many text blocks around citations; they join back seamlessly.
+    .join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -94,6 +94,7 @@ Kinds:
 - skill: an ability they are building or want to build (learning, practising, getting better at something).
 - goal: a long-term outcome or a habit they want ("run a marathon", "buy a house", "read more", "be more patient").
 Leave out feelings, recaps of things already done, other people's plans, and small talk.
+The entry is a message in a chat with their companion, so it may be a question or request to the companion ("what should I cook tonight?", "find me running shoes under 5000", "how am I doing on my goals?"). Those are not items, unless they clearly state something they intend to do or buy ("I need new running shoes, find me some" has the shopping item "Running shoes").
 
 Titles: short and clear, in their words, starting with a verb for tasks ("Call mom about Diwali plans"). No time words in the title.
 
@@ -180,30 +181,50 @@ export interface CompanionContext {
   now: Date;
   facts: string[];
   openItems: { id: string; kind: InsightKind; title: string; due: Date | null }[];
-  recentEntries: { at: Date; text: string }[];
+  /** Older journal messages that are no longer in the chat history sent along. */
+  olderEntries: { at: Date; text: string }[];
+  /** What the app already saved from their latest message. */
+  justSaved: { kind: InsightKind; title: string; due: Date | null }[];
 }
 
 /** What the companion can do in the app. */
 export interface CompanionActions {
-  addItem(kind: InsightKind, title: string, due: Date | null): void;
+  /** Returns the new item's id. */
+  addItem(kind: InsightKind, title: string, due: Date | null): string | null;
   completeItem(id: string): boolean;
   remember(fact: string): void;
 }
 
-const COMPANION_PERSONA = `You are the companion inside the user's personal voice journal app on their iPhone. Think of yourself as a warm, sharp friend who has read their journal: you remember what they said, notice patterns, and help them get things done.
+export interface CompanionResult {
+  text: string;
+  addedItemIds: string[];
+}
+
+const COMPANION_PERSONA = `You are the companion inside the user's personal journal app on their iPhone. Think of yourself as a warm, sharp friend who has read their journal: you remember what they said, notice patterns, and help them get things done.
+
+How the app works:
+- There is one ongoing chat, and it is also their journal. They drop in many times a day: quick notes, voice dumps, questions, venting. Each day starts under a date divider. Use the time of day and what they already said today.
+- After each message the app itself pulls out tasks, things to buy, skills and goals, sets reminders, and shows them as cards under their message. Don't add those again and don't list them back; at most mention one detail in passing ("I'll ping you at 7").
+- Use add_item only for something new you suggested and they agreed to, or something they ask you to add that isn't in their latest message.
 
 How to talk:
-- Short, natural replies, like a text from a friend (usually 1 to 4 sentences, or a short list when listing things). No headings.
+- Short, natural replies, like a text from a friend: usually 1 to 3 sentences, or a short list. Plain text with **bold** and "- " bullets only, no headings or tables.
+- A quick note or a brain dump needs only a short acknowledgement, or a useful nudge if one fits. Don't ask a question every time.
 - Be specific: use their names, dates and items from the journal instead of generic advice.
-- Offer a useful suggestion when it fits: what to focus on today, what to buy, a nudge on a skill or goal, a gentle check-in when they sound low. Don't lecture.
-- When they ask you to remember, add or remind them of something, use the tools, then confirm briefly.
+- Offer a useful suggestion when it fits: what to focus on, what to buy, a nudge on a skill or goal, a gentle check-in when they sound low. Don't lecture.
 - If something isn't in the journal, say so plainly rather than guessing.
-- You are not a doctor or therapist. If they sound in real distress, be kind and suggest talking to someone they trust or a professional.`;
+- You are not a doctor or therapist. If they sound in real distress, be kind and suggest talking to someone they trust or a professional.
+
+Links and shopping:
+- When they want to buy something, compare products, find a place, a recipe, a video or anything on the web, search the web, then give 2 to 4 good options.
+- Put each option on its own line as a markdown link to the real page you found, then a few words: "- [Asics Gel-Contend 9](https://...) about ₹4,000, cushioned and good for beginners". The app shows each link as a card with its picture, so link the product page itself, never a search page or a made-up address.
+- Prefer stores that deliver where they live (from what you know about them; India if you don't know). Show prices in their currency.`;
 
 const COMPANION_TOOLS: Anthropic.Tool[] = [
   {
     name: 'add_item',
-    description: 'Add a task, shopping item, skill or goal to their lists. Use when they ask you to remind them, add something, or agree to a suggestion.',
+    description:
+      "Add a task, shopping item, skill or goal to their lists. Only for something not already in their latest message (the app saves those itself): a suggestion they agreed to, or an explicit ask to add something.",
     strict: true,
     input_schema: {
       type: 'object',
@@ -240,22 +261,38 @@ const COMPANION_TOOLS: Anthropic.Tool[] = [
   },
 ];
 
+/** Web search versions to try, newest first. Some accounts can't use it, so the app falls back to none. */
+const WEB_SEARCH_TOOLS = [
+  { type: 'web_search_20260209', name: 'web_search', max_uses: 3 },
+  { type: 'web_search_20250305', name: 'web_search', max_uses: 3 },
+];
+let webSearchLevel = 0;
+
 function contextBlock(c: CompanionContext): string {
   const lines: string[] = [`Now: ${localStamp(c.now)}.`];
   lines.push('', 'What you know about them:', ...(c.facts.length ? c.facts.map((f) => `- ${f}`) : ['- (nothing yet)']));
   lines.push('', 'Their open items (id | kind | title | reminder):');
   if (!c.openItems.length) lines.push('- (none)');
   for (const i of c.openItems.slice(0, 80)) lines.push(`- ${i.id} | ${i.kind} | ${i.title} | ${i.due ? localStamp(i.due) : '-'}`);
-  lines.push('', 'Recent journal entries, newest first:');
-  let budget = 14_000;
-  for (const e of c.recentEntries) {
-    const line = `[${localStamp(e.at)}] ${e.text}`;
-    if (budget - line.length < 0) break;
-    budget -= line.length;
-    lines.push(line);
+  if (c.olderEntries.length) {
+    lines.push('', 'Older journal messages (before the chat below), newest first:');
+    let budget = 12_000;
+    for (const e of c.olderEntries) {
+      const line = `[${localStamp(e.at)}] ${e.text}`;
+      if (budget - line.length < 0) break;
+      budget -= line.length;
+      lines.push(line);
+    }
   }
-  if (!c.recentEntries.length) lines.push('(no entries yet)');
+  lines.push('', 'Saved by the app from their latest message:');
+  if (!c.justSaved.length) lines.push('- (nothing)');
+  for (const i of c.justSaved) lines.push(`- ${i.kind}: ${i.title}${i.due ? ` (reminder ${localStamp(i.due)})` : ''}`);
   return lines.join('\n');
+}
+
+/** Adds a time stamp to each message so Claude can see how the day went. */
+function stampMessage(t: ChatTurn): string {
+  return t.role === 'user' ? `[${localStamp(new Date(t.at))}] ${t.text}` : t.text;
 }
 
 /** One reply from the companion, running any actions it takes along the way. */
@@ -264,25 +301,49 @@ export async function companionReply(
   history: ChatTurn[],
   context: CompanionContext,
   actions: CompanionActions,
-): Promise<string> {
-  const messages: Anthropic.MessageParam[] = history.slice(-20).map((t) => ({ role: t.role, content: t.text }));
-  // The API needs the conversation to start with the user.
+): Promise<CompanionResult> {
+  const messages: Anthropic.MessageParam[] = [];
+  // Merge back-to-back messages from the same side; the API wants them to alternate, starting with the user.
+  for (const t of history) {
+    const last = messages[messages.length - 1];
+    if (last && last.role === t.role && typeof last.content === 'string') last.content += `\n\n${stampMessage(t)}`;
+    else messages.push({ role: t.role, content: stampMessage(t) });
+  }
   while (messages.length && messages[0].role !== 'user') messages.shift();
 
-  for (let round = 0; round < 5; round++) {
-    const response = await createMessage(apiKey, {
-      model: CLAUDE_MODEL,
-      max_tokens: 4000,
-      output_config: { effort: 'low' },
-      system: [
-        { type: 'text', text: COMPANION_PERSONA },
-        { type: 'text', text: contextBlock(context) },
-      ],
-      tools: COMPANION_TOOLS,
-      messages,
-    });
-    if (response.stop_reason === 'refusal') return "Sorry, I can't help with that one.";
-    if (response.stop_reason !== 'tool_use') return textOf(response) || 'Done.';
+  const addedItemIds: string[] = [];
+  const system = [
+    { type: 'text', text: COMPANION_PERSONA },
+    { type: 'text', text: contextBlock(context) },
+  ];
+  let text = '';
+  let paused = false;
+
+  for (let round = 0; round < 8; round++) {
+    const tools: unknown[] = [...COMPANION_TOOLS];
+    if (webSearchLevel < WEB_SEARCH_TOOLS.length) tools.push(WEB_SEARCH_TOOLS[webSearchLevel]);
+    let response: Anthropic.Message;
+    try {
+      response = await createMessage(apiKey, { model: CLAUDE_MODEL, max_tokens: 6000, output_config: { effort: 'low' }, system, tools, messages });
+    } catch (error) {
+      // An account without web search: try the older version, then none.
+      if (error instanceof ClaudeError && error.status === 400 && /web.?search|tool/i.test(error.message) && webSearchLevel < WEB_SEARCH_TOOLS.length) {
+        webSearchLevel++;
+        round--;
+        continue;
+      }
+      throw error;
+    }
+    if (response.stop_reason === 'refusal') return { text: "Sorry, I can't help with that one.", addedItemIds };
+    const part = paused ? textOf(response) : textOf(response).trim();
+    if (part.trim()) text = text ? `${text}${paused ? '' : '\n\n'}${part}` : part;
+    paused = response.stop_reason === 'pause_turn';
+    if (paused) {
+      // A long web search paused; sending it back lets it carry on.
+      messages.push({ role: 'assistant', content: response.content });
+      continue;
+    }
+    if (response.stop_reason !== 'tool_use') break;
 
     messages.push({ role: 'assistant', content: response.content });
     const results: Anthropic.ToolResultBlockParam[] = [];
@@ -292,8 +353,9 @@ export async function companionReply(
       const input = block.input as Record<string, string>;
       let result = 'ok';
       if (block.name === 'add_item') {
-        actions.addItem(input.kind as InsightKind, input.title, parseLocal(input.due));
-        result = `Added "${input.title}".`;
+        const id = actions.addItem(input.kind as InsightKind, input.title, parseLocal(input.due));
+        if (id) addedItemIds.push(id);
+        result = id ? `Added "${input.title}". The app shows it as a card under your reply.` : 'Could not add that.';
       } else if (block.name === 'complete_item') {
         result = actions.completeItem(input.id) ? 'Marked done.' : 'No open item with that id.';
       } else if (block.name === 'remember') {
@@ -304,7 +366,7 @@ export async function companionReply(
     }
     messages.push({ role: 'user', content: results });
   }
-  return 'Done.';
+  return { text: text.trim() || 'Done.', addedItemIds };
 }
 
 /** A friendly, readable message for an error from Claude. */
@@ -312,7 +374,7 @@ export function claudeErrorMessage(error: unknown): string {
   if (!(error instanceof ClaudeError)) return 'Something went wrong. Try again.';
   if (error.status === 401) return 'The Claude key was not accepted. Check it in Settings.';
   if (error.status === 403) return 'That Claude key is not allowed to use this model.';
-  if (error.status === 400 && /credit/i.test(error.message)) return 'Your Claude account is out of credit. Add some at console.anthropic.com.';
+  if (error.status === 400 && /credit/i.test(error.message)) return 'Your Claude account is out of credit. Add some at platform.claude.com.';
   if (error.status === 429 || error.status === 529) return 'Claude is busy or the key is out of credit. Try again in a minute.';
   if (error.status === 0) return "Couldn't reach Claude. Check your internet.";
   return `Claude had a problem (${error.status}). Try again.`;

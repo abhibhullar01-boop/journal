@@ -74,10 +74,11 @@ test('companion runs its tools and then answers', async () => {
     const reply = await companionReply(
       'sk-ant-test',
       [{ role: 'assistant', text: 'old greeting', at: '' }, { role: 'user', text: 'remind me to call mom tomorrow evening', at: '' }],
-      { now: new Date(2026, 9, 20, 9, 0), facts: ['Lives in Mohali.'], openItems: [{ id: 'item-1', kind: 'task', title: 'Pay rent', due: null }], recentEntries: [{ at: new Date(2026, 9, 19, 20, 0), text: 'Long day.' }] },
-      { addItem: (_k, title) => added.push(title), completeItem: (id) => (completed.push(id), true), remember: () => {} },
+      { now: new Date(2026, 9, 20, 9, 0), facts: ['Lives in Mohali.'], openItems: [{ id: 'item-1', kind: 'task', title: 'Pay rent', due: null }], olderEntries: [{ at: new Date(2026, 9, 19, 20, 0), text: 'Long day.' }], justSaved: [] },
+      { addItem: (_k, title) => (added.push(title), `new-${title}`), completeItem: (id) => (completed.push(id), true), remember: () => {} },
     );
-    assert.equal(reply, "Done! I'll remind you tomorrow at 7.");
+    assert.equal(reply.text, "Done! I'll remind you tomorrow at 7.");
+    assert.deepEqual(reply.addedItemIds, ['new-Call mom']);
     assert.deepEqual(added, ['Call mom']);
     assert.deepEqual(completed, ['item-1']);
     const first = mock.requests[0];
@@ -103,5 +104,46 @@ test('API errors become readable messages', async () => {
     await assert.rejects(extractWithClaude('bad', 'x', new Date()), (e: unknown) => claudeErrorMessage(e).includes('not accepted'));
   } finally {
     globalThis.fetch = original;
+  }
+});
+
+const ctx = { now: new Date(2026, 9, 20, 9, 0), facts: [], openItems: [], olderEntries: [], justSaved: [] };
+const noActions = { addItem: () => null, completeItem: () => false, remember: () => {} };
+
+test('companion offers web search, resumes a paused search, and joins cited text', async () => {
+  const mock = mockClaude([
+    message([{ type: 'text', text: 'Here are a few:' }], 'pause_turn'),
+    message([
+      { type: 'text', text: '\n- [Asics Gel](https://www.asics.com/in/gel) about ' },
+      { type: 'text', text: '₹4,000', citations: [{ type: 'web_search_result_location', url: 'https://www.asics.com/in/gel' }] },
+    ]),
+  ]);
+  try {
+    const reply = await companionReply('k', [{ role: 'user', text: 'find me running shoes', at: '2026-10-20T09:00:00' }], ctx, noActions);
+    assert.equal(reply.text, 'Here are a few:\n- [Asics Gel](https://www.asics.com/in/gel) about ₹4,000');
+    assert.ok(mock.requests[0].tools.some((t: any) => t.name === 'web_search'));
+    assert.equal(mock.requests[1].messages.at(-1).role, 'assistant', 'a paused turn is sent back as is');
+  } finally {
+    mock.restore();
+  }
+});
+
+test('companion merges back-to-back messages and stamps the time', async () => {
+  const mock = mockClaude([message([{ type: 'text', text: 'Noted.' }])]);
+  try {
+    await companionReply(
+      'k',
+      [
+        { role: 'user', text: 'first note', at: new Date(2026, 9, 20, 8, 0).toISOString() },
+        { role: 'user', text: 'second note', at: new Date(2026, 9, 20, 13, 30).toISOString() },
+      ],
+      ctx,
+      noActions,
+    );
+    const msgs = mock.requests[0].messages;
+    assert.equal(msgs.length, 1);
+    assert.match(msgs[0].content, /\[Tuesday 2026-10-20 08:00\] first note\n\n\[Tuesday 2026-10-20 13:30\] second note/);
+  } finally {
+    mock.restore();
   }
 });

@@ -14,6 +14,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: p.accent,
         tabBarInactiveTintColor: p.secondary,
         tabBarStyle: { backgroundColor: p.card, borderTopColor: p.border },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
         headerStyle: { backgroundColor: p.background },
         headerShadowVisible: false,
         headerTitleStyle: { color: p.text, fontWeight: '700' },
@@ -22,9 +23,19 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          title: 'Chat',
+          headerShown: false,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'sparkles' : 'sparkles-outline'} color={color as string} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="today"
+        options={{
           title: 'Today',
           headerShown: false,
-          tabBarIcon: ({ color, size }) => <Ionicons name="sunny-outline" color={color as string} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => <Ionicons name={focused ? 'sunny' : 'sunny-outline'} color={color as string} size={size} />,
         }}
       />
       <Tabs.Screen
@@ -33,15 +44,9 @@ export default function TabsLayout() {
           title: 'Lists',
           tabBarBadge: open > 0 ? open : undefined,
           tabBarBadgeStyle: { backgroundColor: p.danger },
-          tabBarIcon: ({ color, size }) => <Ionicons name="checkbox-outline" color={color as string} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="chat"
-        options={{
-          title: 'Companion',
-          tabBarLabel: 'Chat',
-          tabBarIcon: ({ color, size }) => <Ionicons name="chatbubbles-outline" color={color as string} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'checkbox' : 'checkbox-outline'} color={color as string} size={size} />
+          ),
         }}
       />
     </Tabs>

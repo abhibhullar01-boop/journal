@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Keyboard, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { KeyName, useKeys } from '../ai/keys';
 import { usePalette } from '../components/theme';
 import { Card, SectionTitle } from '../components/ui';
@@ -17,7 +17,7 @@ const KEY_INFO: Record<KeyName, { title: string; what: string; url: string; pref
   anthropic: {
     title: 'Claude key (companion)',
     what: 'Powers the chat, and double-checks how each entry is sorted. Usually a few cents a day.',
-    url: 'https://console.anthropic.com/settings/keys',
+    url: 'https://platform.claude.com/settings/keys',
     prefix: 'sk-ant-',
   },
 };
@@ -38,6 +38,7 @@ function KeyCard({ name }: { name: KeyName }) {
     }
     await keys.setKey(name, value);
     setDraft('');
+    Keyboard.dismiss();
   };
 
   return (
@@ -72,6 +73,8 @@ function KeyCard({ name }: { name: KeyName }) {
             autoCapitalize="none"
             autoCorrect={false}
             secureTextEntry
+            returnKeyType="done"
+            onSubmitEditing={save}
             style={[styles.input, { color: p.text, borderColor: p.border }]}
           />
           <View style={styles.savedRow}>
@@ -90,10 +93,30 @@ function KeyCard({ name }: { name: KeyName }) {
 
 export default function SettingsScreen() {
   const p = usePalette();
-  const { facts, forgetFact } = useJournal();
+  const { facts, forgetFact, prefs, setPref } = useJournal();
 
   return (
-    <ScrollView style={{ backgroundColor: p.background }} contentContainerStyle={{ paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={{ backgroundColor: p.background }}
+      contentContainerStyle={{ paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
+      automaticallyAdjustKeyboardInsets
+    >
+      <SectionTitle>Notifications</SectionTitle>
+      <Card style={styles.linkRow}>
+        <Ionicons name="notifications-outline" size={20} color={p.accent} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: p.text, fontSize: 16 }}>Tell me when something is saved</Text>
+          <Text style={[styles.what, { color: p.secondary }]}>A quick notification listing what went to your lists and when you'll be reminded.</Text>
+        </View>
+        <Switch value={prefs.savedNotifications} onValueChange={(v) => setPref('savedNotifications', v)} trackColor={{ true: p.accent }} />
+      </Card>
+      <Text style={[styles.note, { color: p.secondary }]}>
+        Reminders for tasks always come at their time, plus a morning plan at 8:30 and an evening check at 8:30 pm.
+        If none arrive, turn on notifications for Expo Go in iPhone Settings.
+      </Text>
+
       <SectionTitle>Keys</SectionTitle>
       <KeyCard name="openai" />
       <KeyCard name="anthropic" />
