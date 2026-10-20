@@ -67,7 +67,7 @@ export function ItemRow({
         >
           {item.title}
         </Text>
-        {item.kind === 'task' && item.dueDate ? (
+        {(item.kind === 'task' || item.kind === 'shopping') && item.dueDate ? (
           <View style={styles.dueRow}>
             <Ionicons name="notifications-outline" size={12} color={overdue ? p.danger : p.secondary} />
             <Text style={[styles.due, { color: overdue ? p.danger : p.secondary }]}>{formatDue(item.dueDate)}</Text>

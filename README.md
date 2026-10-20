@@ -1,8 +1,8 @@
 # Voice Journal
 
 A personal journal for your iPhone that you mostly talk to. Speak (or type) about your day and
-the app pulls out **tasks** to check off, **skills** you're building and **long-term goals**, then
-reminds you about them. The categorising happens on the phone, and it learns from your corrections.
+the app pulls out **tasks** to check off, things **to buy**, **skills** you're building and
+**long-term goals**, then reminds you about them. The categorising happens on the phone, and it learns from your corrections.
 
 Built with [Expo](https://expo.dev) SDK 57 (React Native + TypeScript), so it runs in **Expo Go** on your
 iPhone with no Mac needed. This is the proof of concept.
@@ -42,8 +42,9 @@ package, stop it with Ctrl+C, run `npm install`, and start it again.)
 - **Speak or write**: tap **Speak**, then the microphone on the iPhone keyboard, and talk.
   iOS turns it into text on the phone. Run-on dictation ("…and I need to… and someday I want
   to…") is split into separate items.
-- **Categorising**: each sentence becomes a Task, Skill, Goal or plain reflection, with a short
-  title ("Um, I really need to call mom tomorrow." → "Call mom tomorrow").
+- **Categorising**: each sentence becomes a Task, Shopping item, Skill, Goal or plain reflection,
+  with a short title ("Um, I really need to call mom tomorrow." → "Call mom tomorrow").
+  Shopping lists are split into items ("we need eggs bread and atta" → Eggs, Bread, Atta).
 - **Tracker tab**: tasks to check off (soonest first), skills with how often you mention them,
   goals you're working towards or have reached.
 - **Reminders**: tasks that mention a time ("tomorrow", "at 5 pm", "by Friday", "this weekend")
@@ -60,20 +61,27 @@ It lives in `mobile/src/brain` and is plain TypeScript, so it runs and is tested
 
 | Piece | What it does |
 | --- | --- |
-| `splitter.ts` | Splits text on punctuation and on spoken joins like "and I…", "but my…", "and someday…" |
-| `naiveBayes.ts` | Small text model trained on word and word-pair counts. Retrains instantly, saves as JSON |
+| `splitter.ts` | Splits text on punctuation and on spoken joins like "and I…", "…, carry the documents", "at 3 then groceries" |
+| `softmax.ts` | Small logistic-regression text model over words, word pairs and how the sentence opens |
+| `shopping.ts` | Turns "we're out of milk and eggs" into separate items |
 | `rules.ts` | Hand-written cue phrases ("need to", "get better at", "someday"…) for phrasing the data never covered |
 | `analyzer.ts` | Blends the two (65% model, 35% cues) and produces titled items |
 | `titles.ts` | Turns a sentence into a short title |
-| `dueDate.ts` | Finds reminder times in tasks |
+| `dueDate.ts` | Finds reminder times: "tomorrow evening", "in 2 hours", "on the 1st", "after work", "day after tomorrow"… |
 
-The starting model is trained on 682 example sentences made by `tools/generate_seed_data.py`, and
-tested on 80 hand-written sentences it never trains on. It gets **95%** of those right.
+The starting model is trained on 4,500 everyday sentences made by `tools/generate_seed_data.py`
+(`npm run train` saves its weights into the app). It is scored two ways, never on its training data:
+
+- 86 hand-written single sentences: **98%** right.
+- 70 hand-written whole journal entries (`npm run bench`), checking every item it should find, the
+  ones it shouldn't, and reminder times. Set B was written after tuning and gets **88%** (F1), with
+  every reminder time right.
 
 ```bash
 cd mobile
 npm test                                                     # classifier tests
 npm run classify -- --eval                                   # accuracy report
+npm run bench                                                # whole-entry benchmark
 npm run classify -- "I need to call mom tomorrow and someday I want to run a marathon"
 ```
 

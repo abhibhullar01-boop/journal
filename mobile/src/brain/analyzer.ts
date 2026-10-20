@@ -1,20 +1,30 @@
 import seedEvaluation from './data/seed_evaluation.json';
 import seedTraining from './data/seed_training.json';
+import seedWeights from './data/model_weights.json';
 import { dueDateIn } from './dueDate';
-import { NaiveBayesModel, NaiveBayesState } from './naiveBayes';
+import { ModelWeights, SoftmaxModel } from './softmax';
 import { ruleDistribution } from './rules';
+import { mentionsOnlyIntangibles, shoppingItems } from './shopping';
+import { contentWords } from './tokenizer';
 import { splitSentences } from './splitter';
 import { titleFor } from './titles';
 import { ALL_KINDS, Classification, emptyScores, ExtractedInsight, InsightKind, LabeledSentence } from './types';
+
+const BACK_REFERENCES = new Set(['it', "it's", 'its', 'that', "that's", 'this', 'which', 'they', "they're"]);
+
+/** True for sentences that start by pointing back at something already said. */
+function refersBack(sentence: string): boolean {
+  return BACK_REFERENCES.has(contentWords(sentence)[0] ?? '');
+}
 
 export const SEED_TRAINING = seedTraining as LabeledSentence[];
 /** Hand-written sentences the model never trains on. Used to measure accuracy. */
 export const SEED_EVALUATION = seedEvaluation as LabeledSentence[];
 
+/** What gets saved on the phone: just the user's corrections. The model is rebuilt from them. */
 export interface AnalyzerState {
-  model: NaiveBayesState;
-  ruleWeight: number;
-  personalExamples: number;
+  version: 2;
+  corrections: LabeledSentence[];
 }
 
 /**
@@ -29,16 +39,26 @@ export class JournalAnalyzer {
   static correctionWeight = 3;
 
   constructor(
-    public model: NaiveBayesModel,
+    public model: SoftmaxModel,
     /** How much the cue phrases count against the learned model (0 to 1). */
     public ruleWeight = 0.35,
-    /** Number of corrections the user has taught it. */
-    public personalExamples = 0,
   ) {}
 
-  /** A fresh model trained on the bundled seed data. */
+  /** Sentences the user has taught it (fixes and confirmations), oldest first. */
+  corrections: LabeledSentence[] = [];
+
+  get personalExamples(): number {
+    return this.corrections.length;
+  }
+
+  /** The starting model, trained on the seed data ahead of time (`npm run train`). */
   static baseline(): JournalAnalyzer {
-    const model = new NaiveBayesModel();
+    return new JournalAnalyzer(SoftmaxModel.fromWeights(seedWeights as ModelWeights));
+  }
+
+  /** Trains the starting model from the seed data. Used by `npm run train`. */
+  static trainFromSeed(): JournalAnalyzer {
+    const model = new SoftmaxModel();
     model.train(SEED_TRAINING);
     return new JournalAnalyzer(model);
   }
@@ -59,15 +79,30 @@ export class JournalAnalyzer {
   analyze(entry: string, now: Date = new Date()): ExtractedInsight[] {
     const result: ExtractedInsight[] = [];
     for (const sentence of splitSentences(entry)) {
-      const { kind, confidence } = this.classify(sentence);
+      const classification = this.classify(sentence);
+      let { kind } = classification;
+      const { confidence, scores } = classification;
+      let items: string[] = [];
+      if (kind === 'shopping') {
+        items = shoppingItems(sentence);
+        if (!items.length) {
+          if (mentionsOnlyIntangibles(sentence)) continue; // "need more sleep": nothing to buy
+          // Nothing to buy after all ("order it around 7"): use the next best reading.
+          kind = (['task', 'skill', 'goal', 'none'] as InsightKind[]).reduce((a, b) => (scores[b] > scores[a] ? b : a));
+        }
+      }
       if (kind === 'none') continue;
-      result.push({
-        kind,
-        title: titleFor(sentence),
-        sentence,
-        confidence,
-        dueDate: kind === 'task' ? dueDateIn(sentence, now) : null,
-      });
+      // "It's slow but I'm getting better" refers back to the last thing said; it's not a new item.
+      if ((kind === 'skill' || kind === 'goal') && refersBack(sentence)) continue;
+      const dueDate = kind === 'task' || kind === 'shopping' ? dueDateIn(sentence, now) : null;
+      if (kind === 'shopping') {
+        // One item per thing to buy, so each can be ticked off on its own.
+        for (const title of items) {
+          result.push({ kind, title, sentence, confidence, dueDate: items.length > 1 ? null : dueDate });
+        }
+        continue;
+      }
+      result.push({ kind, title: titleFor(sentence), sentence, confidence, dueDate });
     }
     return result;
   }
@@ -75,14 +110,17 @@ export class JournalAnalyzer {
   /** Teach it the right answer for a sentence (a fix, or a confirmation). */
   learn(sentence: string, kind: InsightKind): void {
     this.model.learn(sentence, kind, JournalAnalyzer.correctionWeight);
-    this.personalExamples += 1;
+    this.corrections.push({ text: sentence, label: kind });
   }
 
   toJSON(): AnalyzerState {
-    return { model: this.model.toJSON(), ruleWeight: this.ruleWeight, personalExamples: this.personalExamples };
+    return { version: 2, corrections: this.corrections };
   }
 
-  static fromJSON(state: AnalyzerState): JournalAnalyzer {
-    return new JournalAnalyzer(NaiveBayesModel.fromJSON(state.model), state.ruleWeight, state.personalExamples);
+  /** Rebuilds the model from saved corrections. Older saved formats start fresh from the baseline. */
+  static fromJSON(state: Partial<AnalyzerState> | null | undefined, base?: JournalAnalyzer): JournalAnalyzer {
+    const analyzer = base ?? JournalAnalyzer.baseline();
+    if (state?.version === 2) for (const c of state.corrections ?? []) analyzer.learn(c.text, c.label);
+    return analyzer;
   }
 }

@@ -27,6 +27,8 @@ jobs:
         run: npm test
       - name: Accuracy on held-out sentences
         run: npm run classify -- --eval
+      - name: Whole-entry benchmark
+        run: npm run bench
       - name: Try a sample entry
         run: npm run classify -- "Long day. I need to email Sarah tomorrow at 10 and I want to get better at public speaking and someday I want to run a marathon."
       - name: Bundle for iOS (what Expo Go loads)

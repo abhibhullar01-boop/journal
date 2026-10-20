@@ -1,0 +1,113 @@
+{
+ "note": "Second set of hand-written voice-journal entries, written after the model was tuned on eval_entries.json and never used to tune anything. Its score is the honest one. 'now' is Tuesday 20 Oct 2026, 09:00 local.",
+ "now": "2026-10-20T09:00:00",
+ "entries": [
+  {"text": "Okay so quick one. Need to renew my driving licence, it expires next month. And we're out of toothpaste and dish soap.",
+   "items": [
+    {"kind": "task", "must": ["driving", "licence"], "due": null},
+    {"kind": "shopping", "must": ["toothpaste"], "due": null},
+    {"kind": "shopping", "must": ["dish soap"], "due": null}]},
+  {"text": "today was honestly exhausting, back to back calls from 9 to 6. I barely ate. remind me to email Kunal the final numbers tomorrow morning",
+   "items": [
+    {"kind": "task", "must": ["kunal"], "due": "2026-10-21T08:00"}]},
+  {"text": "I really want to get better at writing, like actually write a blog every week. Someday I'd love to write a book about my village.",
+   "items": [
+    {"kind": "skill", "must": ["writing"], "due": null},
+    {"kind": "goal", "must": ["book"], "due": null}]},
+  {"text": "Went for a run in the morning, 4k without stopping. Felt amazing. My goal is to run a 10k before the new year.",
+   "items": [
+    {"kind": "goal", "must": ["10k"], "due": null}]},
+  {"text": "um need to pay the society maintenance by the 10th and call the AC guy, it's making noise again",
+   "items": [
+    {"kind": "task", "must": ["maintenance"], "due": "2026-11-10T09:00"},
+    {"kind": "task", "must": ["ac"], "due": null}]},
+  {"text": "Mom's birthday is on Sunday. I should book a table somewhere nice and get her a saree.",
+   "items": [
+    {"kind": "task", "must": ["table"], "due": null},
+    {"kind": "shopping", "must": ["saree"], "due": null}]},
+  {"text": "Had a long talk with Jaspreet about life. She's quitting her job to travel. Kind of jealous honestly.",
+   "items": []},
+  {"text": "grab bananas curd and some bread on the way back from the office",
+   "items": [
+    {"kind": "shopping", "must": ["bananas"], "due": null},
+    {"kind": "shopping", "must": ["curd"], "due": null},
+    {"kind": "shopping", "must": ["bread"], "due": null}]},
+  {"text": "I've been doing Spanish on Duolingo for two weeks now. It's slow but I'm getting better. Eventually I want to live in Barcelona for a year.",
+   "items": [
+    {"kind": "skill", "must": ["spanish"], "due": null},
+    {"kind": "goal", "must": ["barcelona"], "due": null}]},
+  {"text": "Doctor said my vitamin D is low. Need to buy the supplements and book a follow up in three weeks.",
+   "items": [
+    {"kind": "shopping", "must": ["supplements"], "due": null},
+    {"kind": "task", "must": ["follow"], "due": null}]},
+  {"text": "Presentation to the leadership team on Thursday at 11. I need to finish the deck tonight and practice it once tomorrow.",
+   "items": [
+    {"kind": "task", "must": ["presentation"], "due": "2026-10-22T11:00"},
+    {"kind": "task", "must": ["deck"], "due": "2026-10-20T19:00"},
+    {"kind": "task", "must": ["practice"], "due": "2026-10-21T09:00"}]},
+  {"text": "Nothing much today. Watched cricket, ordered biryani. India won.",
+   "items": []},
+  {"text": "I want to be a calmer parent. I lose my temper too fast with Ishaan.",
+   "items": [
+    {"kind": "goal", "must": ["calmer"], "due": null}]},
+  {"text": "Note to self call the insurance guy about the claim at 4 and also send the photos of the car",
+   "items": [
+    {"kind": "task", "must": ["insurance"], "due": "2026-10-20T16:00"},
+    {"kind": "task", "must": ["photos"], "due": null}]},
+  {"text": "I'm learning to cook dal makhani from YouTube. Today's attempt was decent. Need more garam masala though.",
+   "items": [
+    {"kind": "skill", "must": ["cook"], "due": null},
+    {"kind": "shopping", "must": ["garam masala"], "due": null}]},
+  {"text": "Long term I want to move back to Punjab and start a small organic farm. Big dream but I think it's possible.",
+   "items": [
+    {"kind": "goal", "must": ["farm"], "due": null}]},
+  {"text": "Can you remind me to take my medicine at 10 tonight",
+   "items": [
+    {"kind": "task", "must": ["medicine"], "due": "2026-10-20T22:00"}]},
+  {"text": "Felt anxious all afternoon for no reason. Maybe it's the coffee. I should cut down on coffee.",
+   "items": [
+    {"kind": "goal", "must": ["coffee"], "due": null}]},
+  {"text": "This weekend clean the balcony, fix the curtain rod and put up the Diwali lights",
+   "items": [
+    {"kind": "task", "must": ["balcony"], "due": "2026-10-24T10:00"},
+    {"kind": "task", "must": ["curtain"], "due": null},
+    {"kind": "task", "must": ["lights"], "due": null}]},
+  {"text": "My manager mentioned I should get better at delegating. Fair point. I try to do everything myself.",
+   "items": [
+    {"kind": "skill", "must": ["delegating"], "due": null}]},
+  {"text": "Need new running shoes, mine are falling apart. Also a yoga mat.",
+   "items": [
+    {"kind": "shopping", "must": ["running shoes"], "due": null},
+    {"kind": "shopping", "must": ["yoga mat"], "due": null}]},
+  {"text": "Submitted the visa application finally. Now just waiting. Need to follow up with the agent next Friday.",
+   "items": [
+    {"kind": "task", "must": ["agent"], "due": "2026-10-23T09:00"}]},
+  {"text": "In five years I want to have paid off the home loan completely.",
+   "items": [
+    {"kind": "goal", "must": ["home loan"], "due": null}]},
+  {"text": "Practiced the tabla for half an hour. My rhythm is getting better.",
+   "items": [
+    {"kind": "skill", "must": ["tabla"], "due": null}]},
+  {"text": "so the plumber didn't show up again. I have to call him first thing tomorrow and if he doesn't pick up find someone else",
+   "items": [
+    {"kind": "task", "must": ["call"], "due": "2026-10-21T09:00"}]},
+  {"text": "Running low on rice and atta, and the gas cylinder needs booking.",
+   "items": [
+    {"kind": "shopping", "must": ["rice"], "due": null},
+    {"kind": "shopping", "must": ["atta"], "due": null},
+    {"kind": "task", "must": ["cylinder"], "due": null}]},
+  {"text": "Really proud of Anaya today, she read a whole book by herself.",
+   "items": []},
+  {"text": "Pick up the dry cleaning after work. And text Gurpreet happy anniversary tonight.",
+   "items": [
+    {"kind": "task", "must": ["dry cleaning"], "due": "2026-10-20T18:00"},
+    {"kind": "task", "must": ["gurpreet"], "due": "2026-10-20T19:00"}]},
+  {"text": "I want to understand investing properly, mutual funds, stocks, all of it. One day I want to retire at 50.",
+   "items": [
+    {"kind": "skill", "must": ["investing"], "due": null},
+    {"kind": "goal", "must": ["retire"], "due": null}]},
+  {"text": "Kids want pizza for dinner on Friday, order it around 7",
+   "items": [
+    {"kind": "task", "must": ["order"], "due": "2026-10-23T19:00"}]}
+ ]
+}

@@ -1,12 +1,13 @@
 /** The categories a journal sentence can fall into. */
-export type InsightKind = 'task' | 'skill' | 'goal' | 'none';
+export type InsightKind = 'task' | 'shopping' | 'skill' | 'goal' | 'none';
 
-export const ALL_KINDS: InsightKind[] = ['task', 'skill', 'goal', 'none'];
+export const ALL_KINDS: InsightKind[] = ['task', 'shopping', 'skill', 'goal', 'none'];
 /** The kinds that become tracked items in the app. */
-export const TRACKABLE_KINDS: InsightKind[] = ['task', 'skill', 'goal'];
+export const TRACKABLE_KINDS: InsightKind[] = ['task', 'shopping', 'skill', 'goal'];
 
 export const KIND_LABEL: Record<InsightKind, string> = {
   task: 'Task',
+  shopping: 'To buy',
   skill: 'Skill',
   goal: 'Goal',
   none: 'Reflection',
@@ -14,6 +15,7 @@ export const KIND_LABEL: Record<InsightKind, string> = {
 
 export const KIND_PLURAL: Record<InsightKind, string> = {
   task: 'Tasks',
+  shopping: 'Shopping',
   skill: 'Skills',
   goal: 'Goals',
   none: 'Reflections',
@@ -46,5 +48,5 @@ export interface ExtractedInsight {
 }
 
 export function emptyScores(): Scores {
-  return { task: 0, skill: 0, goal: 0, none: 0 };
+  return { task: 0, shopping: 0, skill: 0, goal: 0, none: 0 };
 }

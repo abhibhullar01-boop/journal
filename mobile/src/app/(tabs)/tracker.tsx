@@ -9,6 +9,7 @@ import type { TrackedItem } from '../../store/types';
 
 const HINTS: Record<string, string> = {
   task: 'Try saying “I need to call mom tomorrow.”',
+  shopping: 'Try saying “We’re out of milk and eggs.”',
   skill: 'Try saying “I want to get better at public speaking.”',
   goal: 'Try saying “Someday I want to run a marathon.”',
 };
@@ -55,6 +56,18 @@ export default function TrackerScreen() {
       <>
         <List title="To do" items={open} />
         <List title="Done" items={done} />
+      </>
+    );
+  } else if (kind === 'shopping') {
+    const open = ofKind.filter((i) => !i.done).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    const bought = ofKind
+      .filter((i) => i.done)
+      .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
+      .slice(0, 20);
+    content = (
+      <>
+        <List title="To buy" items={open} />
+        <List title="Bought" items={bought} />
       </>
     );
   } else if (kind === 'skill') {
@@ -109,5 +122,5 @@ export default function TrackerScreen() {
 const styles = StyleSheet.create({
   segments: { flexDirection: 'row', margin: 16, marginBottom: 0, borderRadius: 12, padding: 3 },
   segment: { flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center' },
-  segmentText: { fontSize: 15, fontWeight: '600' },
+  segmentText: { fontSize: 14, fontWeight: '600' },
 });

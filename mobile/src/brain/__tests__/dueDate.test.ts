@@ -41,3 +41,18 @@ test('"today" in the past becomes an hour from now', () => {
   const late = at(2025, 10, 15, 18);
   assert.equal(dueDateIn('Send the invoice later today', late)?.getTime(), late.getTime() + 3600_000);
 });
+
+test('more spoken time phrases', () => {
+  // now = Wednesday 15 Oct 2025, 10:30
+  assert.equal(due('Dentist day after tomorrow at 11'), at(2025, 10, 17, 11).getTime());
+  assert.equal(due('Call the plumber in 2 hours'), now.getTime() + 2 * 3600_000);
+  assert.equal(due('Ping Ravi in half an hour'), now.getTime() + 30 * 60_000);
+  assert.equal(due('Transfer rent on the 1st'), at(2025, 11, 1, 9).getTime());
+  assert.equal(due('Submit the GST return by the 25th'), at(2025, 10, 25, 9).getTime());
+  assert.equal(due('Renew the insurance before the end of the month'), at(2025, 10, 31, 9).getTime());
+  assert.equal(due('Call Ravi uncle after work'), at(2025, 10, 15, 18).getTime());
+  assert.equal(due('Pay the bill today'), at(2025, 10, 15, 17).getTime());
+  assert.equal(due('Call Airtel in the afternoon'), at(2025, 10, 15, 14).getTime());
+  assert.equal(due('Dinner with Priya tonight at 8'), at(2025, 10, 15, 20).getTime());
+  assert.equal(due('Yoga every Monday'), null);
+});

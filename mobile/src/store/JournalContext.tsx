@@ -5,7 +5,7 @@ import { cancelReminder, refreshDigests, scheduleReminder } from './reminders';
 import type { CaptureMode, JournalEntry, TrackedItem } from './types';
 
 const DATA_KEY = 'voice-journal/data/v1';
-const MODEL_KEY = 'voice-journal/model/v1';
+const MODEL_KEY = 'voice-journal/model/v2';
 
 interface Stored {
   entries: JournalEntry[];
@@ -159,7 +159,7 @@ export function JournalProvider({ children }: { children: ReactNode }) {
         saveModel();
         updateItem(itemId, (i) => {
           if (kind === 'none') return null;
-          const due = kind === 'task' ? dueDateIn(i.sentence, new Date(i.createdAt)) : null;
+          const due = kind === 'task' || kind === 'shopping' ? dueDateIn(i.sentence, new Date(i.createdAt)) : null;
           return { ...i, kind, confirmed: true, dueDate: due ? due.toISOString() : null };
         });
       },

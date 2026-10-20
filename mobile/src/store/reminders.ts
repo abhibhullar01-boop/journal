@@ -45,7 +45,7 @@ export async function ensurePermission(): Promise<boolean> {
 
 /** Schedules a reminder for a dated, open task. Returns the notification id. */
 export async function scheduleReminder(item: TrackedItem): Promise<string | null> {
-  if (item.kind !== 'task' || item.done || !item.dueDate) return null;
+  if ((item.kind !== 'task' && item.kind !== 'shopping') || item.done || !item.dueDate) return null;
   const date = new Date(item.dueDate);
   if (date.getTime() <= Date.now()) return null;
   if (!(await ensurePermission())) return null;
@@ -72,12 +72,21 @@ export async function refreshDigests(items: TrackedItem[]): Promise<void> {
   if (!(await Notifications.getPermissionsAsync()).granted) return;
 
   const open = items.filter((i) => i.kind === 'task' && !i.done);
-  if (open.length) {
+  const toBuy = items.filter((i) => i.kind === 'shopping' && !i.done);
+  if (open.length || toBuy.length) {
+    const parts = [
+      open.length ? (open.length === 1 ? '1 open task' : `${open.length} open tasks`) : '',
+      toBuy.length ? `${toBuy.length} to buy` : '',
+    ].filter(Boolean);
+    const body = [
+      open.slice(0, 3).map((i) => i.title).join(' · '),
+      toBuy.length ? `Buy: ${toBuy.slice(0, 5).map((i) => i.title.toLowerCase()).join(', ')}` : '',
+    ].filter(Boolean).join('\n');
     await Notifications.scheduleNotificationAsync({
       identifier: DIGEST_ID,
       content: {
-        title: open.length === 1 ? '1 open task' : `${open.length} open tasks`,
-        body: open.slice(0, 3).map((i) => i.title).join(' · '),
+        title: parts.join(', '),
+        body,
         sound: true,
       },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: 8, minute: 30 },

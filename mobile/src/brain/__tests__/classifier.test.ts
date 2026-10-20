@@ -1,13 +1,15 @@
 /// <reference types="node" />
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { BenchEntry, runBench } from '../bench/bench';
+import holdout from '../bench/eval_entries_b.json';
 import { evaluate, JournalAnalyzer, SEED_EVALUATION, SEED_TRAINING, summary } from '../index';
 
 const analyzer = JournalAnalyzer.baseline();
 
 test('seed data loads and never overlaps the test set', () => {
-  assert.ok(SEED_TRAINING.length > 500);
-  assert.equal(SEED_EVALUATION.length, 80);
+  assert.ok(SEED_TRAINING.length > 4000);
+  assert.equal(SEED_EVALUATION.length, 86);
   const train = new Set(SEED_TRAINING.map((s) => s.text));
   assert.ok(SEED_EVALUATION.every((s) => !train.has(s.text)));
 });
@@ -15,7 +17,7 @@ test('seed data loads and never overlaps the test set', () => {
 test('baseline stays accurate on sentences it never saw', () => {
   const report = evaluate(analyzer, SEED_EVALUATION);
   console.log(summary(report));
-  assert.ok(report.accuracy >= 0.85, `accuracy ${report.accuracy}`);
+  assert.ok(report.accuracy >= 0.9, `accuracy ${report.accuracy}`);
   for (const [kind, s] of Object.entries(report.perKind)) {
     assert.ok(s.correct / s.total >= 0.75, kind);
   }
@@ -26,6 +28,24 @@ test('classifies typical sentences', () => {
   assert.equal(analyzer.classify('I want to get better at public speaking').kind, 'skill');
   assert.equal(analyzer.classify('Someday I want to run a marathon').kind, 'goal');
   assert.equal(analyzer.classify('I felt really calm after my walk').kind, 'none');
+  assert.equal(analyzer.classify("We're out of milk").kind, 'shopping');
+  assert.equal(analyzer.classify('Called mom, she sounds better').kind, 'none');
+  assert.equal(analyzer.classify('Carry the documents').kind, 'task');
+});
+
+test('shopping lists become one item per thing', () => {
+  const insights = analyzer.analyze('pick up the kids at 3 then groceries, we need eggs bread and atta');
+  assert.deepEqual(insights.map((i) => [i.kind, i.title]), [
+    ['task', 'Pick up the kids at 3'], ['shopping', 'Eggs'], ['shopping', 'Bread'], ['shopping', 'Atta'],
+  ]);
+  assert.deepEqual(analyzer.analyze('Maybe I need more sleep.'), []);
+});
+
+test('scores well on whole journal entries it never trained on', () => {
+  const now = new Date(holdout.now);
+  const result = runBench(analyzer, holdout.entries as BenchEntry[], now);
+  assert.ok(result.f1 >= 0.8, `F1 ${result.f1}`);
+  assert.equal(result.dueCorrect, result.dueTotal);
 });
 
 test('analyzes run-on dictation', () => {
@@ -61,4 +81,12 @@ test('model round-trips through JSON', () => {
   const restored = JournalAnalyzer.fromJSON(JSON.parse(JSON.stringify(personal)));
   assert.deepEqual(restored.classify('Climbing session at the wall'), personal.classify('Climbing session at the wall'));
   assert.equal(restored.personalExamples, 1);
+});
+
+test('bundled model weights are up to date with the seed data (run `npm run train` if this fails)', () => {
+  const fresh = JournalAnalyzer.trainFromSeed().model.exportWeights();
+  const bundled = analyzer.model.exportWeights();
+  assert.equal(Object.keys(bundled.weights).length, Object.keys(fresh.weights).length);
+  const retrained = JournalAnalyzer.trainFromSeed();
+  for (const s of SEED_EVALUATION) assert.equal(analyzer.classify(s.text).kind, retrained.classify(s.text).kind, s.text);
 });

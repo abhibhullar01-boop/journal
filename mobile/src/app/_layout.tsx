@@ -1,8 +1,8 @@
 import * as Notifications from 'expo-notifications';
-import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
+import { DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
-import { useColorScheme } from 'react-native';
+import { PALETTE } from '../components/theme';
 import { JournalProvider, useJournal } from '../store/JournalContext';
 import { MARK_DONE, setUpNotifications, SNOOZE } from '../store/reminders';
 
@@ -47,13 +47,24 @@ function NotificationBridge() {
   return null;
 }
 
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: PALETTE.accent,
+    background: PALETTE.background,
+    card: PALETTE.card,
+    text: PALETTE.text,
+    border: PALETTE.border,
+  },
+};
+
 export default function RootLayout() {
-  const scheme = useColorScheme();
   return (
-    <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={theme}>
       <JournalProvider>
         <NotificationBridge />
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="capture" options={{ presentation: 'modal', title: 'New entry' }} />

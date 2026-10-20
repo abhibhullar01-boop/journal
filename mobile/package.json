@@ -32,7 +32,9 @@
     "typecheck": "tsc --noEmit",
     "classify": "tsx src/brain/cli.ts",
     "lint": "expo lint",
-    "live": "node scripts/live.mjs"
+    "live": "node scripts/live.mjs",
+    "bench": "tsx src/brain/bench/run.ts",
+    "train": "tsx src/brain/train.ts"
   },
   "private": true
 }

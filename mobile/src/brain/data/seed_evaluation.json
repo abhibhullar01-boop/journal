@@ -20,10 +20,6 @@
   "label": "task"
  },
  {
-  "text": "Buy batteries and dish soap on the way home.",
-  "label": "task"
- },
- {
   "text": "I must finish the budget spreadsheet before the meeting.",
   "label": "task"
  },
@@ -40,7 +36,7 @@
   "label": "task"
  },
  {
-  "text": "Remember to cancel the Netflix subscription.",
+  "text": "Remember to cancel the Hotstar subscription.",
   "label": "task"
  },
  {
@@ -48,19 +44,19 @@
   "label": "task"
  },
  {
-  "text": "Schedule a call with the accountant next week.",
+  "text": "Schedule a call with the CA next week.",
   "label": "task"
  },
  {
-  "text": "I need to clean out the fridge this weekend.",
+  "text": "I need to clean out the store room this weekend.",
   "label": "task"
  },
  {
-  "text": "Make sure I print the boarding passes tonight.",
+  "text": "Make sure I print the tickets tonight.",
   "label": "task"
  },
  {
-  "text": "Have to renew the parking permit on Monday.",
+  "text": "Have to renew the society parking sticker on Monday.",
   "label": "task"
  },
  {
@@ -68,16 +64,60 @@
   "label": "task"
  },
  {
-  "text": "Order new running shoes before Saturday.",
-  "label": "task"
- },
- {
-  "text": "I should return the jacket to the store.",
+  "text": "I should return the kurta to the store.",
   "label": "task"
  },
  {
   "text": "Need to prepare the slides for Thursday's demo.",
   "label": "task"
+ },
+ {
+  "text": "Ring the gas agency about the cylinder.",
+  "label": "task"
+ },
+ {
+  "text": "Parent teacher meeting at 11 on Saturday.",
+  "label": "task"
+ },
+ {
+  "text": "Buy batteries and dish soap on the way home.",
+  "label": "shopping"
+ },
+ {
+  "text": "We're out of coffee powder.",
+  "label": "shopping"
+ },
+ {
+  "text": "Need to get bread and eggs.",
+  "label": "shopping"
+ },
+ {
+  "text": "Order new running shoes before Saturday.",
+  "label": "shopping"
+ },
+ {
+  "text": "Pick up some tomatoes and onions.",
+  "label": "shopping"
+ },
+ {
+  "text": "Add conditioner to the shopping list.",
+  "label": "shopping"
+ },
+ {
+  "text": "Running low on atta and rice.",
+  "label": "shopping"
+ },
+ {
+  "text": "I need to buy a gift for Meera.",
+  "label": "shopping"
+ },
+ {
+  "text": "Get milk tomorrow morning.",
+  "label": "shopping"
+ },
+ {
+  "text": "Buy a new phone charger, mine broke.",
+  "label": "shopping"
  },
  {
   "text": "I want to get much better at speaking in front of people.",
@@ -88,7 +128,7 @@
   "label": "skill"
  },
  {
-  "text": "I'd like to learn how to code in Rust.",
+  "text": "I'd like to learn how to code in Go.",
   "label": "skill"
  },
  {
@@ -104,11 +144,7 @@
   "label": "skill"
  },
  {
-  "text": "I want to master making sourdough bread.",
-  "label": "skill"
- },
- {
-  "text": "I'm studying for better SQL skills.",
+  "text": "I want to master making biryani.",
   "label": "skill"
  },
  {
@@ -136,11 +172,7 @@
   "label": "skill"
  },
  {
-  "text": "I'd love to learn how to dance salsa properly.",
-  "label": "skill"
- },
- {
-  "text": "I keep practicing my handwriting.",
+  "text": "I'd love to learn how to dance bhangra properly.",
   "label": "skill"
  },
  {
@@ -172,11 +204,11 @@
   "label": "goal"
  },
  {
-  "text": "One day I want to publish a novel.",
+  "text": "One day I want to publish a poetry collection.",
   "label": "goal"
  },
  {
-  "text": "My dream is to become a pilot.",
+  "text": "My dream is to become an airline captain.",
   "label": "goal"
  },
  {
@@ -184,7 +216,7 @@
   "label": "goal"
  },
  {
-  "text": "I aspire to become a CTO.",
+  "text": "I aspire to become a VP of engineering.",
   "label": "goal"
  },
  {
@@ -192,11 +224,7 @@
   "label": "goal"
  },
  {
-  "text": "By next year I want to have a six month emergency fund.",
-  "label": "goal"
- },
- {
-  "text": "I'd love to one day build a school in my village.",
+  "text": "I'd love to one day build a library in my village.",
   "label": "goal"
  },
  {
@@ -204,7 +232,7 @@
   "label": "goal"
  },
  {
-  "text": "My big dream is to climb Kilimanjaro.",
+  "text": "My big dream is to see the northern lights.",
   "label": "goal"
  },
  {
@@ -212,23 +240,15 @@
   "label": "goal"
  },
  {
-  "text": "This year my goal is to get promoted.",
-  "label": "goal"
- },
- {
   "text": "Before I turn fifty I want to visit fifty countries.",
   "label": "goal"
  },
  {
-  "text": "I want to eventually retire in Portugal.",
+  "text": "I want to eventually retire in Himachal.",
   "label": "goal"
  },
  {
-  "text": "My long-term plan is to start a nonprofit.",
-  "label": "goal"
- },
- {
-  "text": "I hope to someday run a successful restaurant.",
+  "text": "I want to spend more evenings with my parents.",
   "label": "goal"
  },
  {
@@ -237,6 +257,10 @@
  },
  {
   "text": "In a few years I'd love to launch a startup.",
+  "label": "goal"
+ },
+ {
+  "text": "I want to get my body fat under 15 percent.",
   "label": "goal"
  },
  {
@@ -312,11 +336,11 @@
   "label": "none"
  },
  {
-  "text": "I'm proud of my progress this month.",
+  "text": "Already paid the water bill this morning.",
   "label": "none"
  },
  {
-  "text": "Honestly today was just okay.",
+  "text": "My cousin wants to start a bakery.",
   "label": "none"
  }
 ]
