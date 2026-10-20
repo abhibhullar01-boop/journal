@@ -7,72 +7,27 @@ on:
   workflow_dispatch:
 
 jobs:
-  classifier:
-    name: Classifier tests (Linux)
+  app:
+    name: Expo app checks
     runs-on: ubuntu-latest
-    container: swift:6.0
+    defaults:
+      run:
+        working-directory: mobile
     steps:
       - uses: actions/checkout@v4
-      - name: Run tests
-        run: swift test --package-path JournalKit
-      - name: Accuracy on held-out sentences
-        run: swift run --package-path JournalKit journal-classify --eval
-      - name: Try a sample entry
-        run: swift run --package-path JournalKit journal-classify "Long day. I need to email Sarah tomorrow at 10 and I want to get better at public speaking and someday I want to run a marathon."
-
-  ios:
-    name: iOS app build
-    runs-on: macos-15
-    concurrency:
-      group: ios-${{ github.ref }}
-      cancel-in-progress: true
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install XcodeGen
-        run: brew install xcodegen
-      - name: Generate Xcode project
-        run: cd App && xcodegen
-      - name: Build for the iOS Simulator
-        run: |
-          cd App
-          xcodebuild -project VoiceJournal.xcodeproj -scheme VoiceJournal \
-            -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO \
-            build
-
-      # The simulator build doubles as a browser preview, so the app can be
-      # tried from any computer (no Mac needed). See "Try it in your browser" in the README.
-      - name: Package the simulator app
-        run: |
-          cd App/build/Build/Products/Debug-iphonesimulator
-          ditto -c -k --sequesterRsrc --keepParent VoiceJournal.app "$GITHUB_WORKSPACE/VoiceJournal-simulator.zip"
-      - name: Save the simulator app
-        uses: actions/upload-artifact@v4
+      - uses: actions/setup-node@v4
         with:
-          name: VoiceJournal-simulator
-          path: VoiceJournal-simulator.zip
-          retention-days: 14
-      - name: Update the browser preview (Appetize)
-        env:
-          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
-          APPETIZE_PUBLIC_KEY: ${{ vars.APPETIZE_PUBLIC_KEY }}
-        run: |
-          if [ -z "$APPETIZE_API_TOKEN" ]; then
-            echo "No APPETIZE_API_TOKEN secret yet, skipping the browser preview."
-            exit 0
-          fi
-          KEY="${APPETIZE_PUBLIC_KEY:-$(cat .github/appetize-public-key 2>/dev/null || true)}"
-          URL="https://api.appetize.io/v1/apps${KEY:+/$KEY}"
-          RESPONSE=$(curl -sS --fail-with-body -X POST "$URL" \
-            -H "X-API-KEY: $APPETIZE_API_TOKEN" \
-            -F "file=@VoiceJournal-simulator.zip" \
-            -F "platform=ios" \
-            -F "note=Voice Journal ${GITHUB_HEAD_REF:-$GITHUB_REF_NAME} @ ${GITHUB_SHA::7}")
-          KEY=$(echo "$RESPONSE" | jq -r '.publicKey')
-          echo "Appetize public key: $KEY"
-          {
-            echo "### Try Voice Journal in your browser"
-            echo ""
-            echo "https://appetize.io/app/$KEY?device=iphone17pro"
-          } >> "$GITHUB_STEP_SUMMARY"
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Classifier tests
+        run: npm test
+      - name: Accuracy on held-out sentences
+        run: npm run classify -- --eval
+      - name: Try a sample entry
+        run: npm run classify -- "Long day. I need to email Sarah tomorrow at 10 and I want to get better at public speaking and someday I want to run a marathon."
+      - name: Bundle for iOS (what Expo Go loads)
+        run: npx expo export --platform ios --output-dir /tmp/expo-export

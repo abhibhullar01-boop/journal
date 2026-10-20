@@ -1,124 +1,109 @@
 # Voice Journal
 
-A personal iPhone journal you mostly talk to. Speak (or type) about your day and the app
-pulls out **tasks** to check off, **skills** you're building and **long-term goals**, then
-reminds you about them. Everything runs on the phone: speech recognition, categorising and
-learning from your corrections.
+A personal journal for your iPhone that you mostly talk to. Speak (or type) about your day and
+the app pulls out **tasks** to check off, **skills** you're building and **long-term goals**, then
+reminds you about them. The categorising happens on the phone, and it learns from your corrections.
 
-This is the proof of concept.
+Built with [Expo](https://expo.dev) (React Native + TypeScript), so it runs in **Expo Go** on your
+iPhone with no Mac needed. This is the proof of concept.
 
-## What it does today
-
-- **Capture in one tap**: big Speak / Write buttons, a home screen and lock screen widget,
-  a Control Center control (which you can also put on the iPhone 17 Pro's Action Button),
-  and Siri ("Start a journal entry in Voice Journal").
-- **On-device transcription** with Apple's Speech framework, with punctuation.
-- **Categorising**: each sentence becomes a Task, Skill, Goal or plain reflection.
-  Run-on dictation ("…and I need to… and my goal is…") is split into separate sentences.
-- **Tracker tab**: tasks to check off (soonest due first), skills with how often you
-  mention them, goals you're working towards or have reached.
-- **Reminders**: tasks that mention a time ("tomorrow", "at 5 pm", "by Friday",
-  "this weekend") get a notification with *Mark done* and *Remind me in an hour* buttons.
-  There's also a morning digest of open tasks and a Sunday check-in on a skill or goal.
-- **Learns from you**: tap an item's category to fix it. The fix trains the model on your
-  phone, and your fixes count three times as much as the built-in examples.
-- **Brain tab**: try any sentence and see the scores, accuracy on test sentences, and a
-  reset button for personalisation.
-
-## How the "brain" works
-
-`JournalKit` is a plain Swift package (no iPhone needed, it runs on Linux too):
-
-| Piece | What it does |
-| --- | --- |
-| `SentenceSplitter` | Splits text on punctuation and on spoken joins like "and I…", "but my…" |
-| `NaiveBayesModel` | Small text model trained on word and word-pair counts. Retrains instantly, saves as JSON |
-| `RuleClassifier` | Hand-written cue phrases ("need to", "get better at", "someday"…) for phrasing the data never covered |
-| `JournalAnalyzer` | Blends the two (65% model, 35% cues) and produces titled items |
-| `TitleCleaner` | "Um, I really need to call mom tomorrow." → "Call mom tomorrow" |
-| `DueDateParser` | Finds reminder times in tasks |
-
-The baseline is trained on 682 seed sentences from `tools/generate_seed_data.py`, and tested on
-80 hand-written sentences it never sees. A prototype of the same algorithm scored 95% on them;
-CI prints the real number on every run.
-
-Try it in a terminal (needs Swift):
-
-```bash
-swift run --package-path JournalKit journal-classify "I need to call mom tomorrow and someday I want to run a marathon"
-swift run --package-path JournalKit journal-classify --eval
-swift test --package-path JournalKit
-```
-
-## Try it in your browser (Windows, any computer)
-
-Apple's iOS Simulator only runs on Macs, so every CI build is also packaged as a simulator
-app and streamed to the browser through [Appetize](https://appetize.io), on an iPhone 17 Pro.
+## Run it on your iPhone (from a Windows laptop)
 
 One-time setup:
 
-1. Sign up at [appetize.io](https://appetize.io) (the free plan is enough to start) and create
-   an API token under *Account → API token*.
-2. On GitHub, open this repo's *Settings → Secrets and variables → Actions → New repository
-   secret*, name it `APPETIZE_API_TOKEN` and paste the token.
+1. On the laptop, install [Node.js LTS](https://nodejs.org) and [Git for Windows](https://git-scm.com/download/win).
+2. On the iPhone, install **Expo Go** from the App Store.
+3. In PowerShell:
 
-After that, every push builds the app and updates the same browser link. The link is on the
-CI run's summary page and in `.github/appetize-public-key`.
+   ```powershell
+   git clone https://github.com/abhibhullar01-boop/journal.git
+   cd journal
+   git checkout claude/project-thread-h5e2ci   # until the PR is merged into main
+   cd mobile
+   npm install
+   ```
 
-Limits: the browser simulator has no microphone, so use *Write* there. Widgets, Control
-Center and notifications are best tried on a real iPhone.
+Every time:
 
-Without Appetize you can still download `VoiceJournal-simulator` from any CI run's
-*Artifacts* and drag it onto [appetize.io/upload](https://appetize.io/upload).
-
-## Run it on the iPhone 17 Pro simulator (Mac)
-
-You need a Mac with Xcode 26 or later (which includes the iPhone 17 Pro simulator) and Homebrew.
-
-```bash
-git clone https://github.com/abhibhullar01-boop/journal.git
-cd journal
-git checkout claude/project-thread-h5e2ci   # until the PR is merged
-scripts/run-simulator.sh                    # builds, opens the Simulator, launches the app
+```powershell
+cd journal\mobile
+npm run live
 ```
 
-To **watch development live**, run this instead and leave it open. It checks GitHub every
-30 seconds and relaunches the app whenever new commits land on the branch:
+A QR code appears. Scan it with the iPhone **Camera** app and it opens in Expo Go. Keep the
+laptop and phone on the same Wi-Fi. If the QR code doesn't connect, use `npm run live -- --tunnel`.
+
+`npm run live` also pulls new changes from GitHub every 30 seconds, and Expo Go reloads the app
+on your phone by itself, so you can watch development happen live. (If a change adds a new
+package, stop it with Ctrl+C, run `npm install`, and start it again.)
+
+## What it does today
+
+- **Speak or write**: tap **Speak**, then the microphone on the iPhone keyboard, and talk.
+  iOS turns it into text on the phone. Run-on dictation ("…and I need to… and someday I want
+  to…") is split into separate items.
+- **Categorising**: each sentence becomes a Task, Skill, Goal or plain reflection, with a short
+  title ("Um, I really need to call mom tomorrow." → "Call mom tomorrow").
+- **Tracker tab**: tasks to check off (soonest first), skills with how often you mention them,
+  goals you're working towards or have reached.
+- **Reminders**: tasks that mention a time ("tomorrow", "at 5 pm", "by Friday", "this weekend")
+  get a notification. There's also a morning list of open tasks at 8:30 and a Sunday evening
+  check-in on one of your skills or goals.
+- **Learns from you**: tap an item's label to fix its category. The fix trains the model on
+  your phone, and your fixes count three times as much as the built-in examples.
+- **Brain tab**: try any sentence and see the scores, the accuracy on test sentences, and a reset
+  button for your personal training.
+
+## How the "brain" works
+
+It lives in `mobile/src/brain` and is plain TypeScript, so it runs and is tested on any computer.
+
+| Piece | What it does |
+| --- | --- |
+| `splitter.ts` | Splits text on punctuation and on spoken joins like "and I…", "but my…", "and someday…" |
+| `naiveBayes.ts` | Small text model trained on word and word-pair counts. Retrains instantly, saves as JSON |
+| `rules.ts` | Hand-written cue phrases ("need to", "get better at", "someday"…) for phrasing the data never covered |
+| `analyzer.ts` | Blends the two (65% model, 35% cues) and produces titled items |
+| `titles.ts` | Turns a sentence into a short title |
+| `dueDate.ts` | Finds reminder times in tasks |
+
+The starting model is trained on 682 example sentences made by `tools/generate_seed_data.py`, and
+tested on 80 hand-written sentences it never trains on. It gets **95%** of those right.
 
 ```bash
-scripts/live-simulator.sh claude/project-thread-h5e2ci
+cd mobile
+npm test                                                     # classifier tests
+npm run classify -- --eval                                   # accuracy report
+npm run classify -- "I need to call mom tomorrow and someday I want to run a marathon"
 ```
-
-To work in Xcode itself: `brew install xcodegen && cd App && xcodegen && open VoiceJournal.xcodeproj`,
-pick *iPhone 17 Pro* at the top and press Run. SwiftUI previews work in every screen.
-The simulator uses your Mac's microphone for speech.
-
-To put it on your own iPhone: in Xcode select the VoiceJournal target, *Signing & Capabilities*,
-choose your Apple ID team (do the same for the VoiceJournalWidgets target), plug in the phone
-and press Run.
 
 ## How we work in GitHub
 
 - `main` is the version you trust.
-- Each piece of work happens on its own **branch**, and arrives as a **pull request (PR)**: a
-  page showing exactly what changed, with a description.
-- Every PR runs **CI** automatically: the classifier tests on Linux and an iOS build on a Mac.
+- Each piece of work happens on its own **branch**, and arrives as a **pull request (PR)**: a page
+  showing exactly what changed (the *Files changed* tab), with a description.
+- Every PR runs **CI** automatically: typecheck, classifier tests, and an iOS bundle build.
   A green check means it builds and the tests pass.
-- You review the PR, leave comments if you want changes, and press **Merge** when you're
-  happy. Then it's in `main`.
+- You review the PR, leave comments if you want changes, and press **Merge** when you're happy.
+  Then it's in `main`.
+
+## Limits of Expo Go, and what comes later
+
+Expo Go can only use the features built into it. These need our own app build instead, which
+Expo's cloud service (EAS) can make without a Mac, plus an Apple Developer account ($99/year)
+to install it on your phone:
+
+- Recording with our own mic button and transcription (instead of the keyboard microphone).
+- Home screen widget, Control Center button and Action Button shortcut.
+- Siri phrases.
 
 ## Project layout
 
 ```
-App/            iPhone app (SwiftUI, SwiftData) and widgets; project.yml generates the Xcode project
-JournalKit/     the classifier package, its seed data and tests
-tools/          seed data generator
-scripts/        simulator helpers
+mobile/               the Expo app
+  src/app/            screens (Expo Router: every file is a screen)
+  src/brain/          the classifier, its seed data and tests
+  src/store/          saved journal data and reminders
+  src/components/     shared UI pieces
+tools/                seed data generator
 ```
-
-## Next ideas
-
-- Personal vocabulary: learn names of people and places you mention.
-- Group skill and goal mentions over time (e.g. "practiced guitar" counts towards the guitar skill).
-- Optional Apple Intelligence (Foundation Models) pass for richer extraction on supported iPhones.
-- iCloud sync and export.

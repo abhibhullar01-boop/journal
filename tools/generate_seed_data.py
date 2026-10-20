@@ -12,7 +12,7 @@ import json
 import random
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parent.parent / "JournalKit/Sources/JournalKit/Resources"
+OUT = Path(__file__).resolve().parent.parent / "mobile/src/brain/data"
 rng = random.Random(42)
 
 # --- tasks: concrete, short-horizon actions -------------------------------
