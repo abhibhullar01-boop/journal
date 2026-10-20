@@ -43,6 +43,13 @@ final class ClassifierTests: XCTestCase {
         XCTAssertNil(insights.last?.dueDate)
     }
 
+    func testShortFragmentsAndSomedayClauses() {
+        let entry = "Long day. I need to email Sarah tomorrow at 10 and I want to get better at public speaking and someday I want to run a marathon."
+        let insights = analyzer.analyze(entry)
+        XCTAssertEqual(insights.map(\.kind), [.task, .skill, .goal])
+        XCTAssertEqual(insights.map(\.title), ["Email Sarah tomorrow at 10", "Public speaking", "Run a marathon"])
+    }
+
     func testCorrectionsPersonalizeTheModel() {
         let sentence = "Gym session with coach Mike"
         var personal = analyzer!

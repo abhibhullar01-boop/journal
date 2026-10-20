@@ -2088,11 +2088,51 @@
   "label": "goal"
  },
  {
+  "text": "Bad sleep.",
+  "label": "none"
+ },
+ {
+  "text": "Big meeting today.",
+  "label": "none"
+ },
+ {
+  "text": "Busy day.",
+  "label": "none"
+ },
+ {
   "text": "Coffee with Sam was fun.",
   "label": "none"
  },
  {
+  "text": "Crazy day at work.",
+  "label": "none"
+ },
+ {
   "text": "Dinner was great.",
+  "label": "none"
+ },
+ {
+  "text": "Easy day.",
+  "label": "none"
+ },
+ {
+  "text": "Fun night.",
+  "label": "none"
+ },
+ {
+  "text": "Good chat with Dad.",
+  "label": "none"
+ },
+ {
+  "text": "Good workout.",
+  "label": "none"
+ },
+ {
+  "text": "Great dinner.",
+  "label": "none"
+ },
+ {
+  "text": "Hectic morning.",
   "label": "none"
  },
  {
@@ -2316,6 +2356,26 @@
   "label": "none"
  },
  {
+  "text": "Lazy evening.",
+  "label": "none"
+ },
+ {
+  "text": "Long day.",
+  "label": "none"
+ },
+ {
+  "text": "Long drive home.",
+  "label": "none"
+ },
+ {
+  "text": "Long week.",
+  "label": "none"
+ },
+ {
+  "text": "Lovely walk.",
+  "label": "none"
+ },
+ {
   "text": "Lunch was a sandwich at my desk.",
   "label": "none"
  },
@@ -2336,7 +2396,23 @@
   "label": "none"
  },
  {
+  "text": "Nice weather.",
+  "label": "none"
+ },
+ {
   "text": "Nothing much happened today.",
+  "label": "none"
+ },
+ {
+  "text": "Quiet morning.",
+  "label": "none"
+ },
+ {
+  "text": "Rough morning.",
+  "label": "none"
+ },
+ {
+  "text": "Slow afternoon.",
   "label": "none"
  },
  {
@@ -2589,6 +2665,10 @@
  },
  {
   "text": "Tonight was rough.",
+  "label": "none"
+ },
+ {
+  "text": "Tough week.",
   "label": "none"
  },
  {

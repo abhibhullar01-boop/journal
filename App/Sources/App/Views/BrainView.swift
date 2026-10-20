@@ -54,7 +54,7 @@ struct BrainView: View {
                 } header: {
                     Text("Personalisation")
                 } footer: {
-                    Text("The model started from about 660 example sentences. Every time you fix or confirm a category, it learns from your own words, and your fixes count three times as much as the examples. Everything stays on your iPhone.")
+                    Text("The model started from about 680 example sentences. Every time you fix or confirm a category, it learns from your own words, and your fixes count three times as much as the examples. Everything stays on your iPhone.")
                 }
 
                 if let problem = store.problem {

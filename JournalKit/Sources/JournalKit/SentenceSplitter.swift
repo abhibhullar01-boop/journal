@@ -4,7 +4,11 @@ import Foundation
 /// "I went to the gym and I need to call mom and my goal is to run a marathon".
 public enum SentenceSplitter {
     static let connectors: Set<String> = ["and", "but", "so", "also", "then", "plus", "oh"]
-    static let subjects: Set<String> = ["i", "i'm", "im", "i've", "ive", "i'll", "ill", "i'd", "my", "remember", "don't", "need"]
+    /// Words that start a new thought after a connector: "...and I...", "...and someday...".
+    static let subjects: Set<String> = [
+        "i", "i'm", "im", "i've", "ive", "i'll", "ill", "i'd", "my", "remember", "don't", "need",
+        "someday", "eventually", "tomorrow", "tonight", "later",
+    ]
 
     public static func split(_ text: String) -> [String] {
         punctuationChunks(text)

@@ -153,6 +153,13 @@ NONE_SENTENCES = [
     "My energy was low after lunch.", "I really enjoyed the concert.",
     "The dog was super playful today.", "Honestly I just feel grateful.",
 ]
+# Short spoken fragments ("Long day.") are common in dictation and carry no action.
+NONE_FRAGMENTS = [
+    "Long day.", "Busy day.", "Rough morning.", "Great dinner.", "Good workout.",
+    "Lazy evening.", "Tough week.", "Nice weather.", "Big meeting today.", "Slow afternoon.",
+    "Long week.", "Fun night.", "Quiet morning.", "Crazy day at work.", "Good chat with Dad.",
+    "Bad sleep.", "Lovely walk.", "Long drive home.", "Hectic morning.", "Easy day.",
+]
 NONE_TEMPLATES = ["{t} I felt {e}.", "{t} was {e2}.", "I'm feeling {e} {t2}."]
 TIMES_NONE = ["Today", "This morning", "Tonight", "Yesterday", "This week", "The afternoon"]
 EMOTIONS = ["happy", "tired", "stressed", "relaxed", "grateful", "anxious", "content", "restless", "hopeful", "drained"]
@@ -267,8 +274,8 @@ def main():
     tasks = gen(TASK_PREFIXES, TASK_ACTIONS, [""] + [" " + t for t in TASK_TIMES if t], 160)
     skills = gen(SKILL_PREFIXES, SKILLS, SKILL_SUFFIXES, 160)
     goals = gen(GOAL_PREFIXES, GOALS, [""], 160)
-    none = set(NONE_SENTENCES)
-    while len(none) < 140:
+    none = set(NONE_SENTENCES) | set(NONE_FRAGMENTS)
+    while len(none) < 160:
         tpl = rng.choice(NONE_TEMPLATES)
         none.add(tpl.format(t=rng.choice(TIMES_NONE), e=rng.choice(EMOTIONS),
                             e2=rng.choice(EMOTIONS2), t2=rng.choice(["today", "tonight", "right now", "lately"])))

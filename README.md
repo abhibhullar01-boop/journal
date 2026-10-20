@@ -38,7 +38,7 @@ This is the proof of concept.
 | `TitleCleaner` | "Um, I really need to call mom tomorrow." → "Call mom tomorrow" |
 | `DueDateParser` | Finds reminder times in tasks |
 
-The baseline is trained on 662 seed sentences from `tools/generate_seed_data.py`, and tested on
+The baseline is trained on 682 seed sentences from `tools/generate_seed_data.py`, and tested on
 80 hand-written sentences it never sees. A prototype of the same algorithm scored 95% on them;
 CI prints the real number on every run.
 
