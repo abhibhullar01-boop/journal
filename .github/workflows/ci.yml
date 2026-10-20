@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  classifier:
+    name: Classifier tests (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: swift test --package-path JournalKit
+      - name: Accuracy on held-out sentences
+        run: swift run --package-path JournalKit journal-classify --eval
+      - name: Try a sample entry
+        run: swift run --package-path JournalKit journal-classify "Long day. I need to email Sarah tomorrow at 10 and I want to get better at public speaking and someday I want to run a marathon."
+
+  ios:
+    name: iOS app build
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: cd App && xcodegen
+      - name: Build for the iOS Simulator
+        run: |
+          cd App
+          xcodebuild -project VoiceJournal.xcodeproj -scheme VoiceJournal \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build

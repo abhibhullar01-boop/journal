@@ -1,0 +1,322 @@
+[
+ {
+  "text": "I have to call the plumber first thing tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Don't let me forget to send Mike the photos.",
+  "label": "task"
+ },
+ {
+  "text": "Remind me to pay the credit card bill on Friday.",
+  "label": "task"
+ },
+ {
+  "text": "Need to pick up Lily from school at three.",
+  "label": "task"
+ },
+ {
+  "text": "I should email the professor about the extension tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Buy batteries and dish soap on the way home.",
+  "label": "task"
+ },
+ {
+  "text": "I must finish the budget spreadsheet before the meeting.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I need to drop the car at the mechanic.",
+  "label": "task"
+ },
+ {
+  "text": "Gotta reply to the landlord about the lease.",
+  "label": "task"
+ },
+ {
+  "text": "I need to book a table for mom's birthday dinner.",
+  "label": "task"
+ },
+ {
+  "text": "Remember to cancel the Netflix subscription.",
+  "label": "task"
+ },
+ {
+  "text": "I have to submit my timesheet by end of day.",
+  "label": "task"
+ },
+ {
+  "text": "Schedule a call with the accountant next week.",
+  "label": "task"
+ },
+ {
+  "text": "I need to clean out the fridge this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Make sure I print the boarding passes tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Have to renew the parking permit on Monday.",
+  "label": "task"
+ },
+ {
+  "text": "I need to text Jordan back.",
+  "label": "task"
+ },
+ {
+  "text": "Order new running shoes before Saturday.",
+  "label": "task"
+ },
+ {
+  "text": "I should return the jacket to the store.",
+  "label": "task"
+ },
+ {
+  "text": "Need to prepare the slides for Thursday's demo.",
+  "label": "task"
+ },
+ {
+  "text": "I want to get much better at speaking in front of people.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing guitar chords every evening.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn how to code in Rust.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm trying to improve my German pronunciation.",
+  "label": "skill"
+ },
+ {
+  "text": "I really need to work on my listening skills.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning watercolor painting.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master making sourdough bread.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying for better SQL skills.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice my interview answers more.",
+  "label": "skill"
+ },
+ {
+  "text": "Took an online course on UX research.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to get good at managing my time.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm learning to play the violin.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to improve my chess openings.",
+  "label": "skill"
+ },
+ {
+  "text": "Watched a tutorial on color grading videos.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd love to learn how to dance salsa properly.",
+  "label": "skill"
+ },
+ {
+  "text": "I keep practicing my handwriting.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to build my skills in public relations.",
+  "label": "skill"
+ },
+ {
+  "text": "Working on my patience with the kids.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to learn to swim properly this summer.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm getting better at estimating project timelines.",
+  "label": "skill"
+ },
+ {
+  "text": "My goal is to own a home before I'm thirty five.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to sail around the world.",
+  "label": "goal"
+ },
+ {
+  "text": "In ten years I'd like to run my own consulting firm.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I want to publish a novel.",
+  "label": "goal"
+ },
+ {
+  "text": "My dream is to become a pilot.",
+  "label": "goal"
+ },
+ {
+  "text": "Eventually I hope to move to New Zealand.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to become a CTO.",
+  "label": "goal"
+ },
+ {
+  "text": "Long term I want to be completely debt free.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to have a six month emergency fund.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day build a school in my village.",
+  "label": "goal"
+ },
+ {
+  "text": "Within five years I want to be a principal engineer.",
+  "label": "goal"
+ },
+ {
+  "text": "My big dream is to climb Kilimanjaro.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next decade I want to build real wealth.",
+  "label": "goal"
+ },
+ {
+  "text": "This year my goal is to get promoted.",
+  "label": "goal"
+ },
+ {
+  "text": "Before I turn fifty I want to visit fifty countries.",
+  "label": "goal"
+ },
+ {
+  "text": "I want to eventually retire in Portugal.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to start a nonprofit.",
+  "label": "goal"
+ },
+ {
+  "text": "I hope to someday run a successful restaurant.",
+  "label": "goal"
+ },
+ {
+  "text": "My goal for the future is to have a healthy, happy family.",
+  "label": "goal"
+ },
+ {
+  "text": "In a few years I'd love to launch a startup.",
+  "label": "goal"
+ },
+ {
+  "text": "Today felt really long and heavy.",
+  "label": "none"
+ },
+ {
+  "text": "I had a nice chat with my neighbour.",
+  "label": "none"
+ },
+ {
+  "text": "The pizza we ordered was cold.",
+  "label": "none"
+ },
+ {
+  "text": "I'm grateful the kids are healthy.",
+  "label": "none"
+ },
+ {
+  "text": "Work was chaotic but we got through it.",
+  "label": "none"
+ },
+ {
+  "text": "I couldn't sleep last night.",
+  "label": "none"
+ },
+ {
+  "text": "We went to the beach and it was lovely.",
+  "label": "none"
+ },
+ {
+  "text": "I felt a bit sad this evening.",
+  "label": "none"
+ },
+ {
+  "text": "My brother visited us today.",
+  "label": "none"
+ },
+ {
+  "text": "The presentation went well.",
+  "label": "none"
+ },
+ {
+  "text": "It snowed for the first time this year.",
+  "label": "none"
+ },
+ {
+  "text": "I'm in a good mood.",
+  "label": "none"
+ },
+ {
+  "text": "Spent the day at home relaxing.",
+  "label": "none"
+ },
+ {
+  "text": "The new cafe downtown is cozy.",
+  "label": "none"
+ },
+ {
+  "text": "I was annoyed at the meeting running late.",
+  "label": "none"
+ },
+ {
+  "text": "Had a great workout this morning.",
+  "label": "none"
+ },
+ {
+  "text": "Dad told funny stories at dinner.",
+  "label": "none"
+ },
+ {
+  "text": "The train was packed.",
+  "label": "none"
+ },
+ {
+  "text": "I'm proud of my progress this month.",
+  "label": "none"
+ },
+ {
+  "text": "Honestly today was just okay.",
+  "label": "none"
+ }
+]

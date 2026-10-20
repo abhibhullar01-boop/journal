@@ -1,0 +1,2650 @@
+[
+ {
+  "text": "Don't forget to book a dentist appointment first thing in the morning.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to book a dentist appointment.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to buy milk.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to call mom tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to file the taxes tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to pay the electricity bill tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to return the library books tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to schedule the team meeting this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to send the invoice to the client at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to text Raj about the weekend tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to update my resume tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Don't forget to water the plants next week.",
+  "label": "task"
+ },
+ {
+  "text": "Got to back up my laptop first thing in the morning.",
+  "label": "task"
+ },
+ {
+  "text": "Got to call mom tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Got to cancel the gym trial at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "Got to clean the kitchen this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Got to drop off the parcel later today.",
+  "label": "task"
+ },
+ {
+  "text": "Got to get the car serviced tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Got to order a birthday gift for dad this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Got to prepare notes for the interview first thing in the morning.",
+  "label": "task"
+ },
+ {
+  "text": "Got to refill my prescription before Monday.",
+  "label": "task"
+ },
+ {
+  "text": "Got to refill my prescription tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Got to renew my passport.",
+  "label": "task"
+ },
+ {
+  "text": "Got to return the library books on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Got to submit the expense report.",
+  "label": "task"
+ },
+ {
+  "text": "Got to take out the trash this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Got to water the plants by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "I gotta email the landlord this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "I gotta finish the slide deck this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "I gotta fix the leaking tap before Monday.",
+  "label": "task"
+ },
+ {
+  "text": "I gotta fix the leaking tap by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "I gotta pay the electricity bill today.",
+  "label": "task"
+ },
+ {
+  "text": "I gotta return the library books later today.",
+  "label": "task"
+ },
+ {
+  "text": "I gotta send the invoice to the client at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "I gotta text Raj about the weekend later today.",
+  "label": "task"
+ },
+ {
+  "text": "I have to book a dentist appointment next week.",
+  "label": "task"
+ },
+ {
+  "text": "I have to buy groceries this afternoon.",
+  "label": "task"
+ },
+ {
+  "text": "I have to drop off the parcel by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "I have to drop off the parcel this afternoon.",
+  "label": "task"
+ },
+ {
+  "text": "I have to finish the slide deck later today.",
+  "label": "task"
+ },
+ {
+  "text": "I have to finish the slide deck tonight.",
+  "label": "task"
+ },
+ {
+  "text": "I have to follow up with the recruiter before Monday.",
+  "label": "task"
+ },
+ {
+  "text": "I have to pack for the trip on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "I have to pay the electricity bill later today.",
+  "label": "task"
+ },
+ {
+  "text": "I have to prepare notes for the interview on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "I have to send the invoice to the client by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "I have to submit the expense report at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "I have to text Raj about the weekend next week.",
+  "label": "task"
+ },
+ {
+  "text": "I have to update my resume next week.",
+  "label": "task"
+ },
+ {
+  "text": "I have to water the plants by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "I have to water the plants later today.",
+  "label": "task"
+ },
+ {
+  "text": "I must buy groceries.",
+  "label": "task"
+ },
+ {
+  "text": "I must get the car serviced by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "I must get the car serviced on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "I must order a birthday gift for dad on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "I must prepare notes for the interview tonight.",
+  "label": "task"
+ },
+ {
+  "text": "I must refill my prescription first thing in the morning.",
+  "label": "task"
+ },
+ {
+  "text": "I must refill my prescription today.",
+  "label": "task"
+ },
+ {
+  "text": "I must schedule the team meeting tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "I must submit the expense report this afternoon.",
+  "label": "task"
+ },
+ {
+  "text": "I must text Raj about the weekend first thing in the morning.",
+  "label": "task"
+ },
+ {
+  "text": "I need to call mom this afternoon.",
+  "label": "task"
+ },
+ {
+  "text": "I need to pick up the dry cleaning at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "I need to prepare notes for the interview later today.",
+  "label": "task"
+ },
+ {
+  "text": "I need to renew my passport tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "I need to reply to Sarah's message at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "I should book flights for December next week.",
+  "label": "task"
+ },
+ {
+  "text": "I should buy groceries at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "I should buy milk next week.",
+  "label": "task"
+ },
+ {
+  "text": "I should buy milk today.",
+  "label": "task"
+ },
+ {
+  "text": "I should call mom next week.",
+  "label": "task"
+ },
+ {
+  "text": "I should clean the kitchen at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "I should drop off the parcel today.",
+  "label": "task"
+ },
+ {
+  "text": "I should finish the slide deck at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "I should pay the electricity bill tonight.",
+  "label": "task"
+ },
+ {
+  "text": "I should schedule the team meeting today.",
+  "label": "task"
+ },
+ {
+  "text": "I should send the invoice to the client this afternoon.",
+  "label": "task"
+ },
+ {
+  "text": "I should send the invoice to the client tonight.",
+  "label": "task"
+ },
+ {
+  "text": "I should water the plants.",
+  "label": "task"
+ },
+ {
+  "text": "I still need to cancel the gym trial tonight.",
+  "label": "task"
+ },
+ {
+  "text": "I still need to fix the leaking tap tonight.",
+  "label": "task"
+ },
+ {
+  "text": "I still need to order a birthday gift for dad at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "I still need to pick up the dry cleaning tonight.",
+  "label": "task"
+ },
+ {
+  "text": "I still need to refill my prescription tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "I still need to renew my passport next week.",
+  "label": "task"
+ },
+ {
+  "text": "I still need to water the plants today.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to book a dentist appointment.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to buy groceries this afternoon.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to buy milk by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to clean the kitchen this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to email the landlord later today.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to finish the slide deck next week.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to pack for the trip tonight.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to pick up the dry cleaning tonight.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to pick up the dry cleaning.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to refill my prescription.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to submit the expense report tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "I've got to update my resume today.",
+  "label": "task"
+ },
+ {
+  "text": "Make sure I book flights for December this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Make sure I buy groceries later today.",
+  "label": "task"
+ },
+ {
+  "text": "Make sure I drop off the parcel later today.",
+  "label": "task"
+ },
+ {
+  "text": "Make sure I file the taxes by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "Make sure I prepare notes for the interview later today.",
+  "label": "task"
+ },
+ {
+  "text": "Make sure I take out the trash this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Need to back up my laptop later today.",
+  "label": "task"
+ },
+ {
+  "text": "Need to call mom at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "Need to cancel the gym trial on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Need to drop off the parcel this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Need to follow up with the recruiter by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "Need to order a birthday gift for dad.",
+  "label": "task"
+ },
+ {
+  "text": "Need to renew my passport before Monday.",
+  "label": "task"
+ },
+ {
+  "text": "Need to send the invoice to the client before Monday.",
+  "label": "task"
+ },
+ {
+  "text": "Need to submit the expense report tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, back up my laptop next week.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, buy groceries first thing in the morning.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, buy groceries on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, call mom on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, clean the kitchen on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, drop off the parcel tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, pack for the trip later today.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, pick up the dry cleaning next week.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, prepare notes for the interview today.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, submit the expense report before Monday.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, submit the expense report tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Note to self, water the plants before Monday.",
+  "label": "task"
+ },
+ {
+  "text": "Remember to buy groceries by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "Remember to cancel the gym trial first thing in the morning.",
+  "label": "task"
+ },
+ {
+  "text": "Remember to clean the kitchen on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Remember to finish the slide deck on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Remember to follow up with the recruiter.",
+  "label": "task"
+ },
+ {
+  "text": "Remember to order a birthday gift for dad this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Remember to refill my prescription tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Remember to submit the expense report before Monday.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to book a dentist appointment later today.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to book a dentist appointment tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to book flights for December today.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to cancel the gym trial on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to clean the kitchen.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to file the taxes tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to fix the leaking tap this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to get the car serviced on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to order a birthday gift for dad this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to return the library books next week.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to review the contract tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to schedule the team meeting at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to submit the expense report next week.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to take out the trash tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to text Raj about the weekend on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Reminder to water the plants today.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to book flights for December by Friday.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to call mom later today.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to call mom next week.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to clean the kitchen at 5 pm.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to pick up the dry cleaning tomorrow.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to reply to Sarah's message before Monday.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to reply to Sarah's message this weekend.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to send the invoice to the client next week.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to send the invoice to the client today.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to submit the expense report.",
+  "label": "task"
+ },
+ {
+  "text": "Tomorrow I have to take out the trash on Tuesday.",
+  "label": "task"
+ },
+ {
+  "text": "Call the bank tomorrow morning about the card.",
+  "label": "task"
+ },
+ {
+  "text": "Pick up the kids at 3.",
+  "label": "task"
+ },
+ {
+  "text": "Buy a charger before the trip.",
+  "label": "task"
+ },
+ {
+  "text": "Meeting with Alex at 10 tomorrow, need to prepare the agenda.",
+  "label": "task"
+ },
+ {
+  "text": "Groceries: eggs, bread and coffee.",
+  "label": "task"
+ },
+ {
+  "text": "Pay rent by the first.",
+  "label": "task"
+ },
+ {
+  "text": "Have to send the report to my manager tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Reply to the HOA email.",
+  "label": "task"
+ },
+ {
+  "text": "Get a haircut this week.",
+  "label": "task"
+ },
+ {
+  "text": "Book the restaurant for Saturday.",
+  "label": "task"
+ },
+ {
+  "text": "To do: renew car insurance.",
+  "label": "task"
+ },
+ {
+  "text": "Gotta finish the laundry tonight.",
+  "label": "task"
+ },
+ {
+  "text": "Ask Priya for the presentation file.",
+  "label": "task"
+ },
+ {
+  "text": "Make a doctor's appointment for next week.",
+  "label": "task"
+ },
+ {
+  "text": "Return the Amazon package by Thursday.",
+  "label": "task"
+ },
+ {
+  "text": "I need to work on my data analysis.",
+  "label": "skill"
+ },
+ {
+  "text": "I need to work on my guitar on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I need to work on my machine learning a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I need to work on my negotiation daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I need to work on my swimming daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at Excel on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at Python every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at active listening every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at chess daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at meditation after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at piano.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at public speaking every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at statistics.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at storytelling after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I really want to get good at writing.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice Japanese every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice Japanese on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice active listening on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice coding interviews.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice design every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice design.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice leadership a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice machine learning.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice meditation a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice sales calls a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I should practice storytelling.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning Excel.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning Japanese daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning Japanese on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning Python every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning Spanish every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning cooking.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning design a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning drawing daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning negotiation daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning negotiation.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning photography a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I started learning piano.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to build my skills in Japanese daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to build my skills in Spanish every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to build my skills in chess.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to build my skills in cooking a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to build my skills in cooking every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to build my skills in guitar.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to build my skills in machine learning.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to get better at Japanese.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to get better at Python on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to get better at active listening every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to get better at cooking.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to get better at data analysis daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to get better at public speaking a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to improve at Python.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to improve at chess.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to improve at coding interviews every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to improve at data analysis a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to improve at statistics after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to improve at writing a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to learn coding interviews on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to learn giving feedback a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to learn swimming every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to learn time management daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master Spanish.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master design.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master drawing on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master machine learning.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master meditation a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master photography a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master public speaking on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master storytelling every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to master video editing.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my Excel.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my Python on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my Spanish.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my SwiftUI a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my active listening after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my active listening every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my coding interviews after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my guitar daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my machine learning a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my photography.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to sharpen my sketching daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on active listening.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on chess a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on chess every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on chess on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on chess.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on data analysis daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on data analysis on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on leadership every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on leadership.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on piano on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on piano.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on sales calls every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on video editing.",
+  "label": "skill"
+ },
+ {
+  "text": "I watched a tutorial on writing every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn Excel.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn SwiftUI.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn design daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn photography.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn piano daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn piano every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn public speaking a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn statistics a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn storytelling a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to learn video editing a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying Excel after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying SwiftUI a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying SwiftUI after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying SwiftUI every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying coding interviews on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying guitar every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying machine learning.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying photography every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying piano daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying swimming after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm studying video editing.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on SwiftUI.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on active listening on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on drawing.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on guitar after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on leadership daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on meditation after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on photography every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on photography on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on sketching daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on sketching on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on storytelling a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on time management after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm taking a course on time management.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm trying to improve my Japanese a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm trying to improve my SwiftUI on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm trying to improve my data analysis daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm trying to improve my design every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm trying to improve my photography every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm trying to improve my sketching on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm trying to improve my video editing every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my Excel after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my chess after work.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my chess.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my giving feedback daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my guitar every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my guitar.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my leadership a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my machine learning daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my statistics on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my storytelling.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my time management a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm working on my time management every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been learning photography on weekends.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been learning piano every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been learning sketching a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing Spanish.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing SwiftUI.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing coding interviews daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing cooking every day.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing giving feedback a bit more.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing guitar.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing sketching daily.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing statistics.",
+  "label": "skill"
+ },
+ {
+  "text": "I've been practicing time management.",
+  "label": "skill"
+ },
+ {
+  "text": "Practiced scales on the piano for twenty minutes.",
+  "label": "skill"
+ },
+ {
+  "text": "I'm getting better at staying calm in meetings.",
+  "label": "skill"
+ },
+ {
+  "text": "Did a Duolingo lesson in Spanish.",
+  "label": "skill"
+ },
+ {
+  "text": "I learned how to use pivot tables today.",
+  "label": "skill"
+ },
+ {
+  "text": "I need more practice presenting to big groups.",
+  "label": "skill"
+ },
+ {
+  "text": "My Swift skills are improving.",
+  "label": "skill"
+ },
+ {
+  "text": "I want to understand how neural networks actually work.",
+  "label": "skill"
+ },
+ {
+  "text": "Worked through a chapter of the statistics book.",
+  "label": "skill"
+ },
+ {
+  "text": "My handstand is getting more stable with practice.",
+  "label": "skill"
+ },
+ {
+  "text": "I struggled with the negotiation, I need to get better at it.",
+  "label": "skill"
+ },
+ {
+  "text": "Took a pottery class and loved it.",
+  "label": "skill"
+ },
+ {
+  "text": "Practicing mindful breathing for focus.",
+  "label": "skill"
+ },
+ {
+  "text": "I'd like to be able to cook without recipes.",
+  "label": "skill"
+ },
+ {
+  "text": "Spent an hour on LeetCode problems.",
+  "label": "skill"
+ },
+ {
+  "text": "I keep improving my writing by journaling every day.",
+  "label": "skill"
+ },
+ {
+  "text": "Before I turn forty I want to become a better father.",
+  "label": "goal"
+ },
+ {
+  "text": "Before I turn forty I want to build a strong family.",
+  "label": "goal"
+ },
+ {
+  "text": "Before I turn forty I want to change careers into design.",
+  "label": "goal"
+ },
+ {
+  "text": "Before I turn forty I want to get a master's degree.",
+  "label": "goal"
+ },
+ {
+  "text": "Before I turn forty I want to get my pilot's license.",
+  "label": "goal"
+ },
+ {
+  "text": "Before I turn forty I want to launch my own app.",
+  "label": "goal"
+ },
+ {
+  "text": "Before I turn forty I want to move to a new city.",
+  "label": "goal"
+ },
+ {
+  "text": "Before I turn forty I want to own a rental property.",
+  "label": "goal"
+ },
+ {
+  "text": "Before I turn forty I want to write a book.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to be fluent in French.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to become a better father.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to become a manager.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to become a senior engineer.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to build a business that runs without me.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to get a master's degree.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to get my pilot's license.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to lose twenty pounds.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to open a cafe.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to pay off my student loans.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to travel to Japan.",
+  "label": "goal"
+ },
+ {
+  "text": "By next year I want to visit every continent.",
+  "label": "goal"
+ },
+ {
+  "text": "By the end of the decade I want to become a senior engineer.",
+  "label": "goal"
+ },
+ {
+  "text": "By the end of the decade I want to change careers into design.",
+  "label": "goal"
+ },
+ {
+  "text": "By the end of the decade I want to get a master's degree.",
+  "label": "goal"
+ },
+ {
+  "text": "By the end of the decade I want to get my pilot's license.",
+  "label": "goal"
+ },
+ {
+  "text": "By the end of the decade I want to open a cafe.",
+  "label": "goal"
+ },
+ {
+  "text": "By the end of the decade I want to pay off my student loans.",
+  "label": "goal"
+ },
+ {
+  "text": "By the end of the decade I want to run a marathon.",
+  "label": "goal"
+ },
+ {
+  "text": "By the end of the decade I want to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "By the end of the decade I want to start my own company.",
+  "label": "goal"
+ },
+ {
+  "text": "Eventually I want to be fluent in French.",
+  "label": "goal"
+ },
+ {
+  "text": "Eventually I want to hike to Everest base camp.",
+  "label": "goal"
+ },
+ {
+  "text": "Eventually I want to lose twenty pounds.",
+  "label": "goal"
+ },
+ {
+  "text": "Eventually I want to own a rental property.",
+  "label": "goal"
+ },
+ {
+  "text": "Eventually I want to run a marathon.",
+  "label": "goal"
+ },
+ {
+  "text": "Eventually I want to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "Eventually I want to start my own company.",
+  "label": "goal"
+ },
+ {
+  "text": "Eventually I want to visit every continent.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to become a better father.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to become a manager.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to become a senior engineer.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to build a business that runs without me.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to live by the beach.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to retire early.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to run a marathon.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "I aspire to visit every continent.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day be financially independent.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day become a senior engineer.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day get a master's degree.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day get my pilot's license.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day lose twenty pounds.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day open a cafe.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day pay off my student loans.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day travel to Japan.",
+  "label": "goal"
+ },
+ {
+  "text": "I'd love to one day visit every continent.",
+  "label": "goal"
+ },
+ {
+  "text": "In five years I want to be financially independent.",
+  "label": "goal"
+ },
+ {
+  "text": "In five years I want to become a better father.",
+  "label": "goal"
+ },
+ {
+  "text": "In five years I want to become a manager.",
+  "label": "goal"
+ },
+ {
+  "text": "In five years I want to hike to Everest base camp.",
+  "label": "goal"
+ },
+ {
+  "text": "In five years I want to lose twenty pounds.",
+  "label": "goal"
+ },
+ {
+  "text": "In five years I want to own a rental property.",
+  "label": "goal"
+ },
+ {
+  "text": "In five years I want to run a marathon.",
+  "label": "goal"
+ },
+ {
+  "text": "In five years I want to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "In five years I want to visit every continent.",
+  "label": "goal"
+ },
+ {
+  "text": "Long term, I want to be financially independent.",
+  "label": "goal"
+ },
+ {
+  "text": "Long term, I want to become a senior engineer.",
+  "label": "goal"
+ },
+ {
+  "text": "Long term, I want to build a strong family.",
+  "label": "goal"
+ },
+ {
+  "text": "Long term, I want to change careers into design.",
+  "label": "goal"
+ },
+ {
+  "text": "Long term, I want to lose twenty pounds.",
+  "label": "goal"
+ },
+ {
+  "text": "Long term, I want to move to a new city.",
+  "label": "goal"
+ },
+ {
+  "text": "Long term, I want to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to be financially independent.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to become a better father.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to build a strong family.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to change careers into design.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to live by the beach.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to lose twenty pounds.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to open a cafe.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to retire early.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to start my own company.",
+  "label": "goal"
+ },
+ {
+  "text": "My big goal is to visit every continent.",
+  "label": "goal"
+ },
+ {
+  "text": "My dream is to become a manager.",
+  "label": "goal"
+ },
+ {
+  "text": "My dream is to launch my own app.",
+  "label": "goal"
+ },
+ {
+  "text": "My dream is to move to a new city.",
+  "label": "goal"
+ },
+ {
+  "text": "My dream is to own a rental property.",
+  "label": "goal"
+ },
+ {
+  "text": "My dream is to retire early.",
+  "label": "goal"
+ },
+ {
+  "text": "My dream is to write a book.",
+  "label": "goal"
+ },
+ {
+  "text": "My goal is to become a manager.",
+  "label": "goal"
+ },
+ {
+  "text": "My goal is to buy a house.",
+  "label": "goal"
+ },
+ {
+  "text": "My goal is to launch my own app.",
+  "label": "goal"
+ },
+ {
+  "text": "My goal is to live by the beach.",
+  "label": "goal"
+ },
+ {
+  "text": "My goal is to move to a new city.",
+  "label": "goal"
+ },
+ {
+  "text": "My goal is to start my own company.",
+  "label": "goal"
+ },
+ {
+  "text": "My goal is to write a book.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to become a senior engineer.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to buy a house.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to change careers into design.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to get a master's degree.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to get my pilot's license.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to launch my own app.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to live by the beach.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to run a marathon.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "My long-term plan is to travel to Japan.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to be fluent in French.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to become a manager.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to build a strong family.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to buy a house.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to get a master's degree.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to hike to Everest base camp.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to live by the beach.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to lose twenty pounds.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to move to a new city.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to own a rental property.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to start my own company.",
+  "label": "goal"
+ },
+ {
+  "text": "One day I'd love to visit every continent.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to be fluent in French.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to become a better father.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to become a senior engineer.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to build a business that runs without me.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to buy a house.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to hike to Everest base camp.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to move to a new city.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to pay off my student loans.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to run a marathon.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to start my own company.",
+  "label": "goal"
+ },
+ {
+  "text": "Over the next few years I want to write a book.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to be financially independent.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to be fluent in French.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to become a manager.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to build a business that runs without me.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to build a strong family.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to buy a house.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to launch my own app.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to live by the beach.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to pay off my student loans.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to run a marathon.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "Someday I want to travel to Japan.",
+  "label": "goal"
+ },
+ {
+  "text": "This year my goal is to become a better father.",
+  "label": "goal"
+ },
+ {
+  "text": "This year my goal is to build a business that runs without me.",
+  "label": "goal"
+ },
+ {
+  "text": "This year my goal is to hike to Everest base camp.",
+  "label": "goal"
+ },
+ {
+  "text": "This year my goal is to live by the beach.",
+  "label": "goal"
+ },
+ {
+  "text": "This year my goal is to move to a new city.",
+  "label": "goal"
+ },
+ {
+  "text": "This year my goal is to visit every continent.",
+  "label": "goal"
+ },
+ {
+  "text": "This year my goal is to write a book.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to buy a house.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to hike to Everest base camp.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to launch my own app.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to live by the beach.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to pay off my student loans.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to retire early.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to run a marathon.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to save fifty thousand dollars.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to travel to Japan.",
+  "label": "goal"
+ },
+ {
+  "text": "Within three years I hope to visit every continent.",
+  "label": "goal"
+ },
+ {
+  "text": "I see myself leading a product team in a few years.",
+  "label": "goal"
+ },
+ {
+  "text": "The dream is a small farmhouse with a garden.",
+  "label": "goal"
+ },
+ {
+  "text": "Financial freedom by 45 is the plan.",
+  "label": "goal"
+ },
+ {
+  "text": "I want my life to be about building things that help people.",
+  "label": "goal"
+ },
+ {
+  "text": "Long term I'd like to split my time between India and Canada.",
+  "label": "goal"
+ },
+ {
+  "text": "One day this side project could become a real company.",
+  "label": "goal"
+ },
+ {
+  "text": "I hope to be debt free in three years.",
+  "label": "goal"
+ },
+ {
+  "text": "Big picture, I want to be healthy enough to play with my grandkids.",
+  "label": "goal"
+ },
+ {
+  "text": "I want to be the kind of person who finishes what they start.",
+  "label": "goal"
+ },
+ {
+  "text": "Ten years from now I'd like to be running my own studio.",
+  "label": "goal"
+ },
+ {
+  "text": "My vision is to retire on a boat.",
+  "label": "goal"
+ },
+ {
+  "text": "I'm determined to complete an Ironman someday.",
+  "label": "goal"
+ },
+ {
+  "text": "Coffee with Sam was fun.",
+  "label": "none"
+ },
+ {
+  "text": "Dinner was great.",
+  "label": "none"
+ },
+ {
+  "text": "Honestly I just feel grateful.",
+  "label": "none"
+ },
+ {
+  "text": "I caught up with an old friend.",
+  "label": "none"
+ },
+ {
+  "text": "I cooked pasta for dinner.",
+  "label": "none"
+ },
+ {
+  "text": "I feel calm tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I felt lonely in the evening.",
+  "label": "none"
+ },
+ {
+  "text": "I felt motivated after the workout.",
+  "label": "none"
+ },
+ {
+  "text": "I felt pretty anxious this morning.",
+  "label": "none"
+ },
+ {
+  "text": "I felt proud of how I handled the call.",
+  "label": "none"
+ },
+ {
+  "text": "I got some good news from my sister.",
+  "label": "none"
+ },
+ {
+  "text": "I had a lazy Sunday.",
+  "label": "none"
+ },
+ {
+  "text": "I had lunch with Priya and we laughed a lot.",
+  "label": "none"
+ },
+ {
+  "text": "I listened to a great podcast.",
+  "label": "none"
+ },
+ {
+  "text": "I really enjoyed the concert.",
+  "label": "none"
+ },
+ {
+  "text": "I slept badly last night.",
+  "label": "none"
+ },
+ {
+  "text": "I spent the evening reading.",
+  "label": "none"
+ },
+ {
+  "text": "I was frustrated with the delays.",
+  "label": "none"
+ },
+ {
+  "text": "I watched a movie with my partner.",
+  "label": "none"
+ },
+ {
+  "text": "I went for a walk in the park.",
+  "label": "none"
+ },
+ {
+  "text": "I'm a bit overwhelmed right now.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling anxious right now.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling anxious today.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling anxious tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling content right now.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling content today.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling content tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling drained lately.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling drained today.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling drained tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling grateful lately.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling grateful today.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling grateful tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling happy right now.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling happy today.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling happy tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling hopeful lately.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling hopeful right now.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling relaxed right now.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling relaxed tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling restless lately.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling restless right now.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling restless tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling stressed right now.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling stressed today.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling stressed tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling tired lately.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling tired today.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling tired tonight.",
+  "label": "none"
+ },
+ {
+  "text": "I'm feeling tired.",
+  "label": "none"
+ },
+ {
+  "text": "I'm grateful for my friends.",
+  "label": "none"
+ },
+ {
+  "text": "I'm happy with how the week went.",
+  "label": "none"
+ },
+ {
+  "text": "I'm thankful for my health.",
+  "label": "none"
+ },
+ {
+  "text": "I'm worried about the project deadline.",
+  "label": "none"
+ },
+ {
+  "text": "It rained all afternoon.",
+  "label": "none"
+ },
+ {
+  "text": "It was a quiet day.",
+  "label": "none"
+ },
+ {
+  "text": "It's been a weird week.",
+  "label": "none"
+ },
+ {
+  "text": "Lunch was a sandwich at my desk.",
+  "label": "none"
+ },
+ {
+  "text": "Mom called and we talked for an hour.",
+  "label": "none"
+ },
+ {
+  "text": "My back hurts a little.",
+  "label": "none"
+ },
+ {
+  "text": "My energy was low after lunch.",
+  "label": "none"
+ },
+ {
+  "text": "My manager gave me positive feedback.",
+  "label": "none"
+ },
+ {
+  "text": "Nothing much happened today.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon I felt anxious.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon I felt grateful.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon I felt hopeful.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon I felt relaxed.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon I felt restless.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon I felt stressed.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon I felt tired.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon was busy.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon was great.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon was peaceful.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon was productive.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon was rough.",
+  "label": "none"
+ },
+ {
+  "text": "The afternoon was slow.",
+  "label": "none"
+ },
+ {
+  "text": "The dog was super playful today.",
+  "label": "none"
+ },
+ {
+  "text": "The flight was delayed by two hours.",
+  "label": "none"
+ },
+ {
+  "text": "The gym was crowded.",
+  "label": "none"
+ },
+ {
+  "text": "The house is finally clean.",
+  "label": "none"
+ },
+ {
+  "text": "The kids were in a good mood.",
+  "label": "none"
+ },
+ {
+  "text": "The meeting went better than expected.",
+  "label": "none"
+ },
+ {
+  "text": "The new office is nice.",
+  "label": "none"
+ },
+ {
+  "text": "The sunset was amazing.",
+  "label": "none"
+ },
+ {
+  "text": "The team shipped the release.",
+  "label": "none"
+ },
+ {
+  "text": "The weather was beautiful.",
+  "label": "none"
+ },
+ {
+  "text": "This morning I felt anxious.",
+  "label": "none"
+ },
+ {
+  "text": "This morning I felt drained.",
+  "label": "none"
+ },
+ {
+  "text": "This morning I felt restless.",
+  "label": "none"
+ },
+ {
+  "text": "This morning I felt stressed.",
+  "label": "none"
+ },
+ {
+  "text": "This morning was busy.",
+  "label": "none"
+ },
+ {
+  "text": "This morning was exhausting.",
+  "label": "none"
+ },
+ {
+  "text": "This morning was fun.",
+  "label": "none"
+ },
+ {
+  "text": "This morning was great.",
+  "label": "none"
+ },
+ {
+  "text": "This morning was peaceful.",
+  "label": "none"
+ },
+ {
+  "text": "This morning was rough.",
+  "label": "none"
+ },
+ {
+  "text": "This week I felt content.",
+  "label": "none"
+ },
+ {
+  "text": "This week I felt hopeful.",
+  "label": "none"
+ },
+ {
+  "text": "This week I felt stressed.",
+  "label": "none"
+ },
+ {
+  "text": "This week was busy.",
+  "label": "none"
+ },
+ {
+  "text": "This week was exhausting.",
+  "label": "none"
+ },
+ {
+  "text": "This week was fun.",
+  "label": "none"
+ },
+ {
+  "text": "This week was great.",
+  "label": "none"
+ },
+ {
+  "text": "This week was productive.",
+  "label": "none"
+ },
+ {
+  "text": "This week was rough.",
+  "label": "none"
+ },
+ {
+  "text": "This week was slow.",
+  "label": "none"
+ },
+ {
+  "text": "Today I felt anxious.",
+  "label": "none"
+ },
+ {
+  "text": "Today I felt content.",
+  "label": "none"
+ },
+ {
+  "text": "Today I felt happy.",
+  "label": "none"
+ },
+ {
+  "text": "Today I felt relaxed.",
+  "label": "none"
+ },
+ {
+  "text": "Today I felt stressed.",
+  "label": "none"
+ },
+ {
+  "text": "Today was a long day at work.",
+  "label": "none"
+ },
+ {
+  "text": "Today was busy.",
+  "label": "none"
+ },
+ {
+  "text": "Today was exhausting.",
+  "label": "none"
+ },
+ {
+  "text": "Today was fun.",
+  "label": "none"
+ },
+ {
+  "text": "Today was peaceful.",
+  "label": "none"
+ },
+ {
+  "text": "Today was rough.",
+  "label": "none"
+ },
+ {
+  "text": "Tonight I felt hopeful.",
+  "label": "none"
+ },
+ {
+  "text": "Tonight I felt relaxed.",
+  "label": "none"
+ },
+ {
+  "text": "Tonight I felt restless.",
+  "label": "none"
+ },
+ {
+  "text": "Tonight I felt tired.",
+  "label": "none"
+ },
+ {
+  "text": "Tonight was busy.",
+  "label": "none"
+ },
+ {
+  "text": "Tonight was fun.",
+  "label": "none"
+ },
+ {
+  "text": "Tonight was great.",
+  "label": "none"
+ },
+ {
+  "text": "Tonight was peaceful.",
+  "label": "none"
+ },
+ {
+  "text": "Tonight was rough.",
+  "label": "none"
+ },
+ {
+  "text": "Traffic was terrible on the way home.",
+  "label": "none"
+ },
+ {
+  "text": "We celebrated Anna's birthday.",
+  "label": "none"
+ },
+ {
+  "text": "We played board games tonight.",
+  "label": "none"
+ },
+ {
+  "text": "Work was stressful but okay.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday I felt anxious.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday I felt drained.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday I felt happy.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday I felt hopeful.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday I felt stressed.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday I felt tired.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday was busy.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday was exhausting.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday was great.",
+  "label": "none"
+ },
+ {
+  "text": "Yesterday was peaceful.",
+  "label": "none"
+ }
+]
