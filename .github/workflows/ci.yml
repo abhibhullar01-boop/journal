@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  app:
+    name: Expo app checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Classifier tests
+        run: npm test
+      - name: Accuracy on held-out sentences
+        run: npm run classify -- --eval
+      - name: Whole-entry benchmark
+        run: npm run bench
+      - name: Try a sample entry
+        run: npm run classify -- "Long day. I need to email Sarah tomorrow at 10 and I want to get better at public speaking and someday I want to run a marathon."
+      - name: Bundle for iOS (what Expo Go loads)
+        run: npx expo export --platform ios --output-dir /tmp/expo-export
