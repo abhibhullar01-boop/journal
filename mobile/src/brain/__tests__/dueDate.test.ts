@@ -56,3 +56,62 @@ test('more spoken time phrases', () => {
   assert.equal(due('Dinner with Priya tonight at 8'), at(2025, 10, 15, 20).getTime());
   assert.equal(due('Yoga every Monday'), null);
 });
+
+// A wide sweep of everyday phrasing, at two times of day. Tuesday 20 October 2026.
+const sweep = (nowAt: Date, cases: [string, Date | null][]) => {
+  for (const [phrase, want] of cases) {
+    assert.equal(dueDateIn(phrase, nowAt)?.getTime() ?? null, want?.getTime() ?? null, `"${phrase}" at ${nowAt.getHours()}:00`);
+  }
+};
+
+test('everyday phrasing in the morning', () => {
+  const morning = at(2026, 10, 20, 9);
+  sweep(morning, [
+    ['call mom tomorrow night', at(2026, 10, 21, 19)],
+    ['call mom later today', at(2026, 10, 20, 17)],
+    ['call mom at 5.30 pm', at(2026, 10, 20, 17, 30)],
+    ['call mom at 7 am', at(2026, 10, 21, 7)],
+    ['call mom at 9 tonight', at(2026, 10, 20, 21)],
+    ['call mom at 8 in the morning', at(2026, 10, 21, 8)],
+    ['call mom at midnight', at(2026, 10, 20, 23, 59)],
+    ['call mom in a couple of hours', at(2026, 10, 20, 11)],
+    ['call mom in a few minutes', at(2026, 10, 20, 9, 5)],
+    ['call mom in 10 mins', at(2026, 10, 20, 9, 10)],
+    ['call mom Friday at 3', at(2026, 10, 23, 15)],
+    ['call mom on Friday evening', at(2026, 10, 23, 19)],
+    ['call mom on Tuesday', at(2026, 10, 27, 9)],
+    ['call mom on the weekend', at(2026, 10, 24, 10)],
+    ['call mom next month', at(2026, 11, 1, 9)],
+    ['call mom by the end of the week', at(2026, 10, 23, 17)],
+    ['call mom on November 5', at(2026, 11, 5, 9)],
+    ['call mom on 5th Nov at 6 pm', at(2026, 11, 5, 18)],
+    ['pay rent on the 1st of next month', at(2026, 11, 1, 9)],
+    ['dentist on the 28th at 4', at(2026, 10, 28, 16)],
+    ['call mom in 3 days', at(2026, 10, 23, 9)],
+    ['call mom in a week', at(2026, 10, 27, 9)],
+    ['book a follow up in three weeks', null],
+    ['renew the passport, it expires next month', null],
+    ['call mom after dinner', at(2026, 10, 20, 21)],
+    ['take my pills before bed', at(2026, 10, 20, 22)],
+    ['call mom eod', at(2026, 10, 20, 17)],
+    ['call mom at 18:00', at(2026, 10, 20, 18)],
+    ['call mom on monday morning', at(2026, 10, 26, 8)],
+    ['remind me in 2 hours to take the clothes out', at(2026, 10, 20, 11)],
+    ['I may call mom', null],
+    ['call mom every Sunday', null],
+  ]);
+});
+
+test('everyday phrasing in the evening: passed times move on', () => {
+  const evening = at(2026, 10, 20, 18);
+  sweep(evening, [
+    ['call mom this afternoon', at(2026, 10, 21, 14)],
+    ['call mom at 5', at(2026, 10, 21, 17)],
+    ['call mom later today', at(2026, 10, 20, 19)],
+    ['call mom tonight', at(2026, 10, 20, 19)],
+    ['call mom in an hour', at(2026, 10, 20, 19)],
+    ['call mom at 6 30', at(2026, 10, 20, 18, 30)],
+    ['call mom after work', at(2026, 10, 21, 18)],
+    ['call mom tomorrow', at(2026, 10, 21, 9)],
+  ]);
+});

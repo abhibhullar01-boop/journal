@@ -113,3 +113,47 @@ export function ruleDistribution(text: string): Scores {
     none: raw.none / total,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Messages to the companion
+// ---------------------------------------------------------------------------
+
+/** Words that open a question or request to the companion, whatever the punctuation. */
+const ASKS = [
+  'what', 'whats', "what's", 'how', "how's", 'hows', 'which', 'why', 'where', "where's",
+  'should i', 'shall i', 'can you', 'could you', 'would you', 'will you', 'do you', 'are you',
+  'suggest', 'recommend', 'find me', 'show me', 'tell me', 'give me', 'help me', 'any tips', 'any ideas',
+  'any suggestions', 'any idea', 'compare', 'search for', 'look up', 'summarise', 'summarize',
+  'explain how', 'explain what', 'explain why', 'explain to me', 'hi', 'hello', 'good morning',
+  'good afternoon', 'good evening', 'good night', 'thanks', 'thank you', 'list my',
+].map((s) => s.split(' '));
+/** Words that open a question only when it ends with "?" ("When I get home, call mom" is a task). */
+const QUESTION_ASKS = [
+  'when', 'who', 'is', 'are', 'am', 'did', 'do', 'does', 'have', 'has', 'was', 'were', 'can i', 'could i', 'will i', 'would it',
+].map((s) => s.split(' '));
+/** Short replies: "ok cool", "yes please", "got it". */
+const ACKS = new Set(['ok', 'okay', 'cool', 'nice', 'great', 'perfect', 'awesome', 'got', 'haha', 'lol', 'yes', 'yeah', 'yep', 'no', 'nope', 'sure', 'sounds', 'never', 'alright', 'fine', 'wow', 'hmm', 'right']);
+const LEADING_FILLERS = new Set(['hey', 'hi', 'hello', 'um', 'uh', 'so', 'and', 'also', 'oh', 'well', 'yo', 'pls', 'please', 'ok', 'okay', 'alright', 'listen', 'quick', 'question']);
+/** Asking the companion to note something down still means there is something to track. */
+const RECORD_INTENT =
+  /\b(remind|reminder|remember to|don't let me forget|dont let me forget|set an alarm|make a note|note (that|down|this))\b|\b(add|put)\b.+\b(to|on|in)\b (my|the) (list|lists|shopping|tasks|to do|todo|goals|skills|cart)/;
+
+const startsWith = (tokens: string[], phrase: string[]) => phrase.every((w, i) => tokens[i] === w);
+
+/**
+ * True for a question or request to the companion ("what should I cook?", "find me running shoes",
+ * "thanks!") rather than something to track. The companion answers those in the chat.
+ */
+export function isCompanionRequest(chunk: string): boolean {
+  const text = chunk.replace(/’/g, "'").trim();
+  const all = words(text);
+  if (RECORD_INTENT.test(` ${all.join(' ')} `)) return false;
+  const original = all.length;
+  const tokens = [...all];
+  while (tokens.length && LEADING_FILLERS.has(tokens[0])) tokens.shift();
+  if (!tokens.length) return original > 0; // just "hey" or "ok"
+  if (ASKS.some((a) => startsWith(tokens, a))) return true;
+  if (text.endsWith('?') && QUESTION_ASKS.some((a) => startsWith(tokens, a))) return true;
+  if (tokens.length <= 4 && ACKS.has(tokens[0])) return true;
+  return false;
+}

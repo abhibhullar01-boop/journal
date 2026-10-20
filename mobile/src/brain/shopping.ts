@@ -46,7 +46,7 @@ const TRIGGERS = [
   "we're out of", "i'm out of", 'we ran out of', 'ran out of', 'running low on', 'low on', 'out of',
   "we don't have any", 'need to buy', 'need to get', 'have to buy', 'have to get', 'need more',
   'need new', 'wanting to buy', 'want to buy', 'to buy', 'to get', 'buy', 'get', 'grab', 'order', 'pick up',
-  'purchase', 'look for', 'need',
+  'purchase', 'look for', 'need', 'put',
 ].sort((a, b) => b.length - a.length);
 
 /** Where the item list ends. */
@@ -56,6 +56,7 @@ const STOPS = [
   'later', 'to the', 'for the week', 'for tomorrow', 'for the party', 'for the trip', 'is finished',
   'is over', 'are finished', 'are over', 'left', 'please', 'again', 'soon', 'as well', 'too', 'also',
   'if', 'so', 'mine', 'it', 'its', "it's", 'they', 'which', 'that', 'for guests',
+  'to my', 'on my', 'on the', 'in my', 'to the shopping list', 'to the list', 'please',
 ];
 const DETERMINERS = new Set(['some', 'a', 'an', 'the', 'more', 'few', 'couple', 'of', 'any', 'extra', 'proper', 'fresh', 'enough', 'and', 'also', 'like']);
 

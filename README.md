@@ -39,24 +39,29 @@ package, stop it with Ctrl+C, run `npm install`, and start it again.)
 
 ## What it does today
 
-Three tabs, kept simple:
+The app opens on a chat, like an AI companion. Three tabs:
 
-- **Today**: one big mic button. Tap, talk, tap to stop. Your words are written down by OpenAI's
-  transcription model (much better than the keyboard mic with accents, names and Hindi/Punjabi
-  words), you check the text, and save. Below it: what's due today, what to buy, and your journal.
-- **Lists**: Tasks, Shopping, Skills and Goals, clearly separated. Tick things off; long-press to
-  move something to another list (the app learns from every fix).
-- **Chat**: your companion. It has read your journal, remembers facts about you (who people are,
-  where you live), suggests what to focus on or buy, and can add tasks and reminders for you.
+- **Chat** (the main screen): one ongoing conversation that is also your journal. Drop in any time
+  of day: type, or tap the mic and talk (OpenAI writes it down, much better than the keyboard mic
+  with accents, names and Hindi/Punjabi words). Under each message you see what was saved from it
+  (tasks, things to buy, skills, goals) and when you'll be reminded. The companion answers like a
+  friend who has read your journal; it can search the web, and its links show as cards with pictures.
+  Each day starts under a date divider, with a greeting, your lists at a glance and things to ask.
+- **Today**: progress on what's due today, a tile per list, what to buy, a chart of your week, and
+  today's notes.
+- **Lists**: Tasks, Shopping, Skills and Goals, clearly separated. Tick things off; tap an item to
+  move it to another list or remove it (the app learns from every fix).
 
 Behind the scenes:
 
-- Every entry is sorted instantly on the phone, then Claude double-checks it when a key is set.
-  The on-phone brain learns from Claude's answers too, so it keeps improving offline.
-- Reminders for tasks with a time ("tomorrow evening", "in 2 hours", "on the 1st"), a morning list
-  at 8:30 (open tasks and things to buy) and a Sunday check-in on a skill or goal.
+- Every message is sorted instantly on the phone, then Claude double-checks it when a key is set.
+  The on-phone brain learns from Claude's answers too, so it keeps improving offline. Questions and
+  requests to the companion ("find me running shoes", "what should I cook?") are answered, not saved.
+- Notifications: a heads-up listing what was saved (can be turned off in Settings), reminders at the
+  time you said ("tomorrow evening", "in 2 hours", "on the 1st"), a morning plan at 8:30, an evening
+  check at 8:30 pm, and a Sunday check-in on a skill or goal.
 
-**Keys** (Settings, the gear on Today): an OpenAI key for speech and a Claude key for the companion.
+**Keys** (Settings, the gear at the top of Chat or Today): an OpenAI key for speech and a Claude key for the companion.
 Both are pasted once and kept in the iPhone keychain. Without them the app still works, using the
 keyboard mic and the on-phone brain.
 
@@ -74,13 +79,14 @@ It lives in `mobile/src/brain` and is plain TypeScript, so it runs and is tested
 | `titles.ts` | Turns a sentence into a short title |
 | `dueDate.ts` | Finds reminder times: "tomorrow evening", "in 2 hours", "on the 1st", "after work", "day after tomorrow"… |
 
-The starting model is trained on 4,500 everyday sentences made by `tools/generate_seed_data.py`
+The starting model is trained on 6,500 everyday sentences, including chat-style questions and requests, made by `tools/generate_seed_data.py`
 (`npm run train` saves its weights into the app). It is scored two ways, never on its training data:
 
 - 86 hand-written single sentences: **98%** right.
-- 70 hand-written whole journal entries (`npm run bench`), checking every item it should find, the
-  ones it shouldn't, and reminder times. Set B was written after tuning and gets **88%** (F1), with
-  every reminder time right.
+- 120 hand-written whole messages (`npm run bench`), checking every item it should find, the ones it
+  shouldn't, and reminder times. Set B (journal entries, written after tuning) gets **90%** (F1);
+  set D (chat messages, written after all tuning) gets **100%**; every reminder time is right.
+- A sweep of about 40 time phrases at two times of day in `dueDate.test.ts`.
 
 ```bash
 cd mobile

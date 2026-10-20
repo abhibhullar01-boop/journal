@@ -1,0 +1,26 @@
+{
+ "note": "Fourth set, written after all tuning for chat and never used to tune anything: an honest check on new chat-style messages. 'now' is Wednesday 21 Oct 2026, 13:00 local.",
+ "now": "2026-10-21T13:00:00",
+ "entries": [
+  {"text": "Which phone should I get for my dad, something simple?", "items": []},
+  {"text": "ok remind me to pick up dad's prescription after work", "items": [{"kind": "task", "must": ["prescription"], "due": "2026-10-21T18:00"}]},
+  {"text": "we need atta, sugar and a big pack of maggi", "items": [{"kind": "shopping", "must": ["atta"], "due": null}, {"kind": "shopping", "must": ["sugar"], "due": null}, {"kind": "shopping", "must": ["maggi"], "due": null}]},
+  {"text": "Feeling much better today, the cold is almost gone", "items": []},
+  {"text": "Can you add a reminder to renew the car insurance on the 30th", "items": [{"kind": "task", "must": ["insurance"], "due": "2026-10-30T09:00"}]},
+  {"text": "What did I spend on groceries this month?", "items": []},
+  {"text": "I've decided I want to run a half marathon next year", "items": [{"kind": "goal", "must": ["half marathon"], "due": null}]},
+  {"text": "Give me a quick 10 minute workout", "items": []},
+  {"text": "Had a fight with Simran, not sure what to say to her", "items": []},
+  {"text": "I should apologise to Simran tonight", "items": [{"kind": "task", "must": ["simran"], "due": "2026-10-21T19:00"}]},
+  {"text": "lol okay", "items": []},
+  {"text": "Started learning Excel formulas at work, pivot tables are fun", "items": [{"kind": "skill", "must": ["excel"], "due": null}]},
+  {"text": "put a new toothbrush and floss on my list", "items": [{"kind": "shopping", "must": ["toothbrush"], "due": null}, {"kind": "shopping", "must": ["floss"], "due": null}]},
+  {"text": "How do I get rid of ants in the kitchen?", "items": []},
+  {"text": "Electricity bill is due Friday, pay it on Thursday", "items": [{"kind": "task", "must": ["pay"], "due": "2026-10-22T09:00"}]},
+  {"text": "my goal this year is to save 2 lakh", "items": [{"kind": "goal", "must": ["save"], "due": null}]},
+  {"text": "Is it going to rain tomorrow?", "items": []},
+  {"text": "need to call the gas agency tomorrow morning and also check the tyre pressure", "items": [{"kind": "task", "must": ["gas agency"], "due": "2026-10-22T08:00"}, {"kind": "task", "must": ["tyre"], "due": null}]},
+  {"text": "Show me some nice kurtas for the wedding under 3000", "items": []},
+  {"text": "Want to get better at saying no at work", "items": [{"kind": "skill", "must": ["saying no"], "due": null}]}
+ ]
+}

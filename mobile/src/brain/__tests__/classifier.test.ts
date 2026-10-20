@@ -90,3 +90,19 @@ test('bundled model weights are up to date with the seed data (run `npm run trai
   const retrained = JournalAnalyzer.trainFromSeed();
   for (const s of SEED_EVALUATION) assert.equal(analyzer.classify(s.text).kind, retrained.classify(s.text).kind, s.text);
 });
+
+test('chat messages: questions and requests to the companion are not saved as items', async () => {
+  const sets = [await import('../bench/eval_entries_c.json'), await import('../bench/eval_entries_d.json')];
+  for (const set of sets) {
+    const data = (set as any).default ?? set;
+    const result = runBench(analyzer, data.entries as BenchEntry[], new Date(data.now));
+    assert.ok(result.f1 >= 0.9, `F1 ${result.f1}: ${result.problems.join('; ')}`);
+    assert.equal(result.dueCorrect, result.dueTotal, result.problems.join('; '));
+  }
+  for (const ask of ['What should I cook tonight?', 'find me running shoes under 5000', 'thanks!', 'Help me plan my day', 'Should I take the job?']) {
+    assert.deepEqual(analyzer.analyze(ask), [], ask);
+  }
+  const [reminder] = analyzer.analyze('hey can you remind me to call the electrician tomorrow at 10');
+  assert.equal(reminder.title, 'Call the electrician tomorrow at 10');
+  assert.deepEqual(analyzer.analyze('add paneer and curd to my list').map((i) => i.title), ['Paneer', 'Curd']);
+});

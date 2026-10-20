@@ -3,12 +3,15 @@ import seedTraining from './data/seed_training.json';
 import seedWeights from './data/model_weights.json';
 import { dueDateIn } from './dueDate';
 import { ModelWeights, SoftmaxModel } from './softmax';
-import { ruleDistribution } from './rules';
+import { isCompanionRequest, ruleDistribution } from './rules';
 import { mentionsOnlyIntangibles, shoppingItems } from './shopping';
 import { contentWords } from './tokenizer';
-import { splitSentences } from './splitter';
+import { punctuationChunks, splitRunOn } from './splitter';
 import { titleFor } from './titles';
 import { ALL_KINDS, Classification, emptyScores, ExtractedInsight, InsightKind, LabeledSentence } from './types';
+
+/** A specific, near time: tomorrow, tonight, a weekday or a clock time. */
+const SOON = /\b(tomorrow|tonight|this (afternoon|evening)|on (monday|tuesday|wednesday|thursday|friday|saturday|sunday)|at \d|\d ?(am|pm))\b/;
 
 const BACK_REFERENCES = new Set(['it', "it's", 'its', 'that', "that's", 'this', 'which', 'they', "they're"]);
 
@@ -78,7 +81,13 @@ export class JournalAnalyzer {
   /** Every trackable item in an entry, in the order it was said. */
   analyze(entry: string, now: Date = new Date()): ExtractedInsight[] {
     const result: ExtractedInsight[] = [];
-    for (const sentence of splitSentences(entry)) {
+    // A question or request to the companion is answered in the chat, not tracked. Its whole
+    // sentence goes, including the context after a comma ("suggest dinner, we have eggs").
+    const sentences = punctuationChunks(entry)
+      .filter((chunk) => !isCompanionRequest(chunk))
+      .flatMap(splitRunOn)
+      .filter((s) => /[a-z]/i.test(s));
+    for (const sentence of sentences) {
       const classification = this.classify(sentence);
       let { kind } = classification;
       const { confidence, scores } = classification;
@@ -92,6 +101,8 @@ export class JournalAnalyzer {
         }
       }
       if (kind === 'none') continue;
+      // "Practice it once tomorrow", "revise SQL tonight": a skill on a set day is something to do.
+      if (kind === 'skill' && SOON.test(` ${sentence.toLowerCase()} `) && dueDateIn(sentence, now)) kind = 'task';
       // "It's slow but I'm getting better" refers back to the last thing said; it's not a new item.
       if ((kind === 'skill' || kind === 'goal') && refersBack(sentence)) continue;
       const dueDate = kind === 'task' || kind === 'shopping' ? dueDateIn(sentence, now) : null;

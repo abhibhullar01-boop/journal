@@ -19,7 +19,7 @@ from pathlib import Path
 
 OUT = Path(__file__).resolve().parent.parent / "mobile/src/brain/data"
 rng = random.Random(7)
-PER_CLASS = 900
+PER_CLASS = 1300
 
 # ---------------------------------------------------------------------------
 # Shared pieces
@@ -104,6 +104,8 @@ TASK_FRAMES = [
     "I need to quickly {a}", "let me {a}", "I want to {a}", "I'd better {a}",
     "it's time to {a}", "I've been meaning to {a}", "first thing, {a}", "need to go {a}",
     "I need to remember to {a}", "can't forget to {a}", "please remind me to {a}",
+    "could you remind me to {a}", "hey remind me to {a}", "set a reminder to {a}", "ping me to {a}",
+    "remind me later to {a}", "pls remind me to {a}", "can you set a reminder to {a}",
 ]
 TASK_FRONT_TIMES = [
     "Tomorrow I have to {a}", "Tomorrow morning I need to {a}", "Tonight I need to {a}",
@@ -178,6 +180,8 @@ SHOP_FRAMES = [
     "shopping list: {i}", "groceries: {i}", "need {i}", "out of {i}", "I'm out of {i}",
     "I should order {i}", "maybe buy {i}", "buy {i} this weekend", "buy {i} tomorrow",
     "then groceries, {i}", "groceries, we need {i}",
+    "add {i} to my list", "add {i} to my shopping list", "put {i} on the shopping list",
+    "can you add {i} to the list", "put {i} on my list", "add {i} please",
 ]
 SHOP_BIG_FRAMES = [
     "I need to buy {i}", "buy {i}", "I want to buy {i}", "need to get {i}", "order {i} on Amazon",
@@ -403,6 +407,35 @@ NONE_TEMPLATES = [
 ]
 WHENS = ["today", "tonight", "right now", "lately", "this week", "this morning", "all day"]
 
+# Things said TO the companion in the chat: questions and requests, not things to track.
+CHAT_TOPICS = [
+    "a gift for my sister", "running shoes", "a good laptop for coding", "a recipe with paneer",
+    "a quick dinner idea", "a book on habits", "a nice place for dinner", "a weekend trip from Chandigarh",
+    "a good movie tonight", "a workout I can do at home", "some music for focus", "a podcast about money",
+    "a good mattress", "ideas for Diwali decorations", "a birthday cake shop nearby", "a phone under 20000",
+    "a skincare routine", "a healthy breakfast", "a budget for this month", "ways to save money",
+]
+CHAT_REQUESTS = [
+    "what should I focus on today", "what should I do first", "what's on my plate today", "what is on tomorrow",
+    "what's left for today", "what do I need to buy", "what's on my shopping list", "how am I doing on my goals",
+    "how am I doing this week", "what did I say about {p} last week", "what did I do yesterday",
+    "when is the dentist appointment", "did I pay the rent", "have I called {p} this week",
+    "help me plan my day", "help me plan the week", "help me wrap up the day", "help me wind down",
+    "help me think this through", "help me write a message to {p}", "give me a 5 minute break idea",
+    "give me some motivation", "tell me a joke", "tell me something nice", "summarise my week",
+    "summarize today", "how was my week", "what should I cook tonight", "what should I eat",
+    "should I learn guitar or piano", "should I take the new job", "is it a good idea to quit sugar",
+    "any tips to sleep better", "any ideas for the weekend", "any suggestions for {c}",
+    "can you suggest {c}", "suggest {c}", "recommend {c}", "find me {c}", "show me {c}",
+    "can you find {c}", "look up {c}", "search for {c}", "where can I find {c}", "which is better for me",
+    "compare these two for me", "explain how SIPs work", "how do I make dal makhani", "how do I fix a slow laptop",
+    "why am I always tired", "what do you think", "what do you know about me", "can you help me",
+    "can you mark the electricity bill as done", "mark the rent as paid", "clear my shopping list",
+    "hi", "hey", "hello", "good morning", "good night", "thanks", "thank you", "ok cool", "okay thanks",
+    "nice", "perfect", "got it", "haha", "that's helpful", "you're the best", "never mind", "yes please",
+    "no that's fine", "sounds good", "tell me more", "go on", "what else",
+]
+
 
 # ---------------------------------------------------------------------------
 # Generation helpers
@@ -502,15 +535,24 @@ def goal_sentence():
     return finish(fill(rng.choice(GOAL_FRAMES), g=rng.choice(GOALS)))
 
 
+def chat_request():
+    s = fill(rng.choice(CHAT_REQUESTS), p=rng.choice(PEOPLE), c=rng.choice(CHAT_TOPICS))
+    if s.startswith(("what", "how", "where", "which", "why", "when", "did", "have", "should", "is", "any", "can", "do")) and rng.random() < 0.7:
+        s += "?"
+    return cap(s)
+
+
 def none_sentence():
     r = rng.random()
-    if r < 0.35:
+    if r < 0.22:
+        return chat_request()
+    if r < 0.45:
         return rng.choice(NONE_SENTENCES)
-    if r < 0.6:
+    if r < 0.68:
         e = rng.choice(PAST_EVENTS)
         t = rng.choice(PAST_TIMES)
         return finish(fill(rng.choice(PAST_FRAMES), e=e, E=cap(e), t=t, T=cap(t)))
-    if r < 0.72:
+    if r < 0.78:
         return rng.choice(THIRD_PERSON)
     return finish(fill(
         rng.choice(NONE_TEMPLATES),
