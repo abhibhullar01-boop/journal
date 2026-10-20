@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { InsightKind, KIND_PLURAL, TRACKABLE_KINDS } from '../../brain';
 import { ItemRow } from '../../components/ItemRow';
@@ -36,11 +37,15 @@ function List({ title, items, trailing }: { title: string; items: TrackedItem[];
   );
 }
 
-/** Everything pulled out of the journal: tasks to check off, skills being built, goals. */
-export default function TrackerScreen() {
+/** Everything pulled out of the journal: tasks to check off, things to buy, skills being built, goals. */
+export default function ListsScreen() {
   const p = usePalette();
   const { items } = useJournal();
+  const params = useLocalSearchParams<{ kind?: string }>();
   const [kind, setKind] = useState<InsightKind>('task');
+  useEffect(() => {
+    if (params.kind && TRACKABLE_KINDS.includes(params.kind as InsightKind)) setKind(params.kind as InsightKind);
+  }, [params.kind]);
   const ofKind = items.filter((i) => i.kind === kind);
 
   let content;

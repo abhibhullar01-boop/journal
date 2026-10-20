@@ -6,30 +6,42 @@ import { useJournal } from '../../store/JournalContext';
 export default function TabsLayout() {
   const p = usePalette();
   const { items } = useJournal();
-  const openTasks = items.filter((i) => i.kind === 'task' && !i.done).length;
+  const open = items.filter((i) => (i.kind === 'task' || i.kind === 'shopping') && !i.done).length;
 
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: p.accent }}>
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: p.accent,
+        tabBarInactiveTintColor: p.secondary,
+        tabBarStyle: { backgroundColor: p.card, borderTopColor: p.border },
+        headerStyle: { backgroundColor: p.background },
+        headerShadowVisible: false,
+        headerTitleStyle: { color: p.text, fontWeight: '700' },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Journal',
-          tabBarIcon: ({ color, size }) => <Ionicons name="book-outline" color={color as string} size={size} />,
+          title: 'Today',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <Ionicons name="sunny-outline" color={color as string} size={size} />,
         }}
       />
       <Tabs.Screen
-        name="tracker"
+        name="lists"
         options={{
-          title: 'Tracker',
-          tabBarBadge: openTasks > 0 ? openTasks : undefined,
+          title: 'Lists',
+          tabBarBadge: open > 0 ? open : undefined,
+          tabBarBadgeStyle: { backgroundColor: p.danger },
           tabBarIcon: ({ color, size }) => <Ionicons name="checkbox-outline" color={color as string} size={size} />,
         }}
       />
       <Tabs.Screen
-        name="brain"
+        name="chat"
         options={{
-          title: 'Brain',
-          tabBarIcon: ({ color, size }) => <Ionicons name="bulb-outline" color={color as string} size={size} />,
+          title: 'Companion',
+          tabBarLabel: 'Chat',
+          tabBarIcon: ({ color, size }) => <Ionicons name="chatbubbles-outline" color={color as string} size={size} />,
         }}
       />
     </Tabs>

@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
+import { KeysProvider } from '../ai/keys';
 import { PALETTE } from '../components/theme';
 import { JournalProvider, useJournal } from '../store/JournalContext';
 import { MARK_DONE, setUpNotifications, SNOOZE } from '../store/reminders';
@@ -26,7 +27,7 @@ function NotificationBridge() {
     } else if (response.actionIdentifier === SNOOZE) {
       if (item) j.snooze(item.id);
     } else {
-      router.navigate('/tracker');
+      router.navigate('/lists');
     }
   };
 
@@ -62,15 +63,27 @@ const theme = {
 export default function RootLayout() {
   return (
     <ThemeProvider value={theme}>
-      <JournalProvider>
-        <NotificationBridge />
-        <StatusBar style="dark" />
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="capture" options={{ presentation: 'modal', title: 'New entry' }} />
-          <Stack.Screen name="entry/[id]" options={{ title: 'Entry' }} />
-        </Stack>
-      </JournalProvider>
+      <KeysProvider>
+        <JournalProvider>
+          <NotificationBridge />
+          <StatusBar style="dark" />
+          <Stack
+            screenOptions={{
+              headerStyle: { backgroundColor: PALETTE.background },
+              headerShadowVisible: false,
+              headerTintColor: PALETTE.accent,
+              headerTitleStyle: { color: PALETTE.text },
+              contentStyle: { backgroundColor: PALETTE.background },
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="capture" options={{ presentation: 'modal', title: 'New entry' }} />
+            <Stack.Screen name="entry/[id]" options={{ title: 'Entry' }} />
+            <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+            <Stack.Screen name="brain" options={{ title: 'How the brain is doing' }} />
+          </Stack>
+        </JournalProvider>
+      </KeysProvider>
     </ThemeProvider>
   );
 }

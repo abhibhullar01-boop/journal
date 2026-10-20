@@ -26,6 +26,8 @@ export type Scores = Record<InsightKind, number>;
 export interface LabeledSentence {
   text: string;
   label: InsightKind;
+  /** How much this example counts when learned on the phone (corrections count more). */
+  weight?: number;
 }
 
 export interface Classification {

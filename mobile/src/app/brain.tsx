@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ALL_KINDS, dueDateIn, evaluate, KIND_LABEL, KIND_PLURAL, SEED_EVALUATION, SEED_TRAINING, titleFor } from '../../brain';
-import { KIND_COLOR, usePalette } from '../../components/theme';
-import { Card, SectionTitle } from '../../components/ui';
-import { useJournal } from '../../store/JournalContext';
+import { ALL_KINDS, dueDateIn, evaluate, KIND_LABEL, KIND_PLURAL, SEED_EVALUATION, SEED_TRAINING, titleFor } from '../brain';
+import { KIND_COLOR, usePalette } from '../components/theme';
+import { Card, SectionTitle } from '../components/ui';
+import { useJournal } from '../store/JournalContext';
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 

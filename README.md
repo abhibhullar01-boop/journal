@@ -39,21 +39,26 @@ package, stop it with Ctrl+C, run `npm install`, and start it again.)
 
 ## What it does today
 
-- **Speak or write**: tap **Speak**, then the microphone on the iPhone keyboard, and talk.
-  iOS turns it into text on the phone. Run-on dictation ("…and I need to… and someday I want
-  to…") is split into separate items.
-- **Categorising**: each sentence becomes a Task, Shopping item, Skill, Goal or plain reflection,
-  with a short title ("Um, I really need to call mom tomorrow." → "Call mom tomorrow").
-  Shopping lists are split into items ("we need eggs bread and atta" → Eggs, Bread, Atta).
-- **Tracker tab**: tasks to check off (soonest first), skills with how often you mention them,
-  goals you're working towards or have reached.
-- **Reminders**: tasks that mention a time ("tomorrow", "at 5 pm", "by Friday", "this weekend")
-  get a notification. There's also a morning list of open tasks at 8:30 and a Sunday evening
-  check-in on one of your skills or goals.
-- **Learns from you**: tap an item's label to fix its category. The fix trains the model on
-  your phone, and your fixes count three times as much as the built-in examples.
-- **Brain tab**: try any sentence and see the scores, the accuracy on test sentences, and a reset
-  button for your personal training.
+Three tabs, kept simple:
+
+- **Today**: one big mic button. Tap, talk, tap to stop. Your words are written down by OpenAI's
+  transcription model (much better than the keyboard mic with accents, names and Hindi/Punjabi
+  words), you check the text, and save. Below it: what's due today, what to buy, and your journal.
+- **Lists**: Tasks, Shopping, Skills and Goals, clearly separated. Tick things off; long-press to
+  move something to another list (the app learns from every fix).
+- **Chat**: your companion. It has read your journal, remembers facts about you (who people are,
+  where you live), suggests what to focus on or buy, and can add tasks and reminders for you.
+
+Behind the scenes:
+
+- Every entry is sorted instantly on the phone, then Claude double-checks it when a key is set.
+  The on-phone brain learns from Claude's answers too, so it keeps improving offline.
+- Reminders for tasks with a time ("tomorrow evening", "in 2 hours", "on the 1st"), a morning list
+  at 8:30 (open tasks and things to buy) and a Sunday check-in on a skill or goal.
+
+**Keys** (Settings, the gear on Today): an OpenAI key for speech and a Claude key for the companion.
+Both are pasted once and kept in the iPhone keychain. Without them the app still works, using the
+keyboard mic and the on-phone brain.
 
 ## How the "brain" works
 
@@ -101,7 +106,6 @@ Expo Go can only use the features built into it. These need our own app build in
 Expo's cloud service (EAS) can make without a Mac, plus an Apple Developer account ($99/year)
 to install it on your phone:
 
-- Recording with our own mic button and transcription (instead of the keyboard microphone).
 - Home screen widget, Control Center button and Action Button shortcut.
 - Siri phrases.
 
@@ -110,7 +114,8 @@ to install it on your phone:
 ```
 mobile/               the Expo app
   src/app/            screens (Expo Router: every file is a screen)
-  src/brain/          the classifier, its seed data and tests
+  src/brain/          the on-phone classifier, its seed data, benchmark and tests
+  src/ai/             transcription (OpenAI) and the companion and sorting (Claude)
   src/store/          saved journal data and reminders
   src/components/     shared UI pieces
 tools/                seed data generator

@@ -107,10 +107,17 @@ export class JournalAnalyzer {
     return result;
   }
 
-  /** Teach it the right answer for a sentence (a fix, or a confirmation). */
-  learn(sentence: string, kind: InsightKind): void {
-    this.model.learn(sentence, kind, JournalAnalyzer.correctionWeight);
-    this.corrections.push({ text: sentence, label: kind });
+  /** Most examples kept on the phone; the oldest go first. */
+  static maxCorrections = 3000;
+
+  /**
+   * Teach it the right answer for a sentence: a fix or confirmation from the user
+   * (counts 3x by default), or a label from Claude (weight 1), so it keeps getting better offline.
+   */
+  learn(sentence: string, kind: InsightKind, weight = JournalAnalyzer.correctionWeight): void {
+    this.model.learn(sentence, kind, weight);
+    this.corrections.push({ text: sentence, label: kind, weight });
+    if (this.corrections.length > JournalAnalyzer.maxCorrections) this.corrections.shift();
   }
 
   toJSON(): AnalyzerState {
@@ -120,7 +127,7 @@ export class JournalAnalyzer {
   /** Rebuilds the model from saved corrections. Older saved formats start fresh from the baseline. */
   static fromJSON(state: Partial<AnalyzerState> | null | undefined, base?: JournalAnalyzer): JournalAnalyzer {
     const analyzer = base ?? JournalAnalyzer.baseline();
-    if (state?.version === 2) for (const c of state.corrections ?? []) analyzer.learn(c.text, c.label);
+    if (state?.version === 2) for (const c of state.corrections ?? []) analyzer.learn(c.text, c.label, c.weight);
     return analyzer;
   }
 }
