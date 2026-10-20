@@ -43,7 +43,7 @@ test('extraction asks for structured output and maps the answer', async () => {
   try {
     const result = await extractWithClaude('sk-ant-test', 'entry text', new Date(2026, 9, 20, 9, 0));
     const req = mock.requests[0];
-    assert.equal(req.model, 'claude-opus-5-5');
+    assert.equal(req.model, 'claude-haiku-5-5', 'sorting uses the fast model');
     assert.equal(mock.headers[0]['x-api-key'], 'sk-ant-test');
     assert.equal(mock.headers[0]['anthropic-version'], '2023-06-01');
     assert.equal(req.output_config.format.type, 'json_schema');
@@ -145,5 +145,78 @@ test('companion merges back-to-back messages and stamps the time', async () => {
     assert.match(msgs[0].content, /\[Tuesday 2026-10-20 08:00\] first note\n\n\[Tuesday 2026-10-20 13:30\] second note/);
   } finally {
     mock.restore();
+  }
+});
+
+/** A canned streaming reply, as server-sent events. */
+function sse(events: object[]): Response {
+  const body = events.map((e: any) => `event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`).join('');
+  return new Response(body, { status: 200, headers: { 'content-type': 'text/event-stream' } });
+}
+
+test('companion streams its words, uses the fast chat model, and skips a round trip after list changes', async () => {
+  const requests: any[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = (async (_u: any, init: any) => {
+    requests.push(JSON.parse(init.body));
+    return sse([
+      { type: 'message_start', message: {} },
+      { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+      { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: "Added, I'll " } },
+      { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'ping you at 7.' } },
+      { type: 'content_block_stop', index: 0 },
+      { type: 'content_block_start', index: 1, content_block: { type: 'tool_use', id: 'tu_1', name: 'add_item', input: {} } },
+      { type: 'content_block_delta', index: 1, delta: { type: 'input_json_delta', partial_json: '{"kind":"task","title":"Ca' } },
+      { type: 'content_block_delta', index: 1, delta: { type: 'input_json_delta', partial_json: 'll mom","due":"2026-10-21T19:00"}' } },
+      { type: 'content_block_stop', index: 1 },
+      { type: 'message_delta', delta: { stop_reason: 'tool_use' } },
+      { type: 'message_stop' },
+    ]);
+  }) as typeof fetch;
+  const seen: string[] = [];
+  const added: string[] = [];
+  try {
+    const reply = await companionReply('k', [{ role: 'user', text: 'add call mom tomorrow 7pm', at: '2026-10-20T09:00:00' }], ctx,
+      { addItem: (_k, title) => (added.push(title), 'id-1'), completeItem: () => false, remember: () => {} },
+      { onText: (t) => seen.push(t) });
+    assert.equal(reply.text, "Added, I'll ping you at 7.");
+    assert.deepEqual(added, ['Call mom']);
+    assert.deepEqual(reply.addedItemIds, ['id-1']);
+    assert.ok(seen.length >= 2 && seen[0] === "Added, I'll", 'words arrive as they are written');
+    assert.equal(requests.length, 1, 'no extra round trip just to confirm');
+    assert.equal(requests[0].model, 'claude-sonnet-5-5');
+    assert.equal(requests[0].stream, true);
+    assert.equal(requests[0].system[0].cache_control.type, 'ephemeral');
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('without Claude web search, the phone searches and Claude answers from the results', async () => {
+  const requests: any[] = [];
+  const original = globalThis.fetch;
+  const ddg = `<a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.myntra.com%2Ftrousers%2F123&amp;rut=x">Black Trousers</a><a class="result__snippet" href="#">Slim fit <b>black</b></a>`;
+  globalThis.fetch = (async (url: any, init: any) => {
+    if (String(url).includes('duckduckgo')) return new Response(ddg, { status: 200 });
+    const body = JSON.parse(init.body);
+    requests.push(body);
+    if (body.tools.some((t: any) => t.type?.startsWith('web_search'))) {
+      return new Response(JSON.stringify({ type: 'error', error: { type: 'invalid_request_error', message: 'web search is not enabled for this organization' } }), { status: 400 });
+    }
+    const last = body.messages.at(-1);
+    if (Array.isArray(last.content) && last.content[0]?.type === 'tool_result') {
+      assert.match(last.content[0].content, /myntra\.com\/trousers\/123/);
+      return new Response(JSON.stringify(message([{ type: 'text', text: '- [Black Trousers](https://www.myntra.com/trousers/123)' }])), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
+    return new Response(JSON.stringify(message([{ type: 'tool_use', id: 'tu_s', name: 'search_web', input: { query: 'black trousers' } }], 'tool_use')), { status: 200, headers: { 'content-type': 'application/json' } });
+  }) as typeof fetch;
+  try {
+    const reply = await companionReply('k', [{ role: 'user', text: 'links for black trousers', at: '2026-10-20T09:00:00' }], ctx, noActions);
+    assert.equal(reply.text, '- [Black Trousers](https://www.myntra.com/trousers/123)');
+    const { webSearchStatus } = await import('../claude');
+    assert.equal(webSearchStatus().working, false);
+    assert.match(webSearchStatus().problem ?? '', /not enabled/);
+  } finally {
+    globalThis.fetch = original;
   }
 });

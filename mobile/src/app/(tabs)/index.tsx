@@ -69,7 +69,7 @@ export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const keys = useKeys();
   const journal = useJournal();
-  const { thread, items, refining, replying, entries, facts } = journal;
+  const { thread, items, refining, replying, draft, entries, facts } = journal;
   const params = useLocalSearchParams<{ ask?: string; record?: string }>();
   const composer = useRef<ComposerHandle>(null);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
@@ -123,7 +123,7 @@ export default function ChatScreen() {
   const dueToday = items.filter((i) => i.kind === 'task' && !i.done && i.dueDate && new Date(i.dueDate) <= endOfToday).length;
   const toBuy = items.filter((i) => i.kind === 'shopping' && !i.done).length;
   const status = replying
-    ? 'typing…'
+    ? draft?.status ?? 'typing…'
     : [dueToday ? `${dueToday} due today` : '', toBuy ? `${toBuy} to buy` : ''].filter(Boolean).join(' · ') || 'Here whenever you need me';
 
   const send = useCallback((text: string, source: 'voice' | 'text') => journal.send(text, source), [journal]);
@@ -199,8 +199,22 @@ export default function ChatScreen() {
             <View style={[styles.avatar, { backgroundColor: p.accent }]}>
               <Ionicons name="sparkles" size={14} color="#fff" />
             </View>
-            <View style={[styles.bubble, styles.typing, { backgroundColor: p.card, borderColor: p.border }]}>
-              <TypingDots color={p.accent} />
+            <View style={{ flex: 1 }}>
+              {draft?.text ? (
+                <View style={[styles.bubble, styles.theirs, { backgroundColor: p.card, borderColor: p.border }]}>
+                  <RichText text={draft.text} color={p.text} linkColor={p.accent} />
+                </View>
+              ) : (
+                <View style={[styles.bubble, styles.typing, { backgroundColor: p.card, borderColor: p.border }]}>
+                  <TypingDots color={p.accent} />
+                </View>
+              )}
+              {draft?.status ? (
+                <View style={styles.statusRow}>
+                  <Ionicons name="search" size={13} color={p.accent} />
+                  <Text style={[styles.statusText, { color: p.secondary }]}>{draft.status}</Text>
+                </View>
+              ) : null}
             </View>
           </View>
         );
@@ -324,7 +338,9 @@ const styles = StyleSheet.create({
   bubble: { borderRadius: 20, paddingHorizontal: 14, paddingVertical: 10 },
   mine: { maxWidth: '84%', borderBottomRightRadius: 6 },
   theirs: { borderBottomLeftRadius: 6, borderWidth: StyleSheet.hairlineWidth, alignSelf: 'flex-start', maxWidth: '100%' },
-  typing: { borderBottomLeftRadius: 6, borderWidth: StyleSheet.hairlineWidth },
+  typing: { borderBottomLeftRadius: 6, borderWidth: StyleSheet.hairlineWidth, alignSelf: 'flex-start' },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6, marginLeft: 4 },
+  statusText: { fontSize: 13 },
   text: { fontSize: 16, lineHeight: 22 },
   voiceIcon: { alignSelf: 'flex-end', marginTop: 2 },
   retry: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', borderWidth: 1.5, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, marginTop: 10 },

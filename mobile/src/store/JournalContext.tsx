@@ -37,6 +37,8 @@ interface JournalContextValue {
   prefs: Preferences;
   /** The companion is writing a reply. */
   replying: boolean;
+  /** The reply as it's being written, and what the companion is doing ("Searching the web…"). */
+  draft: { text: string; status: string | null } | null;
   /** Entries Claude is still sorting. */
   refining: string[];
   analyzer: JournalAnalyzer;
@@ -121,6 +123,7 @@ export function JournalProvider({ children }: { children: ReactNode }) {
   const [modelVersion, setModelVersion] = useState(0);
   const [refining, setRefining] = useState<string[]>([]);
   const [replying, setReplying] = useState(false);
+  const [draft, setDraft] = useState<{ text: string; status: string | null } | null>(null);
   const analyzerRef = useRef<JournalAnalyzer | null>(null);
   if (!analyzerRef.current) analyzerRef.current = JournalAnalyzer.baseline();
   // Latest data for async work that finishes after a render. Kept in step with every update.
@@ -272,6 +275,19 @@ export function JournalProvider({ children }: { children: ReactNode }) {
         const history = conversation.slice(-HISTORY_SENT);
         const firstShown = history[0]?.at ?? new Date().toISOString();
         const latestUser = [...history].reverse().find((m) => m.role === 'user');
+        // Show the words as they arrive, a few times a second.
+        let shown = { text: '', status: null as string | null };
+        let timer: ReturnType<typeof setTimeout> | null = null;
+        const show = (change: Partial<typeof shown>) => {
+          shown = { ...shown, ...change };
+          if (!timer) {
+            timer = setTimeout(() => {
+              timer = null;
+              setDraft(shown);
+            }, 60);
+          }
+        };
+        setDraft(shown);
         const result = await companionReply(
           apiKey,
           history.map((m) => ({ role: m.role, text: m.text, at: m.at })),
@@ -305,7 +321,10 @@ export function JournalProvider({ children }: { children: ReactNode }) {
               setData((c) => ({ ...c, facts: addFacts(c.facts, [fact]) }));
             },
           },
+          { onText: (text) => show({ text }), onStatus: (status) => show({ status }) },
         );
+        if (timer) clearTimeout(timer);
+        setDraft(null);
         appendMessage({ role: 'assistant', text: result.text, addedItemIds: result.addedItemIds.length ? result.addedItemIds : undefined });
       } while (replyAgain.current);
     } catch (error) {
@@ -313,6 +332,7 @@ export function JournalProvider({ children }: { children: ReactNode }) {
     } finally {
       replyingRef.current = false;
       setReplying(false);
+      setDraft(null);
     }
   }, [keys.anthropic, addItem, appendMessage, setData]);
 
@@ -350,6 +370,7 @@ export function JournalProvider({ children }: { children: ReactNode }) {
       thread: data.thread,
       prefs: data.prefs,
       replying,
+      draft,
       refining,
       analyzer: analyzerRef.current!,
       modelVersion,
@@ -448,7 +469,7 @@ export function JournalProvider({ children }: { children: ReactNode }) {
         setModelVersion((v) => v + 1);
       },
     };
-  }, [ready, data, modelVersion, refining, replying, localItems, refineWithClaude, reply, scheduleAll, saveModel, addItem, setData]);
+  }, [ready, data, modelVersion, refining, replying, draft, localItems, refineWithClaude, reply, scheduleAll, saveModel, addItem, setData]);
 
   return <JournalContext.Provider value={value}>{children}</JournalContext.Provider>;
 }

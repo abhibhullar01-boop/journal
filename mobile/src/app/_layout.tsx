@@ -1,7 +1,9 @@
+import { fetch as expoFetch } from 'expo/fetch';
 import * as Notifications from 'expo-notifications';
 import { DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
+import { setFetch } from '../ai/claude';
 import { KeysProvider } from '../ai/keys';
 import { PALETTE } from '../components/theme';
 import { JournalProvider, useJournal } from '../store/JournalContext';
@@ -49,6 +51,9 @@ function NotificationBridge() {
 
   return null;
 }
+
+// Expo's fetch can stream, so the companion's words appear as they're written.
+setFetch(expoFetch);
 
 const theme = {
   ...DefaultTheme,

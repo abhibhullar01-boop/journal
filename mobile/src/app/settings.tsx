@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Keyboard, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { webSearchStatus } from '../ai/claude';
 import { KeyName, useKeys } from '../ai/keys';
 import { usePalette } from '../components/theme';
 import { Card, SectionTitle } from '../components/ui';
@@ -91,6 +92,28 @@ function KeyCard({ name }: { name: KeyName }) {
   );
 }
 
+/** Whether Claude's own web search works on this account. Without it the phone searches for links itself. */
+function WebSearchNote() {
+  const p = usePalette();
+  const { working, problem } = webSearchStatus();
+  if (working !== false) return null;
+  return (
+    <Card style={{ marginTop: 10 }}>
+      <View style={styles.linkRow}>
+        <Ionicons name="globe-outline" size={20} color={p.danger} />
+        <Text style={{ flex: 1, color: p.text, fontSize: 15, fontWeight: '600' }}>Claude's web search is off</Text>
+      </View>
+      <Text style={[styles.what, { color: p.secondary, marginTop: 6 }]}>
+        Links still work through the phone's own search. For better results, turn on web search in your Claude account
+        settings at platform.claude.com.{problem ? `\n\nWhat Claude said: ${problem}` : ''}
+      </Text>
+      <Pressable onPress={() => Linking.openURL('https://platform.claude.com/settings')} hitSlop={8} style={{ marginTop: 8 }}>
+        <Text style={{ color: p.accent, fontSize: 15, fontWeight: '600' }}>Open Claude settings</Text>
+      </Pressable>
+    </Card>
+  );
+}
+
 export default function SettingsScreen() {
   const p = usePalette();
   const { facts, forgetFact, prefs, setPref } = useJournal();
@@ -124,6 +147,8 @@ export default function SettingsScreen() {
         Keys stay in your iPhone's keychain. Your recordings go to OpenAI to be written down, and your journal text goes
         to Claude when you chat or save an entry. Without keys, everything still works on the phone, just less smartly.
       </Text>
+
+      <WebSearchNote />
 
       <SectionTitle>What your companion remembers</SectionTitle>
       <Card>
