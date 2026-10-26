@@ -4,7 +4,7 @@ A personal journal for your iPhone that you mostly talk to. Speak (or type) abou
 the app pulls out **tasks** to check off, things **to buy**, **skills** you're building and
 **long-term goals**, then reminds you about them. The categorising happens on the phone, and it learns from your corrections.
 
-Built with [Expo](https://expo.dev) SDK 57 (React Native + TypeScript), so it runs in **Expo Go** on your
+Built with [Expo](https://expo.dev) SDK 58 (React Native + TypeScript), so it runs in **Expo Go** on your
 iPhone with no Mac needed. This is the proof of concept.
 
 ## Run it on your iPhone (from a Windows laptop)

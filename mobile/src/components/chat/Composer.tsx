@@ -9,7 +9,7 @@ import {
 } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Keyboard, Pressable, StyleSheet, Text, TextInput, TextInputInstance, View } from 'react-native';
 import { transcribe } from '../../ai/transcribe';
 import { usePalette } from '../theme';
 
@@ -48,7 +48,7 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer({ on
   const [dictationTip, setDictationTip] = useState(false);
   // Remembers whether the text came from the mic, so the entry is marked as spoken.
   const spoken = useRef(false);
-  const input = useRef<TextInput>(null);
+  const input = useRef<TextInputInstance>(null);
   const recorder = useAudioRecorder(RECORDING);
   const state = useAudioRecorderState(recorder, 80);
   const pulse = useRef(new Animated.Value(0)).current;
