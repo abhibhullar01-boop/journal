@@ -1,55 +1,82 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ItemRow } from '../../components/ItemRow';
-import { usePalette } from '../../components/theme';
-import { Card, SectionTitle } from '../../components/ui';
+import { SERIF, SPACE, TYPE, usePalette } from '../../components/theme';
+import { Card, EmptyState, Footnote, IconButton, Section } from '../../components/ui';
+import { clockLabel, dayLabel } from '../../store/format';
 import { useJournal } from '../../store/JournalContext';
 
+/** One journal entry: what you said, and what was saved from it. */
 export default function EntryScreen() {
   const p = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { entries, items, reanalyze } = useJournal();
+  const { entries, items, reanalyze, deleteEntry } = useJournal();
   const entry = entries.find((e) => e.id === id);
-  const entryItems = items.filter((i) => i.entryId === id);
+  const found = items.filter((i) => i.entryId === id);
 
   if (!entry) {
-    return <Text style={{ padding: 20, color: p.secondary }}>This entry was deleted.</Text>;
+    return (
+      <View style={{ flex: 1, backgroundColor: p.background }}>
+        <EmptyState icon="trash-outline" title="This entry was deleted" message="It's no longer in your journal." />
+      </View>
+    );
   }
 
+  const remove = () =>
+    Alert.alert('Delete this entry?', 'It goes from the chat too, with everything saved from it.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          deleteEntry(entry.id);
+          router.back();
+        },
+      },
+    ]);
+
   return (
-    <ScrollView style={{ backgroundColor: p.background }} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView style={{ backgroundColor: p.background }} contentContainerStyle={styles.content}>
       <Stack.Screen
         options={{
-          title: new Date(entry.createdAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }),
+          title: dayLabel(entry.createdAt),
           headerRight: () => (
-            <Pressable onPress={() => reanalyze(entry.id)} hitSlop={10}>
-              <Text style={{ color: p.accent, fontSize: 16 }}>Re-analyze</Text>
-            </Pressable>
+            <View style={styles.headerButtons}>
+              <IconButton icon="refresh" label="Sort it again" color={p.accent} onPress={() => reanalyze(entry.id)} />
+              <IconButton icon="trash-outline" label="Delete entry" color={p.danger} onPress={remove} />
+            </View>
           ),
         }}
       />
-      <SectionTitle>{entry.source === 'voice' ? 'Spoken' : 'Written'}</SectionTitle>
-      <Card>
+      <View style={styles.meta}>
+        <Ionicons name={entry.source === 'voice' ? 'mic-outline' : 'create-outline'} size={14} color={p.tertiary} />
+        <Text style={[TYPE.footnote, { color: p.secondary }]}>
+          {entry.source === 'voice' ? 'Spoken' : 'Written'} at {clockLabel(entry.createdAt)}
+        </Text>
+      </View>
+      <Card style={styles.card}>
         <Text selectable style={[styles.body, { color: p.text }]}>
           {entry.text}
         </Text>
       </Card>
-      <SectionTitle>Found in this entry</SectionTitle>
-      <Card>
-        {entryItems.length === 0 ? (
-          <Text style={{ color: p.secondary }}>Nothing to track in this entry.</Text>
+      <Section title="Saved from it" count={found.length || undefined}>
+        {found.length ? (
+          found.map((item, k) => <ItemRow key={item.id} item={item} showCategory last={k === found.length - 1} />)
         ) : (
-          entryItems.map((item) => <ItemRow key={item.id} item={item} showCategory />)
+          <Text style={[TYPE.callout, styles.quiet, { color: p.secondary }]}>Nothing to track. It's kept as a note.</Text>
         )}
-      </Card>
-      <Text style={[styles.footnote, { color: p.secondary }]}>
-        Tap a label to fix its category. Each fix teaches the model on your phone.
-      </Text>
+      </Section>
+      <Footnote>Tap a label to move an item to another list. Each fix teaches the brain on your phone.</Footnote>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { fontSize: 16, lineHeight: 23 },
-  footnote: { marginHorizontal: 20, fontSize: 13, lineHeight: 18 },
+  content: { paddingBottom: SPACE.xxxl },
+  headerButtons: { flexDirection: 'row', alignItems: 'center' },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginHorizontal: 24, marginTop: SPACE.m, marginBottom: SPACE.s },
+  card: { paddingVertical: SPACE.l },
+  body: { fontFamily: SERIF, fontSize: 18, lineHeight: 27 },
+  quiet: { paddingVertical: SPACE.m },
 });

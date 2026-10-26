@@ -1,24 +1,26 @@
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ALL_KINDS, dueDateIn, evaluate, KIND_LABEL, KIND_PLURAL, SEED_EVALUATION, SEED_TRAINING, titleFor } from '../brain';
-import { KIND_COLOR, usePalette } from '../components/theme';
-import { Card, SectionTitle } from '../components/ui';
+import { ALL_KINDS, evaluate, KIND_LABEL, KIND_PLURAL, SEED_EVALUATION, SEED_SIZE } from '../brain';
+import { KIND_COLOR, RADIUS, SERIF, SPACE, TYPE, usePalette } from '../components/theme';
+import { Footnote, ProgressBar, Section } from '../components/ui';
+import { formatDue } from '../store/format';
 import { useJournal } from '../store/JournalContext';
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
-/** Shows how the on-device model is doing and lets you try sentences on it. */
+/** How the on-phone model is doing, with a box to try sentences on it. */
 export default function BrainScreen() {
   const p = usePalette();
   const { analyzer, modelVersion, resetModel } = useJournal();
   const [sample, setSample] = useState('I need to call the dentist tomorrow at 4 pm');
 
   const report = useMemo(() => evaluate(analyzer, SEED_EVALUATION), [analyzer, modelVersion]);
-  const result = sample.trim() ? analyzer.classify(sample) : null;
-  const due = result?.kind === 'task' ? dueDateIn(sample) : null;
+  const text = sample.trim();
+  const result = useMemo(() => (text ? analyzer.classify(text) : null), [analyzer, text, modelVersion]);
+  const found = useMemo(() => (text ? analyzer.analyze(text) : []), [analyzer, text, modelVersion]);
 
   const confirmReset = () =>
-    Alert.alert('Forget everything the model learned from you?', undefined, [
+    Alert.alert('Forget what it learned from you?', 'The model goes back to how it came.', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Reset', style: 'destructive', onPress: resetModel },
     ]);
@@ -26,84 +28,106 @@ export default function BrainScreen() {
   return (
     <ScrollView
       style={{ backgroundColor: p.background }}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="interactive"
       automaticallyAdjustKeyboardInsets
     >
-      <SectionTitle>Try it</SectionTitle>
-      <Card>
+      <Section title="Try it">
         <TextInput
           value={sample}
           onChangeText={setSample}
           multiline
-          placeholder="Type a sentence"
+          placeholder="Type something you might say"
           returnKeyType="done"
           submitBehavior="blurAndSubmit"
-          placeholderTextColor={p.secondary}
-          style={[styles.input, { color: p.text, borderColor: p.border }]}
+          placeholderTextColor={p.tertiary}
+          style={[TYPE.body, styles.input, { color: p.text, backgroundColor: p.sunken }]}
         />
-        {result
-          ? ALL_KINDS.map((kind) => (
+        {result ? (
+          <View style={styles.bars}>
+            {ALL_KINDS.map((kind) => (
               <View key={kind} style={styles.barRow}>
-                <Text style={[styles.barLabel, { color: KIND_COLOR[kind], fontWeight: kind === result.kind ? '700' : '400' }]}>
+                <Text style={[TYPE.subhead, styles.barLabel, { color: kind === result.kind ? KIND_COLOR[kind] : p.secondary, fontWeight: kind === result.kind ? '700' : '500' }]}>
                   {KIND_LABEL[kind]}
                 </Text>
-                <View style={[styles.barTrack, { backgroundColor: p.border }]}>
-                  <View style={[styles.barFill, { width: pct(result.scores[kind]) as `${number}%`, backgroundColor: KIND_COLOR[kind] }]} />
+                <View style={{ flex: 1 }}>
+                  <ProgressBar value={result.scores[kind]} color={KIND_COLOR[kind]} height={7} />
                 </View>
-                <Text style={[styles.barValue, { color: p.secondary }]}>{pct(result.scores[kind])}</Text>
+                <Text style={[TYPE.caption, styles.barValue, { color: p.secondary }]}>{pct(result.scores[kind])}</Text>
               </View>
-            ))
-          : null}
-        {result && result.kind !== 'none' ? <Row label="Title" value={titleFor(sample)} /> : null}
-        {due ? <Row label="Reminder" value={due.toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' })} /> : null}
-      </Card>
+            ))}
+          </View>
+        ) : null}
+        {found.length ? (
+          <View style={[styles.found, { borderTopColor: p.hairline }]}>
+            <Text style={[TYPE.label, { color: p.tertiary }]}>It would save</Text>
+            {found.map((f, k) => (
+              <Text key={k} style={[TYPE.callout, { color: p.text }]}>
+                <Text style={{ color: KIND_COLOR[f.kind], fontWeight: '600' }}>{KIND_LABEL[f.kind]}</Text>
+                {`  ${f.title}`}
+                {f.dueDate ? <Text style={{ color: p.secondary }}>{`  ·  ${formatDue(f.dueDate)}`}</Text> : null}
+              </Text>
+            ))}
+          </View>
+        ) : text ? (
+          <Text style={[TYPE.footnote, styles.nothing, { color: p.secondary }]}>Nothing to save here: it reads as a note.</Text>
+        ) : null}
+      </Section>
 
-      <SectionTitle>Test sentences it has never seen</SectionTitle>
-      <Card>
-        <Row label="Accuracy" value={pct(report.accuracy)} bold />
+      <Section title="On sentences it never saw">
+        <View style={styles.scoreRow}>
+          <Text style={[styles.score, { color: p.text }]}>{pct(report.accuracy)}</Text>
+          <Text style={[TYPE.footnote, { color: p.secondary, flex: 1 }]}>sorted into the right list, out of {SEED_EVALUATION.length} test sentences</Text>
+        </View>
         {ALL_KINDS.map((kind) => (
-          <Row key={kind} label={KIND_PLURAL[kind]} value={`${report.perKind[kind].correct} of ${report.perKind[kind].total}`} />
+          <View key={kind} style={[styles.kindRow, styles.ruled, { borderTopColor: p.hairline }]}>
+            <View style={[styles.dot, { backgroundColor: KIND_COLOR[kind] }]} />
+            <Text style={[TYPE.callout, { color: p.text, flex: 1 }]}>{KIND_PLURAL[kind]}</Text>
+            <Text style={[TYPE.callout, { color: p.secondary }]}>
+              {report.perKind[kind].correct} of {report.perKind[kind].total}
+            </Text>
+          </View>
         ))}
-      </Card>
+      </Section>
 
-      <SectionTitle>Personalisation</SectionTitle>
-      <Card>
-        <Row label="Your corrections" value={String(analyzer.personalExamples)} />
-        <Row label="Words and phrases known" value={String(analyzer.model.vocabularySize)} />
-        <Pressable onPress={confirmReset} disabled={analyzer.personalExamples === 0} style={{ paddingTop: 10 }}>
-          <Text style={{ color: analyzer.personalExamples === 0 ? p.secondary : p.danger, fontSize: 16 }}>
-            Reset to the built-in model
-          </Text>
+      <Section title="Learned from you">
+        <View style={styles.kindRow}>
+          <Text style={[TYPE.callout, { color: p.text, flex: 1 }]}>Your fixes and Claude's double-checks</Text>
+          <Text style={[TYPE.callout, { color: p.secondary }]}>{analyzer.personalExamples}</Text>
+        </View>
+        <View style={[styles.kindRow, { borderTopColor: p.hairline, borderTopWidth: StyleSheet.hairlineWidth }]}>
+          <Text style={[TYPE.callout, { color: p.text, flex: 1 }]}>Words and phrases it knows</Text>
+          <Text style={[TYPE.callout, { color: p.secondary }]}>{analyzer.model.vocabularySize.toLocaleString()}</Text>
+        </View>
+        <Pressable
+          onPress={confirmReset}
+          disabled={analyzer.personalExamples === 0}
+          style={({ pressed }) => [styles.kindRow, { borderTopColor: p.hairline, borderTopWidth: StyleSheet.hairlineWidth }, pressed && { opacity: 0.6 }]}
+        >
+          <Text style={[TYPE.callout, { color: analyzer.personalExamples === 0 ? p.tertiary : p.danger }]}>Reset to the built-in model</Text>
         </Pressable>
-      </Card>
-      <Text style={[styles.footnote, { color: p.secondary }]}>
-        The model started from {SEED_TRAINING.length} example sentences. Every time you fix or confirm a category, it learns
-        from your own words, and your fixes count three times as much as the examples. Everything stays on your phone.
-      </Text>
+      </Section>
+      <Footnote>
+        It started from {SEED_SIZE.toLocaleString()} example sentences of everyday life. Each time you fix a category, or Claude
+        double-checks a message, it learns from your own words. Your fixes count three times as much. It all stays on your phone.
+      </Footnote>
     </ScrollView>
   );
-
-  function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
-    return (
-      <View style={styles.row}>
-        <Text style={{ color: p.text, fontSize: 16 }}>{label}</Text>
-        <Text style={{ color: bold ? p.text : p.secondary, fontSize: 16, fontWeight: bold ? '700' : '400', flexShrink: 1, textAlign: 'right' }}>
-          {value}
-        </Text>
-      </View>
-    );
-  }
 }
 
 const styles = StyleSheet.create({
-  input: { fontSize: 16, borderWidth: 1, borderRadius: 10, padding: 10, marginBottom: 10, minHeight: 44 },
-  barRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
-  barLabel: { width: 80, fontSize: 14 },
-  barTrack: { flex: 1, height: 8, borderRadius: 4, overflow: 'hidden' },
-  barFill: { height: 8, borderRadius: 4 },
-  barValue: { width: 40, textAlign: 'right', fontSize: 13 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', gap: 12, paddingVertical: 6 },
-  footnote: { marginHorizontal: 20, fontSize: 13, lineHeight: 18 },
+  content: { paddingBottom: SPACE.xxxl },
+  input: { borderRadius: RADIUS.s + 2, padding: 12, marginTop: SPACE.s, minHeight: 48 },
+  bars: { gap: 8, marginTop: SPACE.m, marginBottom: SPACE.s },
+  barRow: { flexDirection: 'row', alignItems: 'center', gap: SPACE.s },
+  barLabel: { width: 76 },
+  barValue: { width: 36, textAlign: 'right' },
+  found: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: SPACE.m, paddingBottom: SPACE.s, gap: 4, marginTop: SPACE.s },
+  nothing: { paddingVertical: SPACE.s },
+  scoreRow: { flexDirection: 'row', alignItems: 'center', gap: SPACE.m, paddingVertical: SPACE.m },
+  score: { fontFamily: SERIF, fontSize: 36, lineHeight: 42, fontWeight: '700' },
+  kindRow: { flexDirection: 'row', alignItems: 'center', gap: SPACE.s + 2, paddingVertical: 12 },
+  ruled: { borderTopWidth: StyleSheet.hairlineWidth },
+  dot: { width: 8, height: 8, borderRadius: 4 },
 });

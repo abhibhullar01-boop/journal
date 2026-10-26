@@ -1,25 +1,30 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Keyboard, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Keyboard, Linking, Pressable, ScrollView, Share, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { webSearchStatus } from '../ai/claude';
 import { KeyName, useKeys } from '../ai/keys';
-import { usePalette } from '../components/theme';
-import { Card, SectionTitle } from '../components/ui';
+import { KIND_LABEL } from '../brain';
+import { IconName, RADIUS, SPACE, tint, TYPE, usePalette } from '../components/theme';
+import { Button, Card, Footnote, Row, Section } from '../components/ui';
+import { formatDue } from '../store/format';
 import { useJournal } from '../store/JournalContext';
+import type { JournalEntry, TrackedItem } from '../store/types';
 
-const KEY_INFO: Record<KeyName, { title: string; what: string; url: string; prefix: string }> = {
-  openai: {
-    title: 'OpenAI key (speech)',
-    what: 'Turns your voice into text, much more accurately than the keyboard mic. Costs well under a cent per minute.',
-    url: 'https://platform.openai.com/api-keys',
-    prefix: 'sk-',
-  },
+const KEY_INFO: Record<KeyName, { title: string; icon: IconName; what: string; url: string; prefix: string }> = {
   anthropic: {
-    title: 'Claude key (companion)',
-    what: 'Powers the chat, and double-checks how each entry is sorted. Usually a few cents a day.',
+    title: 'Claude',
+    icon: 'sparkles-outline',
+    what: 'Powers the chat, and double-checks how each message is sorted. Usually a few cents a day.',
     url: 'https://platform.claude.com/settings/keys',
     prefix: 'sk-ant-',
+  },
+  openai: {
+    title: 'OpenAI',
+    icon: 'mic-outline',
+    what: 'Writes down what you say, far more accurately than the keyboard mic. Under half a cent a minute.',
+    url: 'https://platform.openai.com/api-keys',
+    prefix: 'sk-',
   },
 };
 
@@ -34,7 +39,7 @@ function KeyCard({ name }: { name: KeyName }) {
     const value = draft.trim();
     if (!value) return;
     if (!value.startsWith(info.prefix)) {
-      Alert.alert("That doesn't look like the right key", `${info.title.split(' (')[0]}s start with "${info.prefix}".`);
+      Alert.alert("That doesn't look like the right key", `${info.title} keys start with "${info.prefix}".`);
       return;
     }
     await keys.setKey(name, value);
@@ -42,26 +47,29 @@ function KeyCard({ name }: { name: KeyName }) {
     Keyboard.dismiss();
   };
 
+  const remove = () =>
+    Alert.alert(`Remove the ${info.title} key?`, undefined, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Remove', style: 'destructive', onPress: () => keys.setKey(name, null) },
+    ]);
+
   return (
-    <Card>
-      <View style={styles.keyHeader}>
-        <Text style={[styles.keyTitle, { color: p.text }]}>{info.title}</Text>
-        {saved ? <Ionicons name="checkmark-circle" size={22} color={p.accent} /> : null}
+    <Card style={styles.keyCard}>
+      <View style={styles.keyHead}>
+        <View style={[styles.keyIcon, { backgroundColor: p.accentSoft }]}>
+          <Ionicons name={info.icon} size={17} color={p.accent} />
+        </View>
+        <Text style={[TYPE.headline, { color: p.text, flex: 1 }]}>{info.title}</Text>
+        <View style={[styles.pill, { backgroundColor: saved ? p.accentSoft : p.sunken }]}>
+          <Text style={[TYPE.caption, { color: saved ? p.accent : p.secondary, fontWeight: '600' }]}>{saved ? 'Connected' : 'Not set'}</Text>
+        </View>
       </View>
-      <Text style={[styles.what, { color: p.secondary }]}>{info.what}</Text>
+      <Text style={[TYPE.footnote, { color: p.secondary }]}>{info.what}</Text>
       {saved ? (
-        <View style={styles.savedRow}>
-          <Text style={{ color: p.text, fontSize: 15 }}>Saved, ending in …{saved.slice(-4)}</Text>
-          <Pressable
-            hitSlop={10}
-            onPress={() =>
-              Alert.alert('Remove this key?', undefined, [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Remove', style: 'destructive', onPress: () => keys.setKey(name, null) },
-              ])
-            }
-          >
-            <Text style={{ color: p.danger, fontSize: 15 }}>Remove</Text>
+        <View style={styles.keyRow}>
+          <Text style={[TYPE.subhead, { color: p.text }]}>Key ending in …{saved.slice(-4)}</Text>
+          <Pressable onPress={remove} hitSlop={10}>
+            <Text style={[TYPE.subhead, { color: p.danger, fontWeight: '600' }]}>Remove</Text>
           </Pressable>
         </View>
       ) : (
@@ -69,22 +77,21 @@ function KeyCard({ name }: { name: KeyName }) {
           <TextInput
             value={draft}
             onChangeText={setDraft}
-            placeholder={`Paste key (${info.prefix}…)`}
-            placeholderTextColor={p.secondary}
+            placeholder={`Paste your key (${info.prefix}…)`}
+            placeholderTextColor={p.tertiary}
             autoCapitalize="none"
             autoCorrect={false}
             secureTextEntry
             returnKeyType="done"
             onSubmitEditing={save}
-            style={[styles.input, { color: p.text, borderColor: p.border }]}
+            style={[TYPE.callout, styles.input, { color: p.text, backgroundColor: p.sunken }]}
           />
-          <View style={styles.savedRow}>
-            <Pressable onPress={() => Linking.openURL(info.url)} hitSlop={8}>
-              <Text style={{ color: p.accent, fontSize: 15 }}>Get a key</Text>
+          <View style={styles.keyRow}>
+            <Pressable onPress={() => Linking.openURL(info.url)} hitSlop={8} style={styles.link}>
+              <Text style={[TYPE.subhead, { color: p.accent, fontWeight: '600' }]}>Get a key</Text>
+              <Ionicons name="open-outline" size={13} color={p.accent} />
             </Pressable>
-            <Pressable onPress={save} disabled={!draft.trim()} style={[styles.saveButton, { backgroundColor: draft.trim() ? p.accent : p.border }]}>
-              <Text style={{ color: '#fff', fontWeight: '600' }}>Save</Text>
-            </Pressable>
+            <Button compact title="Save" onPress={save} disabled={!draft.trim()} />
           </View>
         </>
       )}
@@ -98,97 +105,141 @@ function WebSearchNote() {
   const { working, problem } = webSearchStatus();
   if (working !== false) return null;
   return (
-    <Card style={{ marginTop: 10 }}>
-      <View style={styles.linkRow}>
-        <Ionicons name="globe-outline" size={20} color={p.danger} />
-        <Text style={{ flex: 1, color: p.text, fontSize: 15, fontWeight: '600' }}>Claude's web search is off</Text>
+    <Card style={[styles.keyCard, { marginTop: SPACE.m }]}>
+      <View style={styles.keyHead}>
+        <Ionicons name="globe-outline" size={18} color={p.danger} />
+        <Text style={[TYPE.headline, { color: p.text, flex: 1 }]}>Claude's web search is off</Text>
       </View>
-      <Text style={[styles.what, { color: p.secondary, marginTop: 6 }]}>
-        Links still work through the phone's own search. For better results, turn on web search in your Claude account
-        settings at platform.claude.com.{problem ? `\n\nWhat Claude said: ${problem}` : ''}
+      <Text style={[TYPE.footnote, { color: p.secondary }]}>
+        Links still work through the phone's own search. For better results, turn on web search in your Claude account settings.
+        {problem ? `\n\nWhat Claude said: ${problem}` : ''}
       </Text>
-      <Pressable onPress={() => Linking.openURL('https://platform.claude.com/settings')} hitSlop={8} style={{ marginTop: 8 }}>
-        <Text style={{ color: p.accent, fontSize: 15, fontWeight: '600' }}>Open Claude settings</Text>
+      <Pressable onPress={() => Linking.openURL('https://platform.claude.com/settings')} hitSlop={8} style={styles.link}>
+        <Text style={[TYPE.subhead, { color: p.accent, fontWeight: '600' }]}>Open Claude settings</Text>
+        <Ionicons name="open-outline" size={13} color={p.accent} />
       </Pressable>
     </Card>
   );
 }
 
+function SwitchRow({ title, subtitle, value, onChange, last }: { title: string; subtitle: string; value: boolean; onChange(v: boolean): void; last?: boolean }) {
+  const p = usePalette();
+  return (
+    <View style={[styles.switchRow, !last && { borderBottomColor: p.hairline, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+      <View style={{ flex: 1 }}>
+        <Text style={[TYPE.body, { color: p.text }]}>{title}</Text>
+        <Text style={[TYPE.footnote, { color: p.secondary, marginTop: 2 }]}>{subtitle}</Text>
+      </View>
+      <Switch value={value} onValueChange={onChange} trackColor={{ true: p.accent, false: p.border }} accessibilityLabel={title} />
+    </View>
+  );
+}
+
+/** The whole journal as plain text, oldest first, with the open lists at the end. */
+function journalText(entries: JournalEntry[], items: TrackedItem[]): string {
+  const lines: string[] = ['My journal', ''];
+  let day = '';
+  for (const e of [...entries].sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
+    const date = new Date(e.createdAt);
+    const label = date.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    if (label !== day) {
+      lines.push('', label.toUpperCase());
+      day = label;
+    }
+    lines.push(`${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}  ${e.text}`);
+  }
+  const open = items.filter((i) => !i.done);
+  if (open.length) {
+    lines.push('', '', 'OPEN ITEMS');
+    for (const i of open) lines.push(`- [${KIND_LABEL[i.kind]}] ${i.title}${i.dueDate ? ` (${formatDue(i.dueDate)})` : ''}`);
+  }
+  return lines.join('\n');
+}
+
 export default function SettingsScreen() {
   const p = usePalette();
-  const { facts, forgetFact, prefs, setPref } = useJournal();
+  const { facts, forgetFact, prefs, setPref, entries, items } = useJournal();
+
+  const exportJournal = () => {
+    if (!entries.length) {
+      Alert.alert('Nothing to export yet', 'Your messages become journal entries. Once there are some, you can export them here.');
+      return;
+    }
+    Share.share({ title: 'My journal', message: journalText(entries, items) }).catch(() => {});
+  };
 
   return (
     <ScrollView
       style={{ backgroundColor: p.background }}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="interactive"
       automaticallyAdjustKeyboardInsets
     >
-      <SectionTitle>Notifications</SectionTitle>
-      <Card style={styles.linkRow}>
-        <Ionicons name="notifications-outline" size={20} color={p.accent} />
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: p.text, fontSize: 16 }}>Tell me when something is saved</Text>
-          <Text style={[styles.what, { color: p.secondary }]}>A quick notification listing what went to your lists and when you'll be reminded.</Text>
-        </View>
-        <Switch value={prefs.savedNotifications} onValueChange={(v) => setPref('savedNotifications', v)} trackColor={{ true: p.accent }} />
-      </Card>
-      <Text style={[styles.note, { color: p.secondary }]}>
-        Reminders for tasks always come at their time, plus a morning plan at 8:30 and an evening check at 8:30 pm.
-        If none arrive, turn on notifications for Expo Go in iPhone Settings.
-      </Text>
+      <View style={styles.firstSection}>
+        <KeyCard name="anthropic" />
+        <WebSearchNote />
+        <View style={{ height: SPACE.m }} />
+        <KeyCard name="openai" />
+        <Footnote>
+          Keys stay in your iPhone's keychain. Recordings go to OpenAI to be written down, and your messages go to Claude when you
+          chat. Without keys, everything still works on the phone, just less smartly.
+        </Footnote>
+      </View>
 
-      <SectionTitle>Keys</SectionTitle>
-      <KeyCard name="openai" />
-      <KeyCard name="anthropic" />
-      <Text style={[styles.note, { color: p.secondary }]}>
-        Keys stay in your iPhone's keychain. Your recordings go to OpenAI to be written down, and your journal text goes
-        to Claude when you chat or save an entry. Without keys, everything still works on the phone, just less smartly.
-      </Text>
+      <Section title="Notifications">
+        <SwitchRow
+          title="When something is saved"
+          subtitle="A quick note listing what went to your lists, and when you'll be reminded."
+          value={prefs.savedNotifications}
+          onChange={(v) => setPref('savedNotifications', v)}
+        />
+        <SwitchRow
+          title="Morning plan and evening check"
+          subtitle="At 8:30 am and 8:30 pm, plus a Sunday check-in on your goals."
+          value={prefs.dailyDigests}
+          onChange={(v) => setPref('dailyDigests', v)}
+          last
+        />
+      </Section>
+      <Footnote>Task reminders always come at their time. If none arrive, allow notifications for Expo Go in iPhone Settings.</Footnote>
 
-      <WebSearchNote />
-
-      <SectionTitle>What your companion remembers</SectionTitle>
-      <Card>
+      <Section title="What your companion remembers" count={facts.length || undefined}>
         {facts.length ? (
           facts.map((fact, i) => (
-            <View key={`${fact}-${i}`} style={[styles.factRow, { borderBottomColor: p.border }]}>
-              <Text style={[styles.fact, { color: p.text }]}>{fact}</Text>
-              <Pressable onPress={() => forgetFact(i)} hitSlop={10} accessibilityLabel="Forget this">
-                <Ionicons name="close-circle-outline" size={20} color={p.secondary} />
+            <View key={`${fact}-${i}`} style={[styles.factRow, i < facts.length - 1 && { borderBottomColor: p.hairline, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+              <Text style={[TYPE.callout, { color: p.text, flex: 1 }]}>{fact}</Text>
+              <Pressable onPress={() => forgetFact(i)} hitSlop={10} accessibilityLabel={`Forget: ${fact}`}>
+                <Ionicons name="close-circle" size={20} color={tint(p.secondary, 0.5)} />
               </Pressable>
             </View>
           ))
         ) : (
-          <Text style={{ color: p.secondary, fontSize: 15, lineHeight: 21 }}>
-            Nothing yet. As you journal, it notes things like who people are, so it can be more personal.
+          <Text style={[TYPE.callout, styles.quiet, { color: p.secondary }]}>
+            Nothing yet. As you talk, it notes things like who people are, so its answers fit your life.
           </Text>
         )}
-      </Card>
+      </Section>
 
-      <SectionTitle>On-phone brain</SectionTitle>
-      <Pressable onPress={() => router.push('/brain')}>
-        <Card style={styles.linkRow}>
-          <Ionicons name="bulb-outline" size={20} color={p.accent} />
-          <Text style={{ flex: 1, color: p.text, fontSize: 16 }}>How the brain is doing</Text>
-          <Ionicons name="chevron-forward" size={18} color={p.secondary} />
-        </Card>
-      </Pressable>
+      <Section title="Your journal">
+        <Row icon="hardware-chip-outline" title="On-phone brain" subtitle="How well it sorts, and what it has learned from you" onPress={() => router.push('/brain')} />
+        <Row icon="share-outline" title="Export your journal" subtitle={`${entries.length} entries as plain text`} onPress={exportJournal} last />
+      </Section>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  keyHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  keyTitle: { fontSize: 17, fontWeight: '700' },
-  what: { fontSize: 14, lineHeight: 19, marginTop: 4 },
-  input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, marginTop: 10 },
-  savedRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
-  saveButton: { borderRadius: 10, paddingHorizontal: 18, paddingVertical: 8 },
-  note: { marginHorizontal: 20, fontSize: 13, lineHeight: 18 },
-  factRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth },
-  fact: { flex: 1, fontSize: 15, lineHeight: 20 },
-  linkRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  content: { paddingBottom: SPACE.xxxl },
+  firstSection: { marginTop: SPACE.l },
+  keyCard: { paddingVertical: SPACE.l, gap: SPACE.s },
+  keyHead: { flexDirection: 'row', alignItems: 'center', gap: SPACE.s + 2 },
+  keyIcon: { width: 30, height: 30, borderRadius: RADIUS.s, alignItems: 'center', justifyContent: 'center' },
+  pill: { borderRadius: RADIUS.pill, paddingHorizontal: 9, paddingVertical: 3 },
+  keyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
+  input: { borderRadius: RADIUS.s + 2, paddingHorizontal: 12, paddingVertical: 11, marginTop: 4 },
+  link: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  switchRow: { flexDirection: 'row', alignItems: 'center', gap: SPACE.m, paddingVertical: SPACE.m },
+  factRow: { flexDirection: 'row', alignItems: 'center', gap: SPACE.m, paddingVertical: SPACE.m },
+  quiet: { paddingVertical: SPACE.s },
 });

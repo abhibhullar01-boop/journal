@@ -1,17 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
-/** Three softly bouncing dots while the companion writes. */
+/** Three quiet dots that fade in turn while the companion thinks. */
 export function TypingDots({ color }: { color: string }) {
   const values = useRef([0, 1, 2].map(() => new Animated.Value(0))).current;
   useEffect(() => {
     const loops = values.map((v, i) =>
       Animated.loop(
         Animated.sequence([
-          Animated.delay(i * 150),
-          Animated.timing(v, { toValue: 1, duration: 300, useNativeDriver: true }),
-          Animated.timing(v, { toValue: 0, duration: 300, useNativeDriver: true }),
-          Animated.delay((2 - i) * 150 + 200),
+          Animated.delay(i * 160),
+          Animated.timing(v, { toValue: 1, duration: 360, useNativeDriver: true }),
+          Animated.timing(v, { toValue: 0, duration: 360, useNativeDriver: true }),
+          Animated.delay((2 - i) * 160 + 120),
         ]),
       ),
     );
@@ -25,7 +25,11 @@ export function TypingDots({ color }: { color: string }) {
           key={i}
           style={[
             styles.dot,
-            { backgroundColor: color, opacity: v.interpolate({ inputRange: [0, 1], outputRange: [0.35, 1] }), transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [0, -4] }) }] },
+            {
+              backgroundColor: color,
+              opacity: v.interpolate({ inputRange: [0, 1], outputRange: [0.25, 0.9] }),
+              transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1.1] }) }],
+            },
           ]}
         />
       ))}
@@ -34,6 +38,6 @@ export function TypingDots({ color }: { color: string }) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 5, paddingVertical: 6, paddingHorizontal: 2 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 5, height: 24 },
+  dot: { width: 7, height: 7, borderRadius: 3.5 },
 });

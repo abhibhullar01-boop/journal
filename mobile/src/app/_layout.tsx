@@ -1,9 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetch as expoFetch } from 'expo/fetch';
 import * as Notifications from 'expo-notifications';
 import { DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { setFetch } from '../ai/claude';
+import { setCacheStore, setHttpFetch } from '../ai/http';
 import { KeysProvider } from '../ai/keys';
 import { PALETTE } from '../components/theme';
 import { JournalProvider, useJournal } from '../store/JournalContext';
@@ -52,8 +54,12 @@ function NotificationBridge() {
   return null;
 }
 
-// Expo's fetch can stream, so the companion's words appear as they're written.
+// Expo's fetch can stream, so the companion's words appear as they're written, and link
+// previews can stop reading a page once they have what they need.
 setFetch(expoFetch);
+setHttpFetch(expoFetch);
+// Link previews are kept on the phone, so a link seen before shows its picture straight away.
+setCacheStore({ get: (key) => AsyncStorage.getItem(key), set: (key, value) => AsyncStorage.setItem(key, value) });
 
 const theme = {
   ...DefaultTheme,
@@ -79,15 +85,15 @@ export default function RootLayout() {
               headerStyle: { backgroundColor: PALETTE.background },
               headerShadowVisible: false,
               headerTintColor: PALETTE.accent,
-              headerTitleStyle: { color: PALETTE.text },
+              headerTitleStyle: { color: PALETTE.text, fontWeight: '600' },
               contentStyle: { backgroundColor: PALETTE.background },
-              headerBackTitle: 'Back',
+              headerBackButtonDisplayMode: 'minimal',
             }}
           >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Back' }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Home' }} />
             <Stack.Screen name="entry/[id]" options={{ title: 'Entry' }} />
             <Stack.Screen name="settings" options={{ title: 'Settings' }} />
-            <Stack.Screen name="brain" options={{ title: 'How the brain is doing' }} />
+            <Stack.Screen name="brain" options={{ title: 'On-phone brain' }} />
           </Stack>
         </JournalProvider>
       </KeysProvider>

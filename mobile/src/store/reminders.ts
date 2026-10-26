@@ -97,12 +97,12 @@ export async function cancelReminder(notificationId: string | null): Promise<voi
   if (notificationId) await Notifications.cancelScheduledNotificationAsync(notificationId).catch(() => {});
 }
 
-/** Rebuilds the repeating digest and check-in so their text matches the current data. */
-export async function refreshDigests(items: TrackedItem[]): Promise<void> {
+/** Rebuilds the repeating digest and check-in so their text matches the current data. Off: removes them. */
+export async function refreshDigests(items: TrackedItem[], enabled = true): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(DIGEST_ID).catch(() => {});
   await Notifications.cancelScheduledNotificationAsync(CHECK_IN_ID).catch(() => {});
   await Notifications.cancelScheduledNotificationAsync(EVENING_ID).catch(() => {});
-  if (!(await Notifications.getPermissionsAsync()).granted) return;
+  if (!enabled || !(await Notifications.getPermissionsAsync()).granted) return;
 
   const open = items.filter((i) => i.kind === 'task' && !i.done);
   const toBuy = items.filter((i) => i.kind === 'shopping' && !i.done);
@@ -141,7 +141,9 @@ export async function refreshDigests(items: TrackedItem[]): Promise<void> {
   }
 
   const growth = items.filter((i) => (i.kind === 'skill' || i.kind === 'goal') && !i.done);
-  const pick = growth[Math.floor(Math.random() * growth.length)];
+  // The same pick all week (it changes each Sunday), rather than a new one on every save.
+  const week = Math.floor(Date.now() / (7 * 24 * 3600_000));
+  const pick = growth.length ? growth[week % growth.length] : undefined;
   if (pick) {
     await Notifications.scheduleNotificationAsync({
       identifier: CHECK_IN_ID,
