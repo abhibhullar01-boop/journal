@@ -15,7 +15,7 @@ const API_URL = 'https://api.anthropic.com/v1/messages';
 
 /** The parts of the Messages API this app uses. */
 namespace Anthropic {
-  export type TextBlock = { type: 'text'; text: string; citations?: unknown[] };
+  export type TextBlock = { type: 'text'; text: string; citations?: unknown[]; cache_control?: { type: 'ephemeral' } };
   export type ToolUseBlock = { type: 'tool_use'; id: string; name: string; input: unknown };
   export type ContentBlock = TextBlock | ToolUseBlock | { type: string; [key: string]: unknown };
   export type ToolResultBlockParam = { type: 'tool_result'; tool_use_id: string; content: string };
@@ -51,8 +51,17 @@ function headers(apiKey: string) {
   };
 }
 
-/** Reads a server-sent event stream into a whole message, calling `onText` as words arrive. */
-async function readStream(response: Response, onText?: (delta: string) => void, onBlock?: (block: Anthropic.ContentBlock) => void): Promise<Anthropic.Message> {
+/**
+ * Reads a server-sent event stream into a whole message, calling `onText` as words arrive.
+ * Thinking blocks are rebuilt with their text and signature, because a tool round must send them
+ * back unchanged.
+ */
+async function readStream(
+  response: Response,
+  onText?: (delta: string) => void,
+  onBlock?: (block: Anthropic.ContentBlock) => void,
+  onThinking?: (delta: string) => void,
+): Promise<Anthropic.Message> {
   const content: Anthropic.ContentBlock[] = [];
   const partialJson: Record<number, string> = {};
   let stopReason: string | null = null;
@@ -82,6 +91,11 @@ async function readStream(response: Response, onText?: (delta: string) => void, 
           partialJson[event.index] = (partialJson[event.index] ?? '') + d.partial_json;
         } else if (d.type === 'citations_delta') {
           block.citations = [...(block.citations ?? []), d.citation];
+        } else if (d.type === 'thinking_delta') {
+          block.thinking = (block.thinking ?? '') + d.thinking;
+          onThinking?.(d.thinking);
+        } else if (d.type === 'signature_delta') {
+          block.signature = (block.signature ?? '') + d.signature;
         }
         break;
       }
@@ -140,9 +154,23 @@ async function readStream(response: Response, onText?: (delta: string) => void, 
 interface CallOptions {
   models: string[];
   stream?: boolean;
+  /** Skip extended thinking where the model allows it: the replies here are short and speed matters. */
+  fast?: boolean;
   onText?: (delta: string) => void;
   onBlock?: (block: Anthropic.ContentBlock) => void;
+  onThinking?: (delta: string) => void;
 }
+
+/**
+ * The lowest thinking setting each model accepts. Sonnet 5.5 calls it "between_tools" (only short
+ * notes between tool calls); Haiku 5.5 can switch thinking off. Opus can't, so it relies on low effort.
+ */
+const QUICK_THINKING: Record<string, { type: string }> = {
+  'claude-sonnet-5-5': { type: 'between_tools' },
+  'claude-haiku-5-5': { type: 'disabled' },
+};
+/** Models that turned the quick setting down, so later calls leave it out. */
+const quickThinkingRefused = new Set<string>();
 
 /** Calls the Messages API with retries, trying the next model when one isn't available. */
 async function createMessage(apiKey: string, body: Record<string, unknown>, options: CallOptions): Promise<Anthropic.Message> {
@@ -152,12 +180,13 @@ async function createMessage(apiKey: string, body: Record<string, unknown>, opti
   for (const model of models) {
     for (let attempt = 0; attempt < 3; attempt++) {
       if (attempt) await new Promise((r) => setTimeout(r, 800 * 2 ** attempt));
+      const thinking = options.fast && !quickThinkingRefused.has(model) ? QUICK_THINKING[model] : undefined;
       let response: Response;
       try {
         response = await fetchImpl(API_URL, {
           method: 'POST',
           headers: headers(apiKey),
-          body: JSON.stringify({ ...body, model, ...(options.stream ? { stream: true } : {}) }),
+          body: JSON.stringify({ ...body, model, ...(thinking ? { thinking } : {}), ...(options.stream ? { stream: true } : {}) }),
         });
       } catch {
         lastError = new ClaudeError("Couldn't reach Claude.", 0);
@@ -167,7 +196,7 @@ async function createMessage(apiKey: string, body: Record<string, unknown>, opti
         const isStream = options.stream && (response.headers.get('content-type') ?? '').includes('event-stream');
         if (isStream) {
           try {
-            return await readStream(response, options.onText, options.onBlock);
+            return await readStream(response, options.onText, options.onBlock, options.onThinking);
           } catch (error) {
             lastError = error instanceof ClaudeError ? error : new ClaudeError("Couldn't reach Claude.", 0);
             if (!RETRYABLE.has(lastError.status) && lastError.status !== 0) throw lastError;
@@ -184,6 +213,12 @@ async function createMessage(apiKey: string, body: Record<string, unknown>, opti
       }
       const json = await response.json().catch(() => null);
       lastError = new ClaudeError(json?.error?.message ?? `HTTP ${response.status}`, response.status);
+      if (response.status === 400 && thinking && /thinking/i.test(lastError.message)) {
+        // This model doesn't take the quick setting: ask again straight away without it.
+        quickThinkingRefused.add(model);
+        attempt = -1;
+        continue;
+      }
       if (!RETRYABLE.has(response.status)) break;
     }
     // A model this key can't use: try the next one.
@@ -276,7 +311,8 @@ export async function extractWithClaude(apiKey: string, entry: string, now: Date
   const response = await createMessage(apiKey, {
     max_tokens: 4000,
     output_config: { effort: 'low', format: { type: 'json_schema', schema: EXTRACTION_SCHEMA } },
-    system: EXTRACTION_RULES,
+    // The rules are the same for every entry, so they're cached between messages.
+    system: [{ type: 'text', text: EXTRACTION_RULES, cache_control: { type: 'ephemeral' } }],
     messages: [
       {
         role: 'user',
@@ -286,7 +322,7 @@ export async function extractWithClaude(apiKey: string, entry: string, now: Date
           `\nEntry:\n${entry}`,
       },
     ],
-  }, { models: SORT_MODELS });
+  }, { models: SORT_MODELS, fast: true });
   if (response.stop_reason === 'refusal') throw new Error('Claude declined this entry.');
   const parsed = JSON.parse(textOf(response)) as {
     items: { kind: InsightKind; title: string; sentence: string; due: string }[];
@@ -340,7 +376,8 @@ export interface CompanionResult {
 const COMPANION_PERSONA = `You are the companion inside the user's personal journal app on their iPhone. Think of yourself as a warm, sharp friend who has read their journal: you remember what they said, notice patterns, and help them get things done.
 
 How the app works:
-- There is one ongoing chat, and it is also their journal. They drop in many times a day: quick notes, voice dumps, questions, venting. Each day starts under a date divider. Use the time of day and what they already said today.
+- There is one ongoing chat, and it is also their journal. They drop in many times a day: quick notes, voice dumps, questions, venting. Each of their messages starts with its local time in brackets. Use the time of day and what they already said today.
+- Their latest message ends with an <app_context> block from the app: the time now, their open items, and what the app just saved. They didn't write it and can't see it.
 - After each message the app itself pulls out tasks, things to buy, skills and goals, sets reminders, and shows them as cards under their message. Don't add those again and don't list them back; at most mention one detail in passing ("I'll ping you at 7").
 - Use add_item only for something new you suggested and they agreed to, or something they ask you to add that isn't in their latest message.
 - When you change their lists, write your short reply first and call the tools in the same response.
@@ -431,12 +468,15 @@ const BACKUP_SEARCH_TOOL: Anthropic.Tool = {
   },
 };
 
-function contextBlock(c: CompanionContext): string {
-  const lines: string[] = [`Now: ${localStamp(c.now)}.`];
-  lines.push('', 'What you know about them:', ...(c.facts.length ? c.facts.slice(-60).map((f) => `- ${f}`) : ['- (nothing yet)']));
-  lines.push('', 'Their open items (id | kind | title | reminder):');
-  if (!c.openItems.length) lines.push('- (none)');
-  for (const i of c.openItems.slice(0, 50)) lines.push(`- ${i.id} | ${i.kind} | ${i.title} | ${i.due ? localStamp(i.due) : '-'}`);
+function currentTools(): unknown[] {
+  if (webSearchLevel >= WEB_SEARCH_TOOLS.length && Date.now() - webSearchOffSince > WEB_SEARCH_RETRY_MS) webSearchLevel = 0;
+  const serverSearch = webSearchLevel < WEB_SEARCH_TOOLS.length;
+  return [...COMPANION_TOOLS, serverSearch ? WEB_SEARCH_TOOLS[webSearchLevel] : BACKUP_SEARCH_TOOL];
+}
+
+/** What changes slowly (facts, older journal): its own cached block after the persona. */
+function memoryBlock(c: CompanionContext): string {
+  const lines: string[] = ['What you know about them:', ...(c.facts.length ? c.facts.slice(-60).map((f) => `- ${f}`) : ['- (nothing yet)'])];
   if (c.olderEntries.length) {
     lines.push('', 'Older journal messages (before the chat below), newest first:');
     let budget = 6_000;
@@ -447,15 +487,73 @@ function contextBlock(c: CompanionContext): string {
       lines.push(line);
     }
   }
+  return lines.join('\n');
+}
+
+/** What changes every message: the time, open items and what was just saved. Sent after their latest words. */
+function contextBlock(c: CompanionContext): string {
+  const lines: string[] = ['<app_context>', `Now: ${localStamp(c.now)}.`, '', 'Their open items (id | kind | title | reminder):'];
+  if (!c.openItems.length) lines.push('- (none)');
+  for (const i of c.openItems.slice(0, 50)) lines.push(`- ${i.id} | ${i.kind} | ${i.title} | ${i.due ? localStamp(i.due) : '-'}`);
   lines.push('', 'Saved by the app from their latest message:');
   if (!c.justSaved.length) lines.push('- (nothing)');
   for (const i of c.justSaved) lines.push(`- ${i.kind}: ${i.title}${i.due ? ` (reminder ${localStamp(i.due)})` : ''}`);
+  lines.push('</app_context>');
   return lines.join('\n');
 }
 
 /** Adds a time stamp to each message so Claude can see how the day went. */
 function stampMessage(t: ChatTurn): string {
   return t.role === 'user' ? `[${localStamp(new Date(t.at))}] ${t.text}` : t.text;
+}
+
+const CACHE = { type: 'ephemeral' } as const;
+
+/**
+ * The chat as API messages: one text block per message, with back-to-back messages from the same
+ * side grouped (the API wants turns to alternate, starting with the user). Earlier messages never
+ * change, so everything up to the newest message is a stable, cacheable prefix.
+ */
+function chatMessages(history: ChatTurn[]): { role: 'user' | 'assistant'; content: Anthropic.TextBlock[] }[] {
+  const messages: { role: 'user' | 'assistant'; content: Anthropic.TextBlock[] }[] = [];
+  for (const t of history) {
+    const text = stampMessage(t).trim();
+    if (!text) continue;
+    const last = messages[messages.length - 1];
+    if (last && last.role === t.role) last.content.push({ type: 'text', text });
+    else messages.push({ role: t.role, content: [{ type: 'text', text }] });
+  }
+  while (messages.length && messages[0].role !== 'user') messages.shift();
+  return messages;
+}
+
+/**
+ * The request the companion runs on. Three cache points: the persona (with the tools before it),
+ * the memory block, and the newest message. The per-message context goes after the last cache
+ * point, so the next message reads everything before it from the cache.
+ */
+function companionRequest(history: ChatTurn[], context: CompanionContext, warm = false) {
+  const system = [
+    { type: 'text', text: COMPANION_PERSONA, cache_control: CACHE },
+    { type: 'text', text: memoryBlock(context), cache_control: CACHE },
+  ];
+  const messages: Anthropic.MessageParam[] = chatMessages(history);
+  const last = messages[messages.length - 1] as { role: string; content: Anthropic.TextBlock[] } | undefined;
+  if (last) last.content[last.content.length - 1].cache_control = CACHE;
+  // A warm-up ends on a placeholder; a reply ends on the app's context for this moment.
+  const tail: Anthropic.TextBlock = { type: 'text', text: warm ? '(The user is about to write.)' : contextBlock(context) };
+  if (last?.role === 'user') last.content.push(tail);
+  else messages.push({ role: 'user', content: [tail] });
+  return { system, messages, tools: currentTools() };
+}
+
+/**
+ * Loads the conversation into Claude's cache while they type or talk, so the reply starts sooner.
+ * It costs a fraction of a normal message and produces no reply (max_tokens 0).
+ */
+export async function warmCompanion(apiKey: string, history: ChatTurn[], context: CompanionContext): Promise<void> {
+  const { system, messages, tools } = companionRequest(history, context, true);
+  await createMessage(apiKey, { max_tokens: 0, output_config: { effort: 'low' }, system, tools, messages }, { models: CHAT_MODELS, fast: true });
 }
 
 /** Live progress while the companion writes. */
@@ -474,6 +572,13 @@ function searchProblem(code: string): string {
   return `Web search error: ${code}.`;
 }
 
+/** The first line of a working note, short enough for the status line. */
+function noteLine(note: string): string | null {
+  const line = note.trim().split('\n').find((l) => l.trim())?.trim();
+  if (!line) return null;
+  return line.length > 80 ? `${line.slice(0, 78).trimEnd()}…` : line;
+}
+
 /** One reply from the companion, running any actions it takes along the way. */
 export async function companionReply(
   apiKey: string,
@@ -482,31 +587,18 @@ export async function companionReply(
   actions: CompanionActions,
   progress: CompanionProgress = {},
 ): Promise<CompanionResult> {
-  const messages: Anthropic.MessageParam[] = [];
-  // Merge back-to-back messages from the same side; the API wants them to alternate, starting with the user.
-  for (const t of history) {
-    const last = messages[messages.length - 1];
-    if (last && last.role === t.role && typeof last.content === 'string') last.content += `\n\n${stampMessage(t)}`;
-    else messages.push({ role: t.role, content: stampMessage(t) });
-  }
-  while (messages.length && messages[0].role !== 'user') messages.shift();
-
-  if (webSearchLevel >= WEB_SEARCH_TOOLS.length && Date.now() - webSearchOffSince > WEB_SEARCH_RETRY_MS) webSearchLevel = 0;
-
+  const { system, messages } = companionRequest(history, context);
   const addedItemIds: string[] = [];
-  // The persona and tools stay the same between messages, so they are cached; the context changes.
-  const system = [
-    { type: 'text', text: COMPANION_PERSONA, cache_control: { type: 'ephemeral' } },
-    { type: 'text', text: contextBlock(context) },
-  ];
   let text = '';
   let paused = false;
 
   for (let round = 0; round < 8; round++) {
     const serverSearch = webSearchLevel < WEB_SEARCH_TOOLS.length;
-    const tools: unknown[] = [...COMPANION_TOOLS, serverSearch ? WEB_SEARCH_TOOLS[webSearchLevel] : BACKUP_SEARCH_TOOL];
+    // Same tools as the warm-up unless web search just fell back to another version.
+    const tools = currentTools();
     const before = text ? `${text}${paused ? '' : '\n\n'}` : '';
     let live = '';
+    let note = '';
     let response: Anthropic.Message;
     try {
       response = await createMessage(
@@ -515,6 +607,7 @@ export async function companionReply(
         {
           models: CHAT_MODELS,
           stream: true,
+          fast: true,
           onText(delta) {
             live += delta;
             progress.onText?.((before + (paused ? live : live.trimStart())).trim());
@@ -522,6 +615,13 @@ export async function companionReply(
           },
           onBlock(block) {
             if (block.type === 'server_tool_use' || (block.type === 'tool_use' && (block as any).name === 'search_web')) progress.onStatus?.('Searching the web…');
+            if (block.type === 'thinking') note = '';
+          },
+          onThinking(delta) {
+            // Short working notes ("Looking for trousers under ₹2,000") make a good live status.
+            note += delta;
+            const line = noteLine(note);
+            if (line) progress.onStatus?.(line);
           },
         },
       );

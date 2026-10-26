@@ -83,8 +83,15 @@ test('companion runs its tools and then answers', async () => {
     assert.deepEqual(completed, ['item-1']);
     const first = mock.requests[0];
     assert.equal(first.messages[0].role, 'user', 'history starts with the user');
-    assert.match(first.system[1].text, /Lives in Mohali/);
-    assert.match(first.system[1].text, /item-1 \| task \| Pay rent/);
+    assert.match(first.system[1].text, /Lives in Mohali/, 'facts sit in the cached memory block');
+    assert.match(first.system[1].text, /Long day/, 'older journal messages too');
+    const latest = first.messages.at(-1).content;
+    assert.match(latest.at(-1).text, /^<app_context>/, 'the per-message context comes last');
+    assert.match(latest.at(-1).text, /item-1 \| task \| Pay rent/);
+    assert.match(latest.at(-1).text, /Now: Tuesday 2026-10-20 09:00/);
+    assert.equal(latest.at(-2).cache_control?.type, 'ephemeral', 'the cache point is their newest words');
+    assert.equal(latest.at(-1).cache_control, undefined);
+    assert.equal(first.thinking?.type, 'between_tools', 'no extended thinking for chat replies');
     const second = mock.requests[1];
     const results = second.messages[second.messages.length - 1].content;
     assert.deepEqual(results.map((r: any) => r.tool_use_id), ['tu_1', 'tu_2']);
@@ -142,7 +149,11 @@ test('companion merges back-to-back messages and stamps the time', async () => {
     );
     const msgs = mock.requests[0].messages;
     assert.equal(msgs.length, 1);
-    assert.match(msgs[0].content, /\[Tuesday 2026-10-20 08:00\] first note\n\n\[Tuesday 2026-10-20 13:30\] second note/);
+    assert.deepEqual(
+      msgs[0].content.slice(0, 2).map((b: any) => b.text),
+      ['[Tuesday 2026-10-20 08:00] first note', '[Tuesday 2026-10-20 13:30] second note'],
+      'each message keeps its own block, so earlier ones stay cacheable',
+    );
   } finally {
     mock.restore();
   }
@@ -216,6 +227,145 @@ test('without Claude web search, the phone searches and Claude answers from the 
     const { webSearchStatus } = await import('../claude');
     assert.equal(webSearchStatus().working, false);
     assert.match(webSearchStatus().problem ?? '', /not enabled/);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('sorting skips thinking on Haiku and caches its rules', async () => {
+  const mock = mockClaude([message([{ type: 'text', text: JSON.stringify({ items: [], facts: [] }) }])]);
+  try {
+    await extractWithClaude('k', 'note', new Date(2026, 9, 20, 9, 0));
+    const req = mock.requests[0];
+    assert.deepEqual(req.thinking, { type: 'disabled' });
+    assert.equal(req.system[0].cache_control.type, 'ephemeral');
+  } finally {
+    mock.restore();
+  }
+});
+
+test('a model that refuses the quick thinking setting is asked again without it', async () => {
+  const requests: any[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = (async (_u: any, init: any) => {
+    const body = JSON.parse(init.body);
+    requests.push(body);
+    if (body.thinking) {
+      return new Response(JSON.stringify({ type: 'error', error: { type: 'invalid_request_error', message: 'thinking.type.between_tools is not supported for this model' } }), { status: 400 });
+    }
+    return new Response(JSON.stringify(message([{ type: 'text', text: 'Hi!' }])), { status: 200, headers: { 'content-type': 'application/json' } });
+  }) as typeof fetch;
+  try {
+    const reply = await companionReply('k', [{ role: 'user', text: 'hello', at: '2026-10-20T09:00:00' }], ctx, noActions);
+    assert.equal(reply.text, 'Hi!');
+    assert.equal(requests.length, 2);
+    assert.equal(requests[1].thinking, undefined);
+    assert.equal(requests[1].model, requests[0].model, 'same model, just without the setting');
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('thinking blocks from a stream go back whole in the next tool round', async () => {
+  const requests: any[] = [];
+  const statuses: (string | null)[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = (async (_u: any, init: any) => {
+    const body = JSON.parse(init.body);
+    requests.push(body);
+    if (requests.length === 1) {
+      return sse([
+        { type: 'message_start', message: {} },
+        { type: 'content_block_start', index: 0, content_block: { type: 'thinking', thinking: '', signature: '' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'thinking_delta', thinking: 'Looking for black trousers' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'signature_delta', signature: 'sig-123' } },
+        { type: 'content_block_stop', index: 0 },
+        { type: 'content_block_start', index: 1, content_block: { type: 'tool_use', id: 'tu_1', name: 'search_web', input: {} } },
+        { type: 'content_block_delta', index: 1, delta: { type: 'input_json_delta', partial_json: '{"query":"black trousers"}' } },
+        { type: 'content_block_stop', index: 1 },
+        { type: 'message_delta', delta: { stop_reason: 'tool_use' } },
+      ]);
+    }
+    return sse([
+      { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+      { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Found nothing good, sorry.' } },
+      { type: 'content_block_stop', index: 0 },
+      { type: 'message_delta', delta: { stop_reason: 'end_turn' } },
+    ]);
+  }) as typeof fetch;
+  try {
+    // The phone search hits no network in tests and returns nothing; that's fine here.
+    const { webSearchStatus } = await import('../claude');
+    void webSearchStatus;
+    const reply = await companionReply('k', [{ role: 'user', text: 'black trousers', at: '2026-10-20T09:00:00' }], ctx, noActions, {
+      onStatus: (s) => statuses.push(s),
+    });
+    assert.equal(reply.text, 'Found nothing good, sorry.');
+    const sent = requests[1].messages.at(-2);
+    assert.equal(sent.role, 'assistant');
+    assert.deepEqual(sent.content[0], { type: 'thinking', thinking: 'Looking for black trousers', signature: 'sig-123' });
+    assert.ok(statuses.includes('Looking for black trousers'), 'the working note shows as the status');
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('warming up sends the same cached prefix as the next reply, with no output', async () => {
+  const mock = mockClaude([message([])]);
+  const history = [
+    { role: 'user' as const, text: 'morning note', at: '2026-10-20T08:00:00' },
+    { role: 'assistant' as const, text: 'Noted!', at: '2026-10-20T08:00:05' },
+  ];
+  try {
+    const { warmCompanion } = await import('../claude');
+    await warmCompanion('k', history, ctx);
+    const warm = mock.requests[0];
+    assert.equal(warm.max_tokens, 0);
+    assert.equal(warm.stream, undefined);
+    assert.equal(warm.messages[1].content.at(-1).cache_control.type, 'ephemeral', 'cache point on the last real message');
+
+    const later = mockClaude([message([{ type: 'text', text: 'ok' }])]);
+    try {
+      await companionReply('k', [...history, { role: 'user', text: 'next', at: '2026-10-20T09:00:00' }], ctx, noActions);
+      const reply = later.requests[0];
+      assert.deepEqual(reply.system, warm.system);
+      assert.deepEqual(reply.tools, warm.tools);
+      assert.deepEqual(reply.thinking, warm.thinking);
+      const strip = (m: any) => ({ role: m.role, content: m.content.map((b: any) => ({ type: b.type, text: b.text })) });
+      assert.deepEqual(strip(reply.messages[0]), strip(warm.messages[0]));
+      assert.deepEqual(strip(reply.messages[1]), strip(warm.messages[1]));
+    } finally {
+      later.restore();
+    }
+  } finally {
+    mock.restore();
+  }
+});
+
+test('speech: the newest model gets language and name hints, and falls back cleanly', async () => {
+  const { transcribe, cleanKeywords } = await import('../transcribe');
+  assert.deepEqual(cleanKeywords(['Priya', 'priya', 'Blinkit', 'a<b>', '', 'x'.repeat(60)]), ['Priya', 'Blinkit', 'a b']);
+  const sent: { model: string; fields: [string, string][] }[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = (async (_url: any, init: any) => {
+    const fields: [string, string][] = [];
+    (init.body as FormData).forEach((v, k) => fields.push([k, typeof v === 'string' ? v : 'file']));
+    const model = fields.find(([k]) => k === 'model')![1];
+    sent.push({ model, fields });
+    if (model === 'gpt-transcribe' && fields.some(([k]) => k === 'keywords[]')) {
+      return new Response(JSON.stringify({ error: { message: 'Invalid keyword' } }), { status: 400 });
+    }
+    return new Response(JSON.stringify({ text: ' Call Priya about Blinkit. ' }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const text = await transcribe('file:///x.m4a', 'sk-test', ['Priya', 'Blinkit']);
+    assert.equal(text, 'Call Priya about Blinkit.');
+    assert.equal(sent[0].model, 'gpt-transcribe');
+    assert.deepEqual(sent[0].fields.filter(([k]) => k === 'languages[]').map(([, v]) => v), ['en', 'hi', 'pa']);
+    assert.deepEqual(sent[0].fields.filter(([k]) => k === 'keywords[]').map(([, v]) => v), ['Priya', 'Blinkit']);
+    assert.equal(sent[1].model, 'gpt-transcribe', 'tries again without the hints before changing model');
+    assert.ok(!sent[1].fields.some(([k]) => k === 'keywords[]' || k === 'languages[]'));
+    assert.equal(sent.length, 2);
   } finally {
     globalThis.fetch = original;
   }

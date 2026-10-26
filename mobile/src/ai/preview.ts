@@ -1,3 +1,5 @@
+import { cacheStore, httpFetch, readText } from './http';
+
 /** Link previews: the picture, title and site name a page shares about itself. */
 export interface LinkPreview {
   url: string;
@@ -73,19 +75,70 @@ const cache = new Map<string, Promise<LinkPreview>>();
 const BROWSER_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
 
-/** Fetches a page's preview once per session. Never throws: a page that won't load gets a plain card. */
+/** Previews saved on the phone, so pictures show up straight away after a restart. */
+const STORE_KEY = 'voice-journal/previews/v1';
+const STORE_LIMIT = 300;
+let saved: Record<string, LinkPreview & { at: number }> | null = null;
+let loadingSaved: Promise<void> | null = null;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
+function loadSaved(): Promise<void> {
+  if (!loadingSaved) {
+    loadingSaved = (async () => {
+      try {
+        const raw = await cacheStore()?.get(STORE_KEY);
+        saved = raw ? JSON.parse(raw) : {};
+      } catch {
+        saved = {};
+      }
+    })();
+  }
+  return loadingSaved;
+}
+
+function remember(preview: LinkPreview) {
+  if (!saved || !cacheStore()) return;
+  saved[preview.url] = { ...preview, at: Date.now() };
+  if (saveTimer) return;
+  saveTimer = setTimeout(() => {
+    saveTimer = null;
+    const newest = Object.values(saved!)
+      .sort((a, b) => b.at - a.at)
+      .slice(0, STORE_LIMIT);
+    saved = Object.fromEntries(newest.map((p) => [p.url, p]));
+    cacheStore()
+      ?.set(STORE_KEY, JSON.stringify(saved))
+      .catch(() => {});
+  }, 1500);
+}
+
+/** Enough of the page has arrived once the head is done and it named a picture. */
+const hasHeadAndImage = (text: string) => /<\/head>/i.test(text) && /og:image|twitter:image/i.test(text);
+
+/** Fetches a page's preview once. Never throws: a page that won't load gets a plain card. */
 export function fetchPreview(url: string): Promise<LinkPreview> {
   let pending = cache.get(url);
   if (!pending) {
     pending = (async () => {
+      await loadSaved();
+      const known = saved?.[url];
+      if (known && (known.image || Date.now() - known.at < 24 * 3600_000)) return known;
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 8000);
-        const response = await fetch(url, { headers: { 'User-Agent': BROWSER_UA, Accept: 'text/html' }, signal: controller.signal });
-        clearTimeout(timer);
+        const response = await httpFetch(url, { headers: { 'User-Agent': BROWSER_UA, Accept: 'text/html' }, signal: controller.signal });
         const type = response.headers.get('content-type') ?? '';
-        if (type.startsWith('image/')) return { url, title: null, image: url, site: siteOf(url), price: null };
-        return parsePreview(await response.text(), response.url || url);
+        let preview: LinkPreview;
+        if (type.startsWith('image/')) {
+          preview = { url, title: null, image: url, site: siteOf(url), price: null };
+        } else {
+          // Shop pages can be megabytes; the picture is near the top.
+          const html = await readText(response, 600_000, hasHeadAndImage);
+          preview = { ...parsePreview(html, response.url || url), url };
+        }
+        clearTimeout(timer);
+        remember(preview);
+        return preview;
       } catch {
         return { url, title: null, image: null, site: siteOf(url), price: null };
       }

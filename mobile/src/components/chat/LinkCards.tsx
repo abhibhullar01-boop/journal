@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { fetchPreview, LinkPreview, siteOf } from '../../ai/preview';
-import { usePalette } from '../theme';
+import { LIFT, RADIUS, TYPE, usePalette } from '../theme';
+
+const favicon = (url: string) => `https://www.google.com/s2/favicons?domain=${encodeURIComponent(siteOf(url))}&sz=64`;
 
 function LinkCard({ url, label, note }: { url: string; label: string; note: string }) {
   const p = usePalette();
@@ -16,7 +18,7 @@ function LinkCard({ url, label, note }: { url: string; label: string; note: stri
     };
   }, [url]);
 
-  const site = preview?.site ?? siteOf(url);
+  const site = siteOf(url);
   // The companion's label is usually cleaner than a store's page title.
   const title = label && !/^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(label) ? label : preview?.title ?? label;
   const showImage = !!preview?.image && !imageFailed;
@@ -24,35 +26,36 @@ function LinkCard({ url, label, note }: { url: string; label: string; note: stri
   return (
     <Pressable
       onPress={() => Linking.openURL(url).catch(() => {})}
-      style={({ pressed }) => [styles.card, { backgroundColor: p.card, borderColor: p.border, shadowColor: p.shadow }, pressed && { opacity: 0.8 }]}
+      style={({ pressed }) => [styles.card, LIFT, { backgroundColor: p.card, borderColor: p.hairline }, pressed && { opacity: 0.85 }]}
       accessibilityRole="link"
       accessibilityLabel={`${title}, on ${site}`}
     >
-      <View style={[styles.imageBox, { backgroundColor: p.accentSoft }]}>
+      <View style={[styles.imageBox, { borderBottomColor: p.hairline }]}>
         {showImage ? (
           <Image source={{ uri: preview!.image! }} style={styles.image} resizeMode="contain" onError={() => setImageFailed(true)} />
         ) : (
-          <View style={styles.placeholder}>
-            <Image source={{ uri: `https://www.google.com/s2/favicons?domain=${encodeURIComponent(siteOf(url))}&sz=128` }} style={styles.favicon} />
-            {!preview ? <Text style={[styles.loading, { color: p.secondary }]}>Loading picture…</Text> : null}
+          <View style={[styles.placeholder, { backgroundColor: p.sunken }]}>
+            <Image source={{ uri: favicon(url) }} style={styles.bigFavicon} />
+            {!preview ? <Text style={[TYPE.caption, { color: p.tertiary }]}>Loading picture…</Text> : null}
           </View>
         )}
       </View>
       <View style={styles.body}>
-        <Text style={[styles.title, { color: p.text }]} numberOfLines={2}>
+        <Text style={[TYPE.subhead, { color: p.text, fontWeight: '600' }]} numberOfLines={2}>
           {title}
         </Text>
-        {preview?.price ? <Text style={[styles.price, { color: p.accent }]}>{preview.price}</Text> : null}
+        {preview?.price ? <Text style={[TYPE.subhead, { color: p.accent, fontWeight: '700' }]}>{preview.price}</Text> : null}
         {note ? (
-          <Text style={[styles.note, { color: p.secondary }]} numberOfLines={2}>
+          <Text style={[TYPE.caption, { color: p.secondary }]} numberOfLines={2}>
             {note}
           </Text>
         ) : null}
         <View style={styles.siteRow}>
-          <Text style={[styles.site, { color: p.secondary }]} numberOfLines={1}>
+          <Image source={{ uri: favicon(url) }} style={styles.favicon} />
+          <Text style={[TYPE.caption, { color: p.tertiary, flexShrink: 1 }]} numberOfLines={1}>
             {site}
           </Text>
-          <Ionicons name="open-outline" size={13} color={p.secondary} />
+          <Ionicons name="open-outline" size={12} color={p.tertiary} />
         </View>
       </View>
     </Pressable>
@@ -60,7 +63,7 @@ function LinkCard({ url, label, note }: { url: string; label: string; note: stri
 }
 
 /** A swipeable row of picture cards for the links in a reply. */
-export function LinkCards({ links }: { links: { url: string; label: string; note: string }[] }) {
+export const LinkCards = memo(function LinkCards({ links }: { links: { url: string; label: string; note: string }[] }) {
   if (!links.length) return null;
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row} style={styles.scroller}>
@@ -69,29 +72,17 @@ export function LinkCards({ links }: { links: { url: string; label: string; note
       ))}
     </ScrollView>
   );
-}
+});
 
 const styles = StyleSheet.create({
-  scroller: { marginTop: 8, marginRight: -32 },
-  row: { gap: 10, paddingRight: 32, paddingBottom: 6 },
-  card: {
-    width: 190,
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    overflow: 'hidden',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-  },
-  imageBox: { height: 130, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' },
-  image: { width: '100%', height: '100%', backgroundColor: '#fff' },
-  placeholder: { alignItems: 'center', gap: 8 },
-  favicon: { width: 40, height: 40, borderRadius: 8 },
-  loading: { fontSize: 12 },
-  body: { padding: 10, gap: 3 },
-  title: { fontSize: 14, fontWeight: '600', lineHeight: 18 },
-  price: { fontSize: 14, fontWeight: '700' },
-  note: { fontSize: 12, lineHeight: 16 },
-  siteRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  site: { fontSize: 12, flexShrink: 1 },
+  scroller: { marginTop: 10, marginHorizontal: -16 },
+  row: { gap: 10, paddingHorizontal: 16, paddingBottom: 8, paddingTop: 2 },
+  card: { width: 196, borderRadius: RADIUS.l, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
+  imageBox: { height: 124, backgroundColor: '#FFFFFF', borderBottomWidth: StyleSheet.hairlineWidth },
+  image: { width: '100%', height: '100%' },
+  placeholder: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 6 },
+  bigFavicon: { width: 32, height: 32, borderRadius: 7 },
+  body: { padding: 11, gap: 3 },
+  siteRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
+  favicon: { width: 13, height: 13, borderRadius: 3 },
 });
