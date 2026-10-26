@@ -36,7 +36,7 @@ test('classifies typical sentences', () => {
 test('shopping lists become one item per thing', () => {
   const insights = analyzer.analyze('pick up the kids at 3 then groceries, we need eggs bread and atta');
   assert.deepEqual(insights.map((i) => [i.kind, i.title]), [
-    ['task', 'Pick up the kids at 3'], ['shopping', 'Eggs'], ['shopping', 'Bread'], ['shopping', 'Atta'],
+    ['task', 'Pick up the kids'], ['shopping', 'Eggs'], ['shopping', 'Bread'], ['shopping', 'Atta'],
   ]);
   assert.deepEqual(analyzer.analyze('Maybe I need more sleep.'), []);
 });
@@ -52,7 +52,7 @@ test('analyzes run-on dictation', () => {
   const entry = 'Today was busy and I need to email Sarah tomorrow and I want to learn Spanish and my goal is to move to Spain in five years';
   const insights = analyzer.analyze(entry);
   assert.deepEqual(insights.map((i) => i.kind), ['task', 'skill', 'goal']);
-  assert.equal(insights[0].title, 'Email Sarah tomorrow');
+  assert.equal(insights[0].title, 'Email Sarah', 'the reminder carries the time');
   assert.ok(insights[0].dueDate);
   assert.equal(insights[2].dueDate, null);
 });
@@ -61,7 +61,7 @@ test('short fragments and "and someday" clauses', () => {
   const entry = 'Long day. I need to email Sarah tomorrow at 10 and I want to get better at public speaking and someday I want to run a marathon.';
   const insights = analyzer.analyze(entry);
   assert.deepEqual(insights.map((i) => i.kind), ['task', 'skill', 'goal']);
-  assert.deepEqual(insights.map((i) => i.title), ['Email Sarah tomorrow at 10', 'Public speaking', 'Run a marathon']);
+  assert.deepEqual(insights.map((i) => i.title), ['Email Sarah', 'Public speaking', 'Run a marathon']);
 });
 
 test('corrections personalize the model', () => {
@@ -103,6 +103,6 @@ test('chat messages: questions and requests to the companion are not saved as it
     assert.deepEqual(analyzer.analyze(ask), [], ask);
   }
   const [reminder] = analyzer.analyze('hey can you remind me to call the electrician tomorrow at 10');
-  assert.equal(reminder.title, 'Call the electrician tomorrow at 10');
+  assert.equal(reminder.title, 'Call the electrician');
   assert.deepEqual(analyzer.analyze('add paneer and curd to my list').map((i) => i.title), ['Paneer', 'Curd']);
 });

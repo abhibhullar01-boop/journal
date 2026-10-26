@@ -7,7 +7,7 @@ import { isCompanionRequest, ruleDistribution } from './rules';
 import { mentionsOnlyIntangibles, shoppingItems } from './shopping';
 import { contentWords } from './tokenizer';
 import { punctuationChunks, splitRunOn } from './splitter';
-import { titleFor } from './titles';
+import { titleFor, withoutWhen } from './titles';
 import { ALL_KINDS, Classification, emptyScores, ExtractedInsight, InsightKind, LabeledSentence } from './types';
 
 /** A specific, near time: tomorrow, tonight, a weekday or a clock time. */
@@ -21,6 +21,8 @@ function refersBack(sentence: string): boolean {
 }
 
 export const SEED_TRAINING = seedTraining as LabeledSentence[];
+/** How many example sentences the bundled model was trained on. */
+export const SEED_SIZE = (seedWeights as ModelWeights).examples ?? SEED_TRAINING.length;
 /** Hand-written sentences the model never trains on. Used to measure accuracy. */
 export const SEED_EVALUATION = seedEvaluation as LabeledSentence[];
 
@@ -113,7 +115,9 @@ export class JournalAnalyzer {
         }
         continue;
       }
-      result.push({ kind, title: titleFor(sentence), sentence, confidence, dueDate });
+      // The reminder shows the time, so a task's title leaves it out ("Call mom", not "Call mom tomorrow at 5").
+      const title = kind === 'task' && dueDate ? withoutWhen(titleFor(sentence)) : titleFor(sentence);
+      result.push({ kind, title, sentence, confidence, dueDate });
     }
     return result;
   }

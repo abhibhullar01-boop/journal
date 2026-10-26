@@ -118,6 +118,8 @@ export class SoftmaxModel {
 export interface ModelWeights {
   kinds: string[];
   weights: Record<string, number[]>;
+  /** How many sentences it was trained on. */
+  examples?: number;
 }
 
 function uniqueFeatures(text: string): string[] {

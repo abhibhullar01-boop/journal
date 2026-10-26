@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { features, shoppingItems, splitSentences, titleFor, words } from '../index';
+import { features, shoppingItems, splitSentences, taskTitle, titleFor, withoutWhen, words } from '../index';
 
 test('tokenizer', () => {
   assert.deepEqual(words('Don’t forget: call Mom!'), ["don't", 'forget', 'call', 'mom']);
@@ -49,4 +49,22 @@ test('titles', () => {
   assert.equal(titleFor("Don't forget to water the plants"), 'Water the plants');
   assert.equal(titleFor('My long-term plan is to open a cafe'), 'Open a cafe');
   assert.equal(titleFor('Buy milk'), 'Buy milk');
+});
+
+test('task titles leave the time to the reminder', () => {
+  assert.equal(taskTitle('Um, I really need to call mom tomorrow.'), 'Call mom');
+  assert.equal(taskTitle('Remind me to call mom about the trip tomorrow evening'), 'Call mom about the trip');
+  assert.equal(taskTitle('Meeting with Alex at 10 tomorrow'), 'Meeting with Alex');
+  assert.equal(taskTitle('Dentist appointment tomorrow at 4'), 'Dentist appointment');
+  assert.equal(taskTitle('Pay the internet bill by Friday.'), 'Pay the internet bill');
+  assert.equal(taskTitle('Pick up the kids at 4:30 pm'), 'Pick up the kids');
+  assert.equal(taskTitle('Submit the report by end of day'), 'Submit the report');
+  assert.equal(taskTitle('Pay rent on the 1st'), 'Pay rent');
+  assert.equal(taskTitle('Remind me in 2 hours to take the clothes out'), 'Take the clothes out');
+  assert.equal(taskTitle('Book the cab for Monday morning'), 'Book the cab');
+  assert.equal(taskTitle('Call the bank tomorrow morning about the card'), 'Call the bank about the card');
+  assert.equal(taskTitle('Flight to Delhi on 5 November'), 'Flight to Delhi');
+  assert.equal(withoutWhen('Tomorrow'), 'Tomorrow', 'never empties a title');
+  assert.equal(taskTitle('Return the jacket'), 'Return the jacket');
+  assert.equal(taskTitle('Prepare notes before the meeting'), 'Prepare notes before the meeting');
 });

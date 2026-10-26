@@ -51,3 +51,60 @@ export function titleFor(sentence: string): string {
   if (title) title = title[0].toUpperCase() + title.slice(1);
   return title || sentence;
 }
+
+const WEEKDAY = '(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)';
+const PART = '(?:morning|afternoon|evening|night)';
+const MONTH = '(?:january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sept|sep|oct|nov|dec)';
+const COUNT = '(?:\\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|fifteen|twenty|thirty|forty-five)';
+const ORDINAL = '\\d{1,2}(?:st|nd|rd|th)';
+
+/** Time phrases the reminder already covers, so the title doesn't repeat them. */
+const WHEN = new RegExp(
+  `(?:^|[\\s,])(?:${[
+    `(?:on |by )?(?:the )?day after tomorrow(?: ${PART})?`,
+    `(?:first thing )?(?:by |until )?tomorrow(?: ${PART})?`,
+    'first thing in the morning',
+    'later today',
+    '(?:by )?tonight',
+    `(?:by |until )?today`,
+    `this (?:${PART}|weekend|week)`,
+    `(?:on |by )?next (?:week|month|${WEEKDAY})`,
+    `(?:on |by |this |until |till |before )?${WEEKDAY}(?: ${PART})?`,
+    `in the ${PART}`,
+    `(?:at |around |by )?\\d{1,2}(?:[:.]\\d{2})? ?(?:am|pm|a\\.m\\.?|p\\.m\\.?)`,
+    `(?:at |around |by )\\d{1,2}(?:[:.]\\d{2})?(?: (?:o'clock|sharp))?`,
+    'at (?:noon|midnight)',
+    'in half an hour',
+    'in a (?:couple|few) (?:of )?(?:hours|minutes|mins)',
+    `in ${COUNT} (?:minutes?|mins?|hours?|hrs?|days?|weeks?)`,
+    '(?:after|before) (?:work|lunch|dinner|bed)',
+    '(?:by )?(?:the )?end of (?:the )?(?:day|week|month)',
+    'eod',
+    'asap',
+    `(?:on |by |before )?the ${ORDINAL}(?: of ${MONTH})?`,
+    `(?:on |by |before )?${MONTH} ${ORDINAL.replace('(?:st|nd|rd|th)', '(?:st|nd|rd|th)?')}`,
+    `(?:on |by |before )?\\d{1,2}(?:st|nd|rd|th)? (?:of )?${MONTH}`,
+  ].join('|')})(?=$|[\\s,.!?])`,
+  'gi',
+);
+
+/** "Call mom tomorrow at 5 about the trip" -> "Call mom about the trip". Used when the item has a reminder. */
+export function withoutWhen(title: string): string {
+  let out = title;
+  for (let i = 0; i < 3; i++) {
+    const next = out.replace(WHEN, ' ');
+    if (next === out) break;
+    out = next;
+  }
+  out = out.replace(/\s{2,}/g, ' ').replace(/\s+([,.!?])/g, '$1').trim();
+  // Words left hanging at the end: "Pay rent on", "Call mom and".
+  for (let i = 0; i < 3; i++) out = out.replace(/(?:[\s,]+(?:and|on|by|at|for|to|until|till|before|around|from|so|then))+[\s,.!?]*$/i, '').replace(/[\s,;:]+$/, '');
+  out = out.replace(/^[\s,]+/, '');
+  if (out.length < 3) return title;
+  return out[0].toUpperCase() + out.slice(1);
+}
+
+/** The title for a task: the words that matter, without the time (the reminder shows it). */
+export function taskTitle(sentence: string): string {
+  return withoutWhen(titleFor(sentence));
+}
