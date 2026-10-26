@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import {
+  AudioQuality,
+  IOSOutputFormat,
   RecordingOptions,
   RecordingPresets,
   requestRecordingPermissionsAsync,
@@ -11,16 +13,24 @@ import * as Haptics from 'expo-haptics';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Keyboard, Pressable, StyleSheet, Text, TextInput, TextInputInstance, View } from 'react-native';
 import { transcribe } from '../../ai/transcribe';
-import { usePalette } from '../theme';
+import { RADIUS, SPACE, tint, TYPE, usePalette } from '../theme';
 
+/**
+ * Speech-quality audio: mono, 24 kHz, 48 kbps AAC. A minute is about 360 KB, a third of the
+ * old size, so it uploads quickly on mobile data; the speech models listen at 16-24 kHz anyway.
+ */
 const RECORDING: RecordingOptions = {
   ...RecordingPresets.HIGH_QUALITY,
+  sampleRate: 24000,
   numberOfChannels: 1,
-  bitRate: 96000,
+  bitRate: 48000,
   isMeteringEnabled: true,
+  ios: { ...RecordingPresets.HIGH_QUALITY.ios, outputFormat: IOSOutputFormat.MPEG4AAC, audioQuality: AudioQuality.HIGH },
 };
 
-const BARS = 28;
+/** Long recordings stop on their own (well under the 25 MB upload limit). */
+const MAX_RECORDING_MS = 15 * 60_000;
+const BARS = 30;
 const clock = (ms: number) => {
   const s = Math.floor(ms / 1000);
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -31,41 +41,65 @@ export interface ComposerHandle {
 }
 
 interface Props {
-  /** Sends the message. Return false to keep the text (e.g. while busy). */
   onSend(text: string, source: 'voice' | 'text'): void;
   openaiKey: string | null;
   vocabulary: () => string[];
   keyboardOpen: boolean;
   onError(message: string): void;
+  /** The user is about to say something (focus or mic): a good moment to warm up the companion. */
+  onStart?(): void;
+  /** Editing one of your earlier messages. */
+  editing?: { id: string; text: string } | null;
+  onSaveEdit?(id: string, text: string): void;
+  onCancelEdit?(): void;
 }
 
-/** The message bar: type, or tap the mic and talk. A button puts the keyboard away. */
-export const Composer = forwardRef<ComposerHandle, Props>(function Composer({ onSend, openaiKey, vocabulary, keyboardOpen, onError }, ref) {
+type Phase = 'idle' | 'recording' | 'transcribing';
+
+/** The message bar: type, or tap the mic and talk. */
+export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
+  { onSend, openaiKey, vocabulary, keyboardOpen, onError, onStart, editing, onSaveEdit, onCancelEdit },
+  ref,
+) {
   const p = usePalette();
   const [text, setText] = useState('');
-  const [phase, setPhase] = useState<'idle' | 'recording' | 'transcribing'>('idle');
+  const [phase, setPhase] = useState<Phase>('idle');
   const [levels, setLevels] = useState<number[]>(() => Array(BARS).fill(0));
   const [dictationTip, setDictationTip] = useState(false);
   // Remembers whether the text came from the mic, so the entry is marked as spoken.
   const spoken = useRef(false);
+  /** After the recording: send straight away, or put the words in the box to check first. */
+  const sendAfter = useRef(true);
+  /** Set while a recording is being stopped, so a second tap (or the time limit) doesn't stop it twice. */
+  const stopping = useRef(false);
   const input = useRef<TextInputInstance>(null);
   const recorder = useAudioRecorder(RECORDING);
   const state = useAudioRecorderState(recorder, 80);
   const pulse = useRef(new Animated.Value(0)).current;
 
+  // Editing an earlier message puts its words in the box.
+  useEffect(() => {
+    if (editing) {
+      setText(editing.text);
+      spoken.current = false;
+      setTimeout(() => input.current?.focus(), 50);
+    }
+  }, [editing]);
+
   // Mic level (dB, about -60 quiet to 0 loud) feeds the moving bars.
   useEffect(() => {
     if (phase !== 'recording') return;
-    const level = Math.max(0.04, Math.min(1, ((state.metering ?? -60) + 55) / 50));
+    const level = Math.max(0.05, Math.min(1, ((state.metering ?? -60) + 55) / 48));
     setLevels((l) => [...l.slice(1), level]);
+    if (state.durationMillis > MAX_RECORDING_MS) stop('send');
   }, [state.metering, state.durationMillis, phase]);
 
   useEffect(() => {
     if (phase !== 'recording') return;
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 0, duration: 700, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1, duration: 650, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0, duration: 650, useNativeDriver: true }),
       ]),
     );
     loop.start();
@@ -80,6 +114,7 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer({ on
   );
 
   const start = async () => {
+    onStart?.();
     if (!openaiKey) {
       // No speech key: the keyboard's own mic does the talking.
       setDictationTip(true);
@@ -108,18 +143,28 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer({ on
 
   useImperativeHandle(ref, () => ({ startRecording: start }));
 
-  const stop = async (keep: boolean) => {
+  /** Ends the recording: 'send' sends the words, 'review' puts them in the box, 'cancel' throws it away. */
+  const stop = async (how: 'send' | 'review' | 'cancel') => {
+    if (phase !== 'recording' || stopping.current) return;
+    stopping.current = true;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    setPhase(keep ? 'transcribing' : 'idle');
+    sendAfter.current = how === 'send';
+    setPhase(how === 'cancel' ? 'idle' : 'transcribing');
     try {
       await recorder.stop();
       await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
-      if (!keep) return;
+      if (how === 'cancel') return;
       const uri = recorder.uri;
       if (!uri) throw new Error('No recording');
       const heard = await transcribe(uri, openaiKey!, vocabulary());
       if (!heard) {
         onError("I didn't catch anything. Try again, a little closer to the phone.");
+      } else if (sendAfter.current && !editing) {
+        const typed = text.trim();
+        onSend(typed ? `${typed} ${heard}` : heard, 'voice');
+        setText('');
+        spoken.current = false;
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       } else {
         spoken.current = true;
         setText((t) => (t.trim() ? `${t.trim()} ${heard}` : heard));
@@ -127,6 +172,7 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer({ on
     } catch (e) {
       onError(e instanceof Error ? e.message : 'Transcription failed. You can type instead.');
     } finally {
+      stopping.current = false;
       setPhase('idle');
     }
   };
@@ -134,121 +180,161 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer({ on
   const send = () => {
     const value = text.trim();
     if (!value) return;
-    onSend(value, spoken.current ? 'voice' : 'text');
+    if (editing) {
+      onSaveEdit?.(editing.id, value);
+    } else {
+      onSend(value, spoken.current ? 'voice' : 'text');
+    }
     spoken.current = false;
     setText('');
     setDictationTip(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
   };
 
+  const cancelEdit = () => {
+    setText('');
+    onCancelEdit?.();
+  };
+
   if (phase !== 'idle') {
     const recording = phase === 'recording';
     return (
-      <View style={[styles.bar, { borderTopColor: p.border, backgroundColor: p.background }]}>
-        <View style={[styles.recordBox, { backgroundColor: p.card, borderColor: recording ? p.danger : p.border }]}>
-          <Pressable onPress={() => stop(false)} disabled={!recording} hitSlop={10} accessibilityLabel="Cancel recording" style={styles.cancel}>
-            <Ionicons name="close" size={22} color={recording ? p.secondary : p.border} />
-          </Pressable>
-          {recording ? (
-            <>
-              <Animated.View style={[styles.recDot, { backgroundColor: p.danger, opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.3] }) }]} />
-              <Text style={[styles.timer, { color: p.text }]}>{clock(state.durationMillis)}</Text>
-              <View style={styles.wave}>
-                {levels.map((l, i) => (
-                  <View key={i} style={[styles.waveBar, { height: 4 + l * 26, backgroundColor: i > BARS - 4 ? p.danger : p.accent }]} />
-                ))}
+      <View style={[styles.wrap, { borderTopColor: p.hairline, backgroundColor: p.background }]}>
+        <Text style={[TYPE.caption, styles.hint, { color: p.secondary }]}>
+          {recording ? 'Listening… tap ↑ to send, or the pencil to check the words first' : sendAfter.current ? 'Writing it down and sending…' : 'Writing it down…'}
+        </Text>
+        <View style={styles.bar}>
+          <View style={[styles.pill, styles.recordPill, { backgroundColor: p.card, borderColor: recording ? tint(p.danger, 0.45) : p.border }]}>
+            <Pressable onPress={() => stop('cancel')} disabled={!recording} hitSlop={10} accessibilityLabel="Cancel recording" style={styles.cancel}>
+              <Ionicons name="close" size={20} color={recording ? p.secondary : p.border} />
+            </Pressable>
+            {recording ? (
+              <>
+                <Animated.View style={[styles.recDot, { backgroundColor: p.danger, opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.25] }) }]} />
+                <Text style={[styles.timer, { color: p.text }]}>{clock(state.durationMillis)}</Text>
+                <View style={styles.wave}>
+                  {levels.map((l, i) => (
+                    <View key={i} style={[styles.waveBar, { height: 3 + l * 24, backgroundColor: i > BARS - 4 ? p.accent : tint(p.accent, 0.55) }]} />
+                  ))}
+                </View>
+              </>
+            ) : (
+              <View style={styles.transcribing}>
+                <ActivityIndicator color={p.accent} />
+                <Text style={[TYPE.callout, { color: p.secondary }]}>Writing it down…</Text>
               </View>
-            </>
-          ) : (
-            <View style={styles.transcribing}>
-              <ActivityIndicator color={p.accent} />
-              <Text style={{ color: p.secondary, fontSize: 15 }}>Writing it down…</Text>
-            </View>
-          )}
+            )}
+          </View>
+          {recording ? (
+            <Pressable
+              onPress={() => stop('review')}
+              style={({ pressed }) => [styles.round, styles.secondaryRound, { backgroundColor: p.card, borderColor: p.border }, pressed && { opacity: 0.7 }]}
+              accessibilityLabel="Stop and check the words before sending"
+            >
+              <Ionicons name="create-outline" size={19} color={p.text} />
+            </Pressable>
+          ) : null}
+          <Pressable
+            onPress={() => stop('send')}
+            disabled={!recording}
+            style={({ pressed }) => [styles.round, { backgroundColor: recording ? p.accent : p.border }, pressed && { opacity: 0.8 }]}
+            accessibilityLabel="Stop and send"
+          >
+            <Ionicons name="arrow-up" size={21} color="#fff" />
+          </Pressable>
         </View>
-        <Pressable
-          onPress={() => stop(true)}
-          disabled={!recording}
-          style={[styles.round, { backgroundColor: recording ? p.danger : p.border }]}
-          accessibilityLabel="Stop and write it down"
-        >
-          <Ionicons name="stop" size={20} color="#fff" />
-        </Pressable>
       </View>
     );
   }
 
   const hasText = !!text.trim();
   return (
-    <View style={[styles.wrap, { borderTopColor: p.border, backgroundColor: p.background }]}>
-      {dictationTip && !hasText ? (
-        <Pressable onPress={() => setDictationTip(false)} style={[styles.tip, { backgroundColor: p.accentSoft }]}>
-          <Ionicons name="mic" size={16} color={p.accent} />
-          <Text style={[styles.tipText, { color: p.text }]}>
-            Tap the <Text style={{ fontWeight: '700' }}>mic on your keyboard</Text> (bottom right) and talk. For better speech, add an OpenAI key in Settings.
+    <View style={[styles.wrap, { borderTopColor: p.hairline, backgroundColor: p.background }]}>
+      {editing ? (
+        <View style={[styles.banner, { backgroundColor: p.sunken }]}>
+          <Ionicons name="create-outline" size={15} color={p.secondary} />
+          <Text style={[TYPE.footnote, { color: p.text, flex: 1 }]}>Editing your message. It will be sorted again.</Text>
+          <Pressable onPress={cancelEdit} hitSlop={10}>
+            <Text style={[TYPE.footnote, { color: p.accent, fontWeight: '600' }]}>Cancel</Text>
+          </Pressable>
+        </View>
+      ) : dictationTip && !hasText ? (
+        <Pressable onPress={() => setDictationTip(false)} style={[styles.banner, { backgroundColor: p.accentSoft }]}>
+          <Ionicons name="mic-outline" size={15} color={p.accent} />
+          <Text style={[TYPE.footnote, { color: p.text, flex: 1 }]}>
+            Tap the <Text style={{ fontWeight: '700' }}>mic on your keyboard</Text> and talk. For better speech, add an OpenAI key in Settings.
           </Text>
-          <Ionicons name="close" size={16} color={p.secondary} />
+          <Ionicons name="close" size={15} color={p.secondary} />
         </Pressable>
+      ) : spoken.current && hasText ? (
+        <Text style={[TYPE.caption, styles.hint, { color: p.secondary }]}>Check it reads right, then send.</Text>
       ) : null}
-      {spoken.current && hasText ? <Text style={[styles.checkHint, { color: p.secondary }]}>Check it reads right, then send.</Text> : null}
       <View style={styles.bar}>
         {keyboardOpen ? (
-          <Pressable onPress={() => Keyboard.dismiss()} hitSlop={8} style={[styles.side, { backgroundColor: p.card, borderColor: p.border }]} accessibilityLabel="Hide keyboard">
+          <Pressable
+            onPress={() => Keyboard.dismiss()}
+            hitSlop={8}
+            style={({ pressed }) => [styles.side, pressed && { backgroundColor: p.sunken }]}
+            accessibilityLabel="Hide keyboard"
+          >
             <Ionicons name="chevron-down" size={22} color={p.secondary} />
           </Pressable>
         ) : null}
-        <TextInput
-          ref={input}
-          value={text}
-          onChangeText={(t) => {
-            setText(t);
-            if (!t) spoken.current = false;
-          }}
-          placeholder="Talk to me, or jot something down"
-          placeholderTextColor={p.secondary}
-          multiline
-          style={[styles.input, { backgroundColor: p.card, color: p.text, borderColor: p.border }]}
-        />
-        {hasText ? (
-          <Pressable onPress={send} style={[styles.round, { backgroundColor: p.accent }]} accessibilityLabel="Send">
-            <Ionicons name="arrow-up" size={22} color="#fff" />
-          </Pressable>
-        ) : (
-          <Pressable onPress={start} style={[styles.round, styles.mic, { backgroundColor: p.accent, shadowColor: p.accent }]} accessibilityLabel="Talk">
-            <Ionicons name="mic" size={22} color="#fff" />
-          </Pressable>
-        )}
+        <View style={[styles.pill, { backgroundColor: p.card, borderColor: p.border }]}>
+          <TextInput
+            ref={input}
+            value={text}
+            onChangeText={(t) => {
+              setText(t);
+              if (!t) spoken.current = false;
+            }}
+            onFocus={onStart}
+            placeholder={editing ? 'Edit your message' : 'Message, or tap the mic'}
+            placeholderTextColor={p.tertiary}
+            multiline
+            style={[styles.input, { color: p.text }]}
+            accessibilityLabel="Message"
+          />
+          {hasText ? (
+            <Pressable onPress={send} style={({ pressed }) => [styles.round, styles.inner, { backgroundColor: p.accent }, pressed && { opacity: 0.8 }]} accessibilityLabel={editing ? 'Save' : 'Send'}>
+              <Ionicons name={editing ? 'checkmark' : 'arrow-up'} size={20} color="#fff" />
+            </Pressable>
+          ) : (
+            <Pressable onPress={start} style={({ pressed }) => [styles.round, styles.inner, { backgroundColor: p.accent }, pressed && { opacity: 0.8 }]} accessibilityLabel="Talk">
+              <Ionicons name="mic" size={19} color="#fff" />
+            </Pressable>
+          )}
+        </View>
       </View>
     </View>
   );
 });
 
 const styles = StyleSheet.create({
-  wrap: { borderTopWidth: StyleSheet.hairlineWidth },
-  bar: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, paddingHorizontal: 10, paddingVertical: 8 },
-  side: { width: 40, height: 40, borderRadius: 20, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
-  input: {
+  wrap: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 6 },
+  bar: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, paddingHorizontal: 12, paddingBottom: 8, paddingTop: 2 },
+  side: { width: 38, height: 44, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  pill: {
     flex: 1,
-    minHeight: 40,
-    maxHeight: 130,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    minHeight: 44,
+    borderRadius: 22,
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingTop: 10,
-    paddingBottom: 10,
-    fontSize: 16,
-    lineHeight: 21,
+    paddingLeft: 16,
+    paddingRight: 4,
   },
+  input: { flex: 1, maxHeight: 140, fontSize: 16, lineHeight: 21, paddingTop: 11, paddingBottom: 11 },
   round: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  mic: { shadowOpacity: 0.35, shadowRadius: 6, shadowOffset: { width: 0, height: 3 } },
-  recordBox: { flex: 1, height: 44, borderRadius: 22, borderWidth: 1.5, flexDirection: 'row', alignItems: 'center', paddingRight: 12, gap: 8 },
-  cancel: { paddingLeft: 10 },
-  recDot: { width: 9, height: 9, borderRadius: 5 },
+  inner: { width: 36, height: 36, borderRadius: 18, marginBottom: 4, marginLeft: 6 },
+  secondaryRound: { borderWidth: StyleSheet.hairlineWidth, marginBottom: 2 },
+  recordPill: { alignItems: 'center', height: 44, gap: 8, paddingLeft: 0, paddingRight: 14 },
+  cancel: { paddingLeft: 12 },
+  recDot: { width: 8, height: 8, borderRadius: 4 },
   timer: { fontSize: 15, fontWeight: '600', fontVariant: ['tabular-nums'], minWidth: 38 },
-  wave: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 2, height: 32, overflow: 'hidden' },
+  wave: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 2, height: 30, overflow: 'hidden' },
   waveBar: { width: 3, borderRadius: 2 },
   transcribing: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  tip: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 10, marginTop: 8, padding: 10, borderRadius: 12 },
-  tipText: { flex: 1, fontSize: 13, lineHeight: 18 },
-  checkHint: { fontSize: 12, marginHorizontal: 18, marginTop: 6 },
+  banner: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 12, marginBottom: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: RADIUS.m },
+  hint: { marginHorizontal: SPACE.xl, marginBottom: 4 },
 });
