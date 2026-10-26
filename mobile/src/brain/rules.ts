@@ -30,7 +30,7 @@ export const CUES: Record<'task' | 'shopping' | 'skill' | 'goal', Cue[]> = {
     ['buy', 1.5], ['groceries', 2.0], ['grocery', 2.0], ['shopping list', 2.5], ['shopping', 0.8],
     ['out of', 1.0], ["we're out", 1.5], ['ran out', 1.5], ['running low', 2.0], ['purchase', 1.5],
     ['amazon', 0.8], ['blinkit', 1.5], ['zepto', 1.5], ['bigbasket', 1.5], ['instamart', 1.5],
-    ['we need', 0.8], ['grab some', 1.2], ['pick up some', 1.2], ['need more', 0.6],
+    ['we need', 0.8], ['grab some', 1.2], ['pick up some', 1.2], ['need more', 0.6], ['stock up', 2.0], ['restock', 2.0],
   ],
   skill: [
     ['learn', 1.5], ['learning', 1.5], ['practice', 1.5], ['practicing', 1.5],

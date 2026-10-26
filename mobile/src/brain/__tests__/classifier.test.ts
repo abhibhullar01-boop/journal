@@ -3,12 +3,14 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { BenchEntry, runBench } from '../bench/bench';
 import holdout from '../bench/eval_entries_b.json';
-import { evaluate, JournalAnalyzer, SEED_EVALUATION, SEED_TRAINING, summary } from '../index';
+import { evaluate, JournalAnalyzer, SEED_EVALUATION, SEED_SIZE, summary } from '../index';
+import { SEED_TRAINING, trainFromSeed } from '../seed';
 
 const analyzer = JournalAnalyzer.baseline();
 
 test('seed data loads and never overlaps the test set', () => {
-  assert.ok(SEED_TRAINING.length > 4000);
+  assert.ok(SEED_TRAINING.length > 12000);
+  assert.equal(SEED_SIZE, SEED_TRAINING.length, 'the bundled weights are from older seed data: run `npm run train`');
   assert.equal(SEED_EVALUATION.length, 86);
   const train = new Set(SEED_TRAINING.map((s) => s.text));
   assert.ok(SEED_EVALUATION.every((s) => !train.has(s.text)));
@@ -84,10 +86,10 @@ test('model round-trips through JSON', () => {
 });
 
 test('bundled model weights are up to date with the seed data (run `npm run train` if this fails)', () => {
-  const fresh = JournalAnalyzer.trainFromSeed().model.exportWeights();
+  const fresh = trainFromSeed().model.exportWeights();
   const bundled = analyzer.model.exportWeights();
   assert.equal(Object.keys(bundled.weights).length, Object.keys(fresh.weights).length);
-  const retrained = JournalAnalyzer.trainFromSeed();
+  const retrained = trainFromSeed();
   for (const s of SEED_EVALUATION) assert.equal(analyzer.classify(s.text).kind, retrained.classify(s.text).kind, s.text);
 });
 

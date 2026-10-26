@@ -19,7 +19,7 @@ from pathlib import Path
 
 OUT = Path(__file__).resolve().parent.parent / "mobile/src/brain/data"
 rng = random.Random(7)
-PER_CLASS = 1300
+PER_CLASS = 3000
 
 # ---------------------------------------------------------------------------
 # Shared pieces
@@ -122,6 +122,15 @@ TASK_EVENTS = [
     "Wedding in Jalandhar {t}", "Train to Amritsar {t}", "The carpenter is coming {t}",
     "Electrician is coming {t}", "Delivery arriving {t}", "Deadline for the proposal is {t}",
 ]
+TASK_EVENTS_MORE = [
+    "Client presentation {t}", "Board meeting {t}", "Team lunch {t}", "Interview {t}", "Webinar {t}", "Workshop {t}",
+    "Sprint planning {t}", "Review call {t}", "Swimming class {t}", "Tuition {t}", "Football practice {t}",
+    "Birthday party {t}", "Kitty party {t}", "Puja at home {t}", "Sangeet {t}", "Site visit {t}", "Bank appointment {t}",
+    "Lawyer meeting {t}", "Yoga class {t}", "Driving test {t}", "Vaccination {t}", "School annual day {t}",
+    "Office party {t}", "Movie with the kids {t}", "Dinner at the Sharmas' {t}", "Pickup from the airport {t}",
+]
+EVENT_TIMES_MORE = ["at 11", "at 4:30", "tomorrow at 3", "at 10:30 tomorrow", "on Thursday at 5", "at 6 pm today",
+                    "this Saturday at 7", "at 9 am on Monday", "on the 12th at 4", "tonight at 9", "at noon tomorrow"]
 EVENT_TIMES = [
     "tomorrow at 4", "at 9:30 tomorrow", "next Tuesday at 3 pm", "on Friday", "on Saturday morning",
     "at 5 today", "this Thursday at 11", "day after tomorrow at 10", "tomorrow morning", "on the 1st",
@@ -238,7 +247,7 @@ SKILL_FRAMES_N = [
 ]
 SKILL_FRAMES_V = [
     "I want to learn how to {v}", "I want to learn to {v}", "I'm learning to {v}",
-    "I'm trying to {v} every day", "I want to be able to {v} properly",
+    "I'm trying to {v} every day",
     "I need to learn how to {v}", "I'd like to learn to {v}", "I'm practicing how to {v}",
     "I want to figure out how to {v}", "learning how to {v}", "I wish I could {v}, want to learn",
     "I should learn how to {v}", "I'm slowly learning to {v}", "I should practice how to {v}",
@@ -438,6 +447,254 @@ CHAT_REQUESTS = [
 
 
 # ---------------------------------------------------------------------------
+# Everyday life, round two: more domains, more of the way people actually narrate a day
+# (home repairs, kids and school, money and paperwork, health, pets, festivals, travel,
+# work, family), Hindi and Punjabi grocery names, and the statements that come before an
+# action ("the tap is leaking again, ...") or that only report news.
+# ---------------------------------------------------------------------------
+KIDS = ["Ira", "Kabir", "Aarav", "Myra", "the kids", "my son", "my daughter", "Gurleen", "Vihaan", "Zoya"]
+FAMILY = ["mom", "dad", "nani", "nana", "dadi", "my sister", "my brother", "my wife", "my husband", "Bua ji",
+          "Chachu", "Mama ji", "my cousins", "my in-laws", "Harleen", "Jaspreet", "Rahul", "Tanvi", "Karan", "Ishaan"]
+APPLIANCES = ["washing machine", "fridge", "geyser", "AC", "inverter", "RO", "microwave", "mixer", "chimney",
+              "ceiling fan", "TV", "wifi router", "laptop", "printer", "car", "scooty", "bike", "doorbell"]
+TASK_ACTIONS_MORE = [
+    # home and repairs
+    "get the {ap} fixed", "get the {ap} serviced", "call the service centre about the {ap}", "book the {ap} service",
+    "call the RO service guy", "get the inverter battery checked", "fix the cupboard door", "replace the tube light",
+    "change the bulb in the bathroom", "get the sofa cleaned", "call the pest control guy", "get the chimney cleaned",
+    "pay the society maintenance", "book the gas cylinder", "get the gas pipe checked", "get duplicate keys made",
+    "raise a complaint with the internet company", "raise a ticket with the builder", "complain to the society about the lift",
+    "switch off the AC before leaving", "switch off the iron", "turn off the water motor", "take the clothes off the line",
+    "hang the clothes to dry", "fold the laundry", "defrost the freezer", "soak the chana for tomorrow", "clean the bathroom",
+    "dust the bookshelves", "vacuum the living room", "empty the dustbin", "take out the garbage", "clean the balcony",
+    "wash the curtains", "change the bedsheets", "sort the old clothes", "give the old clothes away", "clear out the store room",
+    "organise the wardrobe", "call the painter for a quote", "get the water tank cleaned", "check the electricity meter",
+    "get the leaking pipe fixed", "call the society guard about the parcel", "collect the parcel from the gate",
+    # kids and school
+    "pay {k}'s school fees", "sign {k}'s school diary", "check {k}'s homework", "pack {k}'s lunch", "drop {k} at tuition",
+    "pick {k} up from school", "attend the PTM at {k}'s school", "reply to {k}'s class teacher", "fill {k}'s admission form",
+    "book the school van for {k}", "help {k} with the science project", "teach {k} to swim", "teach {k} to tie shoelaces",
+    "get {k}'s uniform altered", "cover {k}'s new books", "label {k}'s notebooks", "take {k} for the eye test",
+    "submit {k}'s fee receipt", "register {k} for the summer camp", "book {k}'s swimming classes",
+    # work
+    "send the bug report to the team", "update the Jira tickets", "prepare the quarterly numbers", "send the meeting notes",
+    "follow up with the client about the payment", "share the deck with the team", "review the pull request", "fix the login bug",
+    "push the hotfix", "book a meeting room", "reply to the HR email", "apply for leave for the wedding", "fill the appraisal form",
+    "complete the compliance training", "prepare for the standup", "call the vendor about the delay", "chase the pending invoice",
+    "update the client on the timeline", "ask my manager about the appraisal", "set up a call with the new client",
+    "send the offer letter", "write the project update", "block my calendar for focus time", "submit the travel claim",
+    # money and paperwork
+    "transfer the rent", "transfer the money to {f}", "pay the maid her salary", "pay the newspaper bill", "pay the water bill",
+    "pay the gas bill", "recharge the DTH", "recharge mom's phone", "renew the health insurance", "renew the car insurance",
+    "file the ITR", "collect the salary slips", "link my PAN with Aadhaar", "update my address in Aadhaar", "apply for a new PAN card",
+    "renew my driving licence", "book a slot for the driving test", "get the car's pollution certificate", "pay the traffic challan",
+    "pay the property tax", "deposit the cheque", "withdraw some cash", "download the bank statement", "close the old savings account",
+    "cancel the extra credit card", "increase the SIP amount", "renew the fixed deposit", "check the mutual fund statement",
+    "nominate {f} on the bank account", "get the will drafted", "send the rent agreement for signing",
+    # health
+    "book a blood test", "book the full body checkup", "take my BP tablet", "take my vitamins", "book an eye test",
+    "get the dental cleaning done", "book a physio session", "collect the X-ray reports", "carry the reports to the doctor",
+    "refill the inhaler", "get the flu shot", "book the vaccination slot", "take {f} to the doctor", "take {f} for the checkup",
+    "call the clinic to confirm the appointment", "book a follow up with the dermatologist", "start the antibiotics",
+    # pets
+    "take Bruno for his vaccination", "book the vet for Coco", "give the cat her deworming tablet", "clean the litter box",
+    "book the grooming appointment", "take the dog to the groomer", "refill the dog's water bowl", "walk the dog",
+    # family and friends
+    "apologize to {f}", "say sorry to {f} properly", "call {f} for their birthday", "wish {f} happy anniversary",
+    "send flowers to {f}", "plan a surprise for {f}", "take {f} out for dinner", "invite {f} for dinner",
+    "thank {f} for the gift", "congratulate {f} on the new job", "check on {f}", "visit {f} at the hospital",
+    "plan a farewell for {f}", "plan a family picnic", "call {f} back", "video call {f}", "message {f} about the plans",
+    "ask {f} about the wedding dates", "book tickets for the family trip", "make a reservation for the anniversary dinner",
+    # festivals and events
+    "book the pandit for the puja", "clean the house before Diwali", "send Diwali wishes to everyone",
+    "distribute sweets to the neighbours", "book the banquet hall for the party", "send the invites for the party",
+    "decorate the house for the party", "get the lights put up", "book the photographer for the function",
+    "confirm the caterer", "order the birthday cake", "plan the Lohri bonfire", "book the DJ for the sangeet",
+    # travel
+    "start packing for the trip", "start the paperwork for the loan", "start the washing machine", "start the visa application",
+    "start the KYC process", "start the car once to charge the battery",
+    "book the train tickets", "book the flights", "book the hotel in Shimla", "do the web check-in", "pack the bags",
+    "print the hotel booking", "renew my passport", "apply for the Schengen visa", "book a cab for the airport",
+    "check the PNR status", "exchange some dollars", "buy travel insurance", "book the homestay in Manali",
+]
+PRONOUN_ACTIONS = [
+    "call him", "call her", "message him", "message her", "text him back", "text her back", "ask her about it", "ask him about it",
+    "remind him about the payment", "remind her about the form", "tell her about the plan", "tell him about the change",
+    "follow up with him", "follow up with her", "ping him", "ping her", "email him the details", "send her the photos",
+    "call them back", "ask them for the bill", "pay him for the repair", "thank her for the help", "check on her",
+]
+TAILS_MORE = [
+    " about how she did it", " about what happened", " to see how it went", " about how he managed it", " since she did the same",
+    " if the weather is good", " if I have time", " if it doesn't rain", " if she's free",
+    " about the switch", " about how they did it", " because he asked last week", " since it's been a while", " about the thing she mentioned",
+]
+TASK_FRAMES_MORE = [
+    "Need to {a}", "need to {a}", "Gotta {a}", "Have to {a}", "{A} if possible", "{A} before I forget", "{A}, it's urgent",
+    "we need to {a}", "we should {a}", "we have to {a}", "let's {a}", "will {a}", "I'll have to {a}",
+    "must remember to {a}", "don't forget, {a}", "reminder: {a}", "note: {a}", "{F} wants me to {a}", "{F} asked me to {a}",
+    "my manager asked me to {a}", "really need to {a}", "need to {a} first", "{A} first", "I have to go {a}",
+    "I'm planning to {a}", "planning to {a}", "I still haven't managed to {a}, need to do it",
+    "should {a}", "I should really {a}", "I must {a}", "{A} asap", "{A} please", "please {a}",
+    "{A} again", "I should {a} again", "need to {a} again", "{A} one more time",
+]
+# What people say just before an action. The splitter cuts the action off, so these train as reflections.
+CONTEXT_NONE = [
+    "The {ap} is making noise again.", "The {ap} stopped working.", "{F} called.", "Big day tomorrow.",
+    "The tap is leaking again.", "Running late today.", "The landlord messaged.", "{K} has a test on Friday.",
+    "Guests are coming on Sunday.", "The deadline is close.", "The {ap} is acting weird.", "{F} is not well.",
+]
+TIMES_MORE = [
+    "before the 10th", "for Saturday", "around 8", "at 4:30pm", "by EOD", "tomorrow early morning", "before sleeping",
+    "after dinner", "before bed", "in 20 minutes", "in 45 minutes", "at midnight", "this Sunday", "on Friday evening",
+    "by tomorrow evening", "on the 5th", "before the 20th", "for the 14th", "by 11 tomorrow", "around 7", "at 8:30",
+    "first thing on Monday", "this week", "by the weekend", "on Saturday morning", "tonight after dinner",
+]
+POINTS_BACK = [
+    "Got the {bill}, need to pay it {t}", "The {bill} arrived, pay it {t}", "Haven't paid the {bill} yet, do it {t}",
+    "The {ap} is acting up, get it checked {t}", "The {ap} stopped working, get it repaired {t}",
+    "{F}'s tablets are running out, refill them {t}", "The library books are overdue, return them {t}",
+    "The contract came in, review it {t}", "The form is ready, submit it {t}", "The parcel came damaged, return it {t}",
+]
+BILLS = ["electricity bill", "water bill", "gas bill", "phone bill", "internet bill", "credit card bill", "maintenance", "school fee"]
+
+GROCERIES_MORE = [
+    "toor dal", "moong dal", "masoor dal", "chana dal", "rajma", "chole", "bhindi", "tamatar", "aloo", "pyaaz", "gobhi",
+    "matar", "adrak", "lehsun", "dhaniya", "hari mirch", "methi", "lauki", "baingan", "shimla mirch", "kheera", "nimbu",
+    "doodh", "ande", "chawal", "basmati rice", "cheeni", "maida", "sooji", "makhana", "jaggery", "mustard oil",
+    "desi ghee", "pav", "papad", "achaar", "ketchup", "lassi", "buttermilk", "cream", "coconut oil", "tea leaves",
+    "green tea", "coffee powder", "Harpic", "Lizol", "Dettol", "Colgate", "Surf Excel", "Vim bar", "Ariel", "Odonil",
+    "Good Knight refills", "phenyl", "Scotch Brite", "Colin", "Amul butter", "Kurkure", "Parle G", "Oreo",
+    "Thums Up", "Bisleri", "cold drinks", "Crocin", "Dolo", "ORS packets", "Eno", "Vicks", "cough syrup", "band aids",
+    "cotton", "ear buds", "face wash", "body lotion", "hair oil", "kitchen towels", "tissue paper", "aluminium foil",
+    "zip lock bags", "dustbin bags", "a broom", "a mop", "scrubbers", "crayons", "colour pencils", "sketch pens",
+    "A4 sheets", "a geometry box", "a tiffin box", "earphones", "a power bank", "an extension board", "wrapping paper",
+    "balloons", "mithai", "marigold flowers", "agarbatti", "camphor", "litter", "dog treats", "pet shampoo",
+    "multigrain atta", "peanuts", "sprouts", "mushrooms", "sweet corn", "paneer tikka masala",
+]
+SHOP_FRAMES_MORE = [
+    "stock up on {i}", "need to stock up on {i}", "have to stock up on {i} for the week", "we've run out of {i}", "almost out of {i}", "{i} is almost finished",
+    "{i} is about to finish", "get {i} on the way back", "pick up {i} from the market", "order {i} from Instamart",
+    "Blinkit order: {i}", "add {i} to the Blinkit cart", "{K} needs {i} for school", "need {i} for the party",
+    "get {i} for Diwali", "buy {i} for the puja", "need to restock {i}", "need to pick up {i}", "{i} khatam ho gaya",
+    "running out of {i}", "low on {i}", "also need {i}", "and some {i}", "plus {i}", 
+    "for the week we need {i}", "groceries for tomorrow: {i}", "get {i} and some fruits", "order {i} and {i2}",
+]
+BIG_ITEMS_MORE = [
+    "a new phone", "a smart watch", "a study table for {k}", "a cycle for {k}", 
+    "a new school bag", "a gift for {f}", "a saree for {f}", "a kurta for the wedding", "a lehenga for the sangeet",
+    "a new pressure cooker", "an iron", "a hair dryer", "a trimmer", "a gym bag", "a yoga block",
+    "a new pillow", "a blanket", "a heater for the winter", "a dehumidifier", "a cooler", "a geyser for the guest bathroom",
+    "a tyre for the scooty", "a car charger", "a dashcam", "a laptop stand", "a monitor", "a webcam", "an office chair",
+    "a birthday present for {k}", "return gifts for the party", "a card for {f}", "a bouquet", "a cake for {f}",
+]
+SHOP_BIG_FRAMES_MORE = [
+    "need to get {i}", "need a new {n}", "time for a new {n}", "my {n} broke, need a new one", "looking to buy {i}",
+    "planning to buy {i}", "should order {i} this week", "check prices for {i} and buy it", "{K} needs {i}",
+]
+
+SKILL_NOUNS_MORE = [
+    "Gurmukhi", "Urdu", "Tamil", "Mandarin", "sign language", "Kotlin", "Go", "Rust", "TypeScript", "AWS", "Docker",
+    "product management", "writing emails", "cooking Indian food", "making rotis", "making biryani", "pottery", "knitting",
+    "crochet", "woodworking", "home repairs", "car maintenance", "first aid", "self defence", "boxing", "rock climbing",
+    "skating", "cycling", "running form", "stretching", "mindfulness", "the harmonium", "the flute", "the ukulele",
+    "the drums", "classical singing", "drone flying", "stock trading", "reading balance sheets", "parenting",
+    "time blocking", "speed reading", "Canva", "Photoshop", "Premiere Pro", "Blender", "AutoCAD", "Revit", "SketchUp",
+    "presentations", "public speaking", "storytelling", "interviewing people", "conflict resolution", "delegation",
+    "baking bread", "Spanish grammar", "French verbs", "Power BI", "Tableau", "Git", "Linux",
+]
+SKILL_FRAMES_MORE = [
+    "I've been meaning to learn {s}", "learning {s} with {f}", "{F} is teaching me {s}", "trying to get better at {s}",
+    "want to get better at {s}", "need to practice {s} more", "{s} class was fun today", "had my first {s} lesson",
+    "I've started practicing {s} every morning", "slowly getting the hang of {s}", "I'm self-learning {s} on YouTube",
+    "I'm doing a course on {s}", "spent the evening on {s}", "my {s} has improved a lot", "I suck at {s}, want to improve",
+    "I want to be really good at {s} by next year", "getting better at {s} slowly", "{s} is hard but I'm learning",
+]
+
+GOALS_MORE = [
+    "do a full Ironman", "save for the kids' education", "build a corpus of a crore",
+    "move abroad for a few years", "settle in Canada", "start a cloud kitchen", "open a small cafe in the hills",
+    "start my own clinic", "write a novel", "publish a cookbook", "become a principal architect", "be a CFO by 40",
+    "own a farmhouse", "take mom and dad to Europe", "visit the Golden Temple every month", "learn to live with less",
+    "get my dream car", "build a house in my village", "retire by 50", "be financially independent", "clear the home loan early",
+    "lose eight kilos", "get to 70 kg", "run 5k under 25 minutes", "do 20 pull ups", "touch my toes",
+    "become a published author", "have my own studio", "teach at a university", "start a podcast that people listen to",
+]
+HABIT_GOALS_MORE = [
+    "walk for half an hour daily", "sleep by 11 every night", "eat home food more", "order less food from outside",
+    "cut down on takeaway", "spend less time on my phone", "drink less tea",
+    "stay consistent with the gym", "work out four days a week", "save a fixed amount every month",
+    "put 10 percent of my salary into savings", "call my grandparents every week", "read before bed", "be on time",
+    "stop snacking late", "shout less at the kids", "spend Sundays with the family",
+    "eat more protein", "drink two litres of water a day", "stop buying things I don't need", "go to bed early",
+]
+ABLE_GOALS = [
+    "play a whole song on the guitar", "swim a full lap without stopping", "run 10k without walking", "speak French with locals",
+    "cook a full meal for twenty people", "do a split", "read Gurmukhi fluently", "hold a plank for five minutes",
+    "sing at my sister's wedding", "build my own app", "fix my own car", "draw my mom's portrait",
+]
+ABLE_FRAMES = [
+    "I want to be able to {x}", "I'd love to be able to {x}", "someday I want to be able to {x}", "I'd like to be able to {x} one day",
+    "the goal is to be able to {x}", "by next year I want to be able to {x}",
+]
+GOAL_FRAMES_MORE = [
+    "want to {g}", "Want to {g} someday", "my plan is to {g}", "the plan is to {g}", 
+    "we should {g} someday", "{G} is the dream", "hoping to {g} by 2030", "I'm aiming to {g}", "my aim is to {g}",
+    "in the long run I want to {g}", "next year I want to {g}", "before I'm 40 I want to {g}", "I want to {g} one day",
+    "I'm going to {g}, that's the plan", "dream is to {g}", "{F} and I want to {g}",
+]
+HABIT_FRAMES_MORE = [
+    "doctor said I need to {h}", "my doctor wants me to {h}", "need to {h}", "I need to {h} going forward",
+    "trying hard to {h}", "want to {h}", "my resolution this year is to {h}", "I really should {h}",
+    "I need to learn to {h}", "I keep telling myself to {h}", "from Monday I'll {h}", "goal: {h}",
+    "I want to start {hing}", "I'd like to start {hing}",
+]
+HABIT_ING = ["walking daily", "eating healthy", "sleeping on time", "working out", "reading again",
+             "waking up early", "cooking at home", "spending less"]
+
+NONE_MORE = [
+    "{F} is visiting next week.", "{F} is coming over on Sunday.", "My cousins are coming over this weekend.",
+    "{F} is moving to Pune next month.", "{F}'s flight lands at 6.", "{K} has an exam on Monday.",
+    "{F} is getting married in December.", "{F} is in town till Friday.", "The guests are arriving tomorrow evening.",
+    "Got the groceries from the market.", "Picked up milk on the way home.",
+    "Ordered the new mattress.", "Finally booked the tickets.", "Paid the electricity bill.", "Fixed the wifi myself.",
+    "Cooked dinner for everyone.", "The kids loved the pizza.", "Took the dog for a long walk.", "Did the laundry finally.",
+    "The plumber didn't show up again.",
+    "{F} still hasn't replied.", "The lift is broken again.", "The AC is making a weird noise.", "Traffic was insane on the highway.",
+    "Work was hectic today.", "The launch got pushed again.", "My back is killing me.", "Slept like a baby.",
+    "Not sure if I should take the offer.", "I can't decide whether to switch jobs.", "Thinking about whether to move.",
+    "I wonder if I should talk to her.", "Maybe I'll go, not sure.", "Not sure if it's worth it.",
+    "I keep procrastinating on the slides.", "I keep putting off the dentist.", "I've been avoiding the gym.",
+    "I never get around to reading.", "{K} has a runny nose today.", "{K} got a star in class today.",
+    "{K} lost a tooth today.", "Dropped the kids at the bus stop.", "{K} was so cranky today.", "{K} finally slept.",
+    "The BP was normal today.", "The reports came back fine.", 
+    "Rent paid.", "The maid didn't come today.", "Power cut for three hours.",
+    "It was so humid today.", "The roads are flooded again.", "Had a fight with {f}.", "Made up with {f}.",
+    "{F} called after ages.", "That was a waste of time.", "Such a long week.",
+    "Happy with how things are going.", "Feeling a little lost.", 
+    "Second time this week.",
+    
+    
+    "We watched a movie at home.", "Spent the evening at the gurudwara.", "Had coffee on the balcony.",
+    "Went to the mall with the kids.", "Took the mock test today, scored 68.", "Took a blood test this morning.",
+    "Took the kids to the park.", "Took the day off.", "School reopens on Monday.", "The sale starts Friday.",
+    "Navratri starts next week.", "My notice period ends on the 30th.", "The new season starts tomorrow.", "Their exams start next week.", "Gave the driving test today.", "Did a practice paper, got 40 out of 50.", "Got stuck in traffic for an hour.", "The meeting ran late again.",
+]
+MUSINGS = [
+    "Maybe I need a holiday.", "I probably need more rest.", "I think I need a break from work.", "Honestly I need a vacation.",
+    "Maybe I just need some sleep.", "Probably need to relax a bit.", "I guess I need some time off.", "Maybe it's the weather.",
+    "Maybe it's the stress.", "Could be the late nights.", "Probably the lack of sleep.", "I think it's just a phase.",
+    "Big plans but let's see.", "Ambitious, I know.", "Easier said than done.", "We'll see how it goes.",
+]
+CHAT_MORE = [
+    "can you tell me how to make paneer bhurji", "what's a good name for a cat", "how many steps did I walk this week",
+    "what should I gift my wife", "how do I get better sleep", "which phone should I buy", "is it worth buying an air fryer",
+    "how much protein do I need", "what's the weather like", "tell me a fun fact", "what's on my list for tomorrow",
+    "remind me what I said about the car", "help me write a leave email", "write a birthday wish for my sister",
+    "give me a quick workout", "what can I cook with eggs and bread", "how do I file ITR online",
+]
+
+
+# ---------------------------------------------------------------------------
 # Generation helpers
 # ---------------------------------------------------------------------------
 def cap(s):
@@ -562,6 +819,83 @@ def none_sentence():
     ))
 
 
+
+def action_more():
+    return fill(rng.choice(TASK_ACTIONS_MORE), ap=rng.choice(APPLIANCES), k=rng.choice(KIDS), f=rng.choice(FAMILY))
+
+
+def task_sentence_more():
+    if rng.random() < 0.08:
+        return finish(fill(rng.choice(TASK_EVENTS + TASK_EVENTS_MORE), t=rng.choice(EVENT_TIMES + EVENT_TIMES_MORE)))
+    t = rng.choice(TIMES + TIMES_MORE) if rng.random() < 0.55 else ""
+    if rng.random() < 0.1:
+        bill = rng.choice(BILLS)
+        return finish(fill(rng.choice(POINTS_BACK), bill=bill, Bill=cap(bill), ap=rng.choice(APPLIANCES),
+                           F=cap(rng.choice(FAMILY)), t=t or rng.choice(["today", "tomorrow", "by Friday", "tonight"])))
+    r = rng.random()
+    a = rng.choice(PRONOUN_ACTIONS) if r < 0.15 else action_more() if r < 0.75 else action()
+    s = fill(rng.choice(TASK_FRAMES + TASK_FRAMES_MORE), a=a, A=cap(a), F=cap(rng.choice(FAMILY)))
+    if rng.random() < 0.1:
+        s += rng.choice(TAILS_MORE)
+    if t:
+        s += " " + t
+    if rng.random() < 0.15:
+        s += rng.choice(TAILS)
+    return finish(s)
+
+
+def item_list(pool):
+    items = rng.sample(pool, rng.randint(2, 4))
+    if rng.random() < 0.6:
+        return ", ".join(items[:-1]) + " and " + items[-1]
+    return " ".join(items[:-1]) + " and " + items[-1]
+
+
+def shopping_sentence_more():
+    pool = GROCERIES + GROCERIES_MORE
+    if rng.random() < 0.72:
+        i = rng.choice(pool) if rng.random() < 0.6 else item_list(pool)
+        s = fill(rng.choice(SHOP_FRAMES + SHOP_FRAMES_MORE), i=i, i2=rng.choice(pool), K=cap(rng.choice(KIDS)))
+    else:
+        big = fill(rng.choice(BIG_ITEMS + BIG_ITEMS_MORE), k=rng.choice(KIDS), f=rng.choice(FAMILY))
+        s = fill(rng.choice(SHOP_BIG_FRAMES + SHOP_BIG_FRAMES_MORE), i=big, n=rng.choice(NEW_THINGS), K=cap(rng.choice(KIDS)))
+    if rng.random() < 0.2:
+        s += " " + rng.choice(["on the way home", "tonight", "tomorrow", "from the market", "this weekend", "on Saturday", "before Sunday", "for the kids"])
+    return finish(s)
+
+
+def skill_sentence_more():
+    s = fill(rng.choice(SKILL_FRAMES_N + SKILL_FRAMES_MORE), s=rng.choice(SKILL_NOUNS + SKILL_NOUNS_MORE),
+             d=rng.choice(DURATIONS), f=rng.choice(FAMILY), F=cap(rng.choice(FAMILY)))
+    if rng.random() < 0.15:
+        s += rng.choice([" every day", " after work", " on weekends", ", it's slow", ", slowly getting there", " with a friend"])
+    return finish(s)
+
+
+def goal_sentence_more():
+    if rng.random() < 0.1:
+        return finish(fill(rng.choice(ABLE_FRAMES), x=rng.choice(ABLE_GOALS)))
+    if rng.random() < 0.45:
+        return finish(fill(rng.choice(HABIT_FRAMES + HABIT_FRAMES_MORE), h=rng.choice(HABIT_GOALS + HABIT_GOALS_MORE),
+                           hing=rng.choice(HABIT_ING)))
+    g = rng.choice(GOALS + GOALS_MORE)
+    return finish(fill(rng.choice(GOAL_FRAMES + GOAL_FRAMES_MORE), g=g, G=cap(g), F=cap(rng.choice(FAMILY))))
+
+
+def none_sentence_more():
+    r = rng.random()
+    if r < 0.12:
+        return cap(fill(rng.choice(CHAT_MORE), p=rng.choice(PEOPLE))) + ("?" if rng.random() < 0.6 else "")
+    if r < 0.8:
+        return fill(rng.choice(NONE_MORE + CONTEXT_NONE + MUSINGS), F=cap(rng.choice(FAMILY)), f=rng.choice(FAMILY),
+                    K=cap(rng.choice(KIDS)), k=rng.choice(KIDS), ap=rng.choice(APPLIANCES))
+    i = rng.choice(GROCERIES + GROCERIES_MORE)
+    return finish(rng.choice([
+        "Bought {i} from the market", "Got {i} on the way home", "Picked up {i} after work", "Finally got the {i}",
+        "The {i} we bought was stale", "Mom already got {i}", "We still have {i} left", "The {i} from Blinkit was good",
+    ]).replace("{i}", i))
+
+
 def build(label, maker, extra, n):
     rows = set(extra)
     attempts = 0
@@ -627,18 +961,40 @@ EVAL = {
 }
 
 
+def mix(old, new, share):
+    return lambda: new() if rng.random() < share else old()
+
+
+def bench_sentences():
+    """Every sentence of the whole-entry benchmarks, so none of them can end up in the training data."""
+    found = set()
+    for path in (OUT.parent / "bench").glob("eval_entries*.json"):
+        for entry in json.loads(path.read_text())["entries"]:
+            text = entry["text"]
+            found.add(text)
+            for part in text.replace("!", ".").replace("?", ".").split(". "):
+                found.add(part)
+    return found
+
+
 def main():
     train = []
-    train += build("task", task_sentence, TASK_EXTRA, PER_CLASS)
-    train += build("shopping", shopping_sentence, [], PER_CLASS)
-    train += build("skill", skill_sentence, SKILL_EXTRA, PER_CLASS)
-    train += build("goal", goal_sentence, GOAL_EXTRA, PER_CLASS)
-    train += build("none", none_sentence, NONE_SENTENCES + THIRD_PERSON, PER_CLASS)
+    train += build("task", mix(task_sentence, task_sentence_more, 0.5), TASK_EXTRA, PER_CLASS)
+    train += build("shopping", mix(shopping_sentence, shopping_sentence_more, 0.5), [], PER_CLASS)
+    train += build("skill", mix(skill_sentence, skill_sentence_more, 0.45), SKILL_EXTRA, PER_CLASS)
+    train += build("goal", mix(goal_sentence, goal_sentence_more, 0.5), GOAL_EXTRA, PER_CLASS)
+    train += build("none", mix(none_sentence, none_sentence_more, 0.45), NONE_SENTENCES + THIRD_PERSON, PER_CLASS)
 
     eval_rows = [{"text": t, "label": label} for label, rows in EVAL.items() for t in rows]
     norm = lambda s: s.lower().strip(" .!?")
     overlap = {norm(r["text"]) for r in train} & {norm(r["text"]) for r in eval_rows}
     assert not overlap, overlap
+    held_out = {norm(t) for t in bench_sentences()}
+    leaked = {norm(r["text"]) for r in train} & held_out
+    if leaked:
+        # A generated sentence that happens to match a benchmark sentence is dropped, so scores stay honest.
+        train = [r for r in train if norm(r["text"]) not in held_out]
+        print(f"dropped {len(leaked)} generated sentences that matched benchmark sentences: {sorted(leaked)[:5]}")
 
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "seed_training.json").write_text(json.dumps(train, indent=0, ensure_ascii=False) + "\n")

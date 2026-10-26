@@ -62,14 +62,16 @@ const ORDINAL = '\\d{1,2}(?:st|nd|rd|th)';
 const WHEN = new RegExp(
   `(?:^|[\\s,])(?:${[
     `(?:on |by )?(?:the )?day after tomorrow(?: ${PART})?`,
-    `(?:first thing )?(?:by |until )?tomorrow(?: ${PART})?`,
+    `(?:first thing )?(?:by |until )?tomorrow(?: early)?(?: ${PART})?`,
+    'early (?:in the )?morning',
+    '(?:before|after) breakfast',
     'first thing in the morning',
     'later today',
     '(?:by )?tonight',
     `(?:by |until )?today`,
     `this (?:${PART}|weekend|week)`,
     `(?:on |by )?next (?:week|month|${WEEKDAY})`,
-    `(?:on |by |this |until |till |before )?${WEEKDAY}(?: ${PART})?`,
+    `(?:on |by |this |until |till )?${WEEKDAY}(?: ${PART})?`,
     `in the ${PART}`,
     `(?:at |around |by )?\\d{1,2}(?:[:.]\\d{2})? ?(?:am|pm|a\\.m\\.?|p\\.m\\.?)`,
     `(?:at |around |by )\\d{1,2}(?:[:.]\\d{2})?(?: (?:o'clock|sharp))?`,
@@ -81,9 +83,9 @@ const WHEN = new RegExp(
     '(?:by )?(?:the )?end of (?:the )?(?:day|week|month)',
     'eod',
     'asap',
-    `(?:on |by |before )?the ${ORDINAL}(?: of ${MONTH})?`,
-    `(?:on |by |before )?${MONTH} ${ORDINAL.replace('(?:st|nd|rd|th)', '(?:st|nd|rd|th)?')}`,
-    `(?:on |by |before )?\\d{1,2}(?:st|nd|rd|th)? (?:of )?${MONTH}`,
+    `(?:on |by )?the ${ORDINAL}(?: of ${MONTH})?`,
+    `(?:on |by )?${MONTH} ${ORDINAL.replace('(?:st|nd|rd|th)', '(?:st|nd|rd|th)?')}`,
+    `(?:on |by )?\\d{1,2}(?:st|nd|rd|th)? (?:of )?${MONTH}`,
   ].join('|')})(?=$|[\\s,.!?])`,
   'gi',
 );
@@ -92,7 +94,10 @@ const WHEN = new RegExp(
 export function withoutWhen(title: string): string {
   let out = title;
   for (let i = 0; i < 3; i++) {
-    const next = out.replace(WHEN, ' ');
+    // "for the 14th" and "before the 18th" stay: the reminder comes the day before, so the title keeps the date.
+    const next = out.replace(WHEN, (match: string, offset: number, all: string) =>
+      /\b(?:for|before)$/i.test(all.slice(0, offset).trimEnd()) && /\d|day\b|tomorrow/i.test(match) ? match : ' ',
+    );
     if (next === out) break;
     out = next;
   }

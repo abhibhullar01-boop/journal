@@ -115,3 +115,31 @@ test('everyday phrasing in the evening: passed times move on', () => {
     ['call mom tomorrow', at(2026, 10, 21, 9)],
   ]);
 });
+
+test('the day of the thing itself: reminders come the day before', () => {
+  // Monday 26 October 2026, 8:30 am
+  const monday = at(2026, 10, 26, 8, 30);
+  sweep(monday, [
+    ["Pay the credit card bill before the 18th or there's a late fee", at(2026, 11, 17, 9)],
+    ['Book train tickets to Amritsar for the 14th', at(2026, 11, 13, 9)],
+    ['Book the vet appointment for Thursday', at(2026, 10, 28, 9)],
+    ['Order the cake for Saturday', at(2026, 10, 30, 9)],
+    ["Review the slides for Thursday's demo tonight", at(2026, 10, 26, 19)],
+    ['Remind me on Saturday to order the cake', at(2026, 10, 31, 9)],
+    ['Book his eye test for next week', at(2026, 11, 2, 9)],
+  ]);
+});
+
+test('clock times said every which way', () => {
+  const monday = at(2026, 10, 26, 8, 30);
+  sweep(monday, [
+    ['Dentist appointment Wednesday 4:30pm', at(2026, 10, 28, 16, 30)],
+    ['Print the handouts before 10', at(2026, 10, 26, 9, 30)],
+    ["Order from Domino's around 8", at(2026, 10, 26, 20)],
+    ['Call the bank at 10', at(2026, 10, 26, 10)],
+    ['call mom at 8 in the morning', at(2026, 10, 27, 8)],
+    ["the bill is due Friday, pay it on Thursday", at(2026, 10, 29, 9)],
+    ['we should do a farewell dinner for him this weekend', at(2026, 10, 31, 10)],
+    ["he hasn't replied in a week", null],
+  ]);
+});

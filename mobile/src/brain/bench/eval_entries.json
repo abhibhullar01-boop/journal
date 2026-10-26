@@ -1,5 +1,5 @@
 {
- "note": "Hand-written realistic voice-journal entries. Never used for training (but used to tune the rules, so see eval_entries_b.json for an untouched score). 'now' is Tuesday 20 Oct 2026, 09:00 local. Each expected item lists words its title must contain; 'due' is the expected reminder (local time) or null.",
+ "note": "Hand-written realistic voice-journal entries. Never used for training (but used to tune the rules, so see eval_entries_b.json for an untouched score). 'now' is Tuesday 20 Oct 2026, 09:00 local. Each expected item lists words its title must contain; 'due' is the expected reminder (local time) or null. Later rule: \"for Saturday\" names the day of the thing itself, so its reminder comes the day before.",
  "now": "2026-10-20T09:00:00",
  "entries": [
   {
@@ -558,7 +558,7 @@
      "must": [
       "cake"
      ],
-     "due": "2026-10-24T09:00"
+     "due": "2026-10-23T09:00"
     }
    ]
   },

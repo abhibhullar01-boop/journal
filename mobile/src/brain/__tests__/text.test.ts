@@ -25,14 +25,14 @@ test('splits instructions joined by commas, "and" and "then"', () => {
     'Meeting with the bank at 10:30 tomorrow', 'carry the documents',
   ]);
   assert.deepEqual(splitSentences('need to email HR about leave next week and ask Neha for the report'), [
-    'need to email HR about leave next week', 'ask Neha for the report',
+    'need to email HR about leave next week', 'need to ask Neha for the report',
   ]);
   assert.deepEqual(splitSentences('Note to self, renew the car insurance'), ['Note to self, renew the car insurance']);
 });
 
 test('shopping items', () => {
   assert.deepEqual(shoppingItems('groceries, we need eggs bread and atta'), ['Eggs', 'Bread', 'Atta']);
-  assert.deepEqual(shoppingItems('Buy a new phone charger, mine broke'), ['New phone charger']);
+  assert.deepEqual(shoppingItems('Buy a new phone charger, mine broke'), ['Phone charger']);
   assert.deepEqual(shoppingItems('order peanut butter and olive oil on Amazon'), ['Peanut butter', 'Olive oil']);
   assert.deepEqual(shoppingItems('Milk is finished'), ['Milk']);
   assert.deepEqual(shoppingItems('I should cut down on coffee'), []);
@@ -61,10 +61,40 @@ test('task titles leave the time to the reminder', () => {
   assert.equal(taskTitle('Submit the report by end of day'), 'Submit the report');
   assert.equal(taskTitle('Pay rent on the 1st'), 'Pay rent');
   assert.equal(taskTitle('Remind me in 2 hours to take the clothes out'), 'Take the clothes out');
-  assert.equal(taskTitle('Book the cab for Monday morning'), 'Book the cab');
+  // The reminder comes the day before, so the title keeps the day of the cab.
+  assert.equal(taskTitle('Book the cab for Monday morning'), 'Book the cab for Monday morning');
   assert.equal(taskTitle('Call the bank tomorrow morning about the card'), 'Call the bank about the card');
   assert.equal(taskTitle('Flight to Delhi on 5 November'), 'Flight to Delhi');
   assert.equal(withoutWhen('Tomorrow'), 'Tomorrow', 'never empties a title');
   assert.equal(taskTitle('Return the jacket'), 'Return the jacket');
   assert.equal(taskTitle('Prepare notes before the meeting'), 'Prepare notes before the meeting');
+});
+
+test('run-on dictation keeps what belongs together', () => {
+  // A want carries over to the next verb.
+  assert.deepEqual(splitSentences('Long term I want to move back to Punjab and start a small farm'), [
+    'Long term I want to move back to Punjab', 'Long term I want to start a small farm',
+  ]);
+  // A fragment that only says when goes back to its thought.
+  assert.deepEqual(splitSentences('Need to get my blood test done, fasting, so tomorrow early morning before breakfast'), [
+    'Need to get my blood test done, fasting, tomorrow early morning before breakfast',
+  ]);
+  // ", pay it" points back at what came before.
+  assert.deepEqual(splitSentences('Water bill still pending, pay it by Friday'), ['Water bill still pending, pay it by Friday']);
+  // A dictated schedule: one item per comma, and the day goes with each.
+  assert.deepEqual(splitSentences('Tomorrow: gym at 7, standup at 10, dentist at 4'), [
+    'Tomorrow gym at 7', 'standup at 10 tomorrow', 'dentist at 4 tomorrow',
+  ]);
+});
+
+test('shopping lists in everyday speech', () => {
+  assert.deepEqual(shoppingItems('ok so groceries for the week: atta, toor dal, bhindi, tamatar and some paneer'), [
+    'Atta', 'Toor dal', 'Bhindi', 'Tamatar', 'Paneer',
+  ]);
+  assert.deepEqual(shoppingItems('Need a new phone cover and screen guard, the old one cracked'), ['Phone cover', 'Screen guard']);
+  assert.deepEqual(shoppingItems("Order the cat food and litter on Amazon, Simba's almost out"), ['Cat food', 'Litter']);
+  assert.deepEqual(shoppingItems("And we're out of toothpaste and dish soap"), ['Toothpaste', 'Dish soap']);
+  assert.deepEqual(shoppingItems('need to stock up on snacks and cold drinks'), ['Snacks', 'Cold drinks']);
+  assert.deepEqual(shoppingItems('Need to apologize to her tonight'), []);
+  assert.deepEqual(shoppingItems('Also need to get her a nice saree'), ['Nice saree']);
 });

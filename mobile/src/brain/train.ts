@@ -3,9 +3,9 @@
 //   npm run train
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { JournalAnalyzer } from './analyzer';
+import { SEED_TRAINING, trainFromSeed } from './seed';
 
-const weights = JournalAnalyzer.trainFromSeed().model.exportWeights();
+const weights = { ...trainFromSeed().model.exportWeights(), examples: SEED_TRAINING.length };
 const path = join(__dirname, 'data', 'model_weights.json');
 writeFileSync(path, JSON.stringify(weights) + '\n');
 console.log(`Saved ${Object.keys(weights.weights).length} feature weights to ${path}`);

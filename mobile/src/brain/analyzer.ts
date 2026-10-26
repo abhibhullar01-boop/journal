@@ -1,5 +1,4 @@
 import seedEvaluation from './data/seed_evaluation.json';
-import seedTraining from './data/seed_training.json';
 import seedWeights from './data/model_weights.json';
 import { dueDateIn } from './dueDate';
 import { ModelWeights, SoftmaxModel } from './softmax';
@@ -11,18 +10,33 @@ import { titleFor, withoutWhen } from './titles';
 import { ALL_KINDS, Classification, emptyScores, ExtractedInsight, InsightKind, LabeledSentence } from './types';
 
 /** A specific, near time: tomorrow, tonight, a weekday or a clock time. */
-const SOON = /\b(tomorrow|tonight|this (afternoon|evening)|on (monday|tuesday|wednesday|thursday|friday|saturday|sunday)|at \d|\d ?(am|pm))\b/;
+const SOON = /\b(tomorrow|tonight|this (afternoon|evening)|(on|for) (monday|tuesday|wednesday|thursday|friday|saturday|sunday)|at \d|\d ?(am|pm))\b/;
 
 const BACK_REFERENCES = new Set(['it', "it's", 'its', 'that', "that's", 'this', 'which', 'they', "they're"]);
+
+const GOAL_LEAD = /^(.*?\b(?:want to|wants to|love to|like to|hope to|plan to|planning to|goal is to|dream is to|plan is to|aim is to|going to|gonna|wanna))\s/;
+
+/** True when both sentences open with the same want ("Long term I want to ..."), as the splitter leaves them. */
+function sameLeadIn(a: string, b: string): boolean {
+  const lead = GOAL_LEAD.exec(a.toLowerCase())?.[1];
+  return lead !== undefined && lead === GOAL_LEAD.exec(b.toLowerCase())?.[1];
+}
+
+/** Three or more known things to buy, listed after a colon or a shopping word. */
+function looksLikeShoppingList(sentence: string): boolean {
+  const lower = sentence.toLowerCase();
+  if (!/:|\b(grocery|groceries|shopping|buy|get|order|need|out of|low on)\b/.test(lower)) return false;
+  if (/^\s*(bought|got|picked|ordered|we bought|i bought)\b/.test(lower)) return false;
+  return shoppingItems(sentence).length >= 3;
+}
 
 /** True for sentences that start by pointing back at something already said. */
 function refersBack(sentence: string): boolean {
   return BACK_REFERENCES.has(contentWords(sentence)[0] ?? '');
 }
 
-export const SEED_TRAINING = seedTraining as LabeledSentence[];
 /** How many example sentences the bundled model was trained on. */
-export const SEED_SIZE = (seedWeights as ModelWeights).examples ?? SEED_TRAINING.length;
+export const SEED_SIZE = (seedWeights as ModelWeights).examples ?? 0;
 /** Hand-written sentences the model never trains on. Used to measure accuracy. */
 export const SEED_EVALUATION = seedEvaluation as LabeledSentence[];
 
@@ -61,13 +75,6 @@ export class JournalAnalyzer {
     return new JournalAnalyzer(SoftmaxModel.fromWeights(seedWeights as ModelWeights));
   }
 
-  /** Trains the starting model from the seed data. Used by `npm run train`. */
-  static trainFromSeed(): JournalAnalyzer {
-    const model = new SoftmaxModel();
-    model.train(SEED_TRAINING);
-    return new JournalAnalyzer(model);
-  }
-
   classify(sentence: string): Classification {
     const learned = this.model.probabilities(sentence);
     const rules = ruleDistribution(sentence);
@@ -92,6 +99,8 @@ export class JournalAnalyzer {
     for (const sentence of sentences) {
       const classification = this.classify(sentence);
       let { kind } = classification;
+      // "Grocery run tomorrow: onions, tomatoes, ginger" is a shopping list, whatever else it says.
+      if (kind !== 'shopping' && looksLikeShoppingList(sentence)) kind = 'shopping';
       const { confidence, scores } = classification;
       let items: string[] = [];
       if (kind === 'shopping') {
@@ -117,6 +126,13 @@ export class JournalAnalyzer {
       }
       // The reminder shows the time, so a task's title leaves it out ("Call mom", not "Call mom tomorrow at 5").
       const title = kind === 'task' && dueDate ? withoutWhen(titleFor(sentence)) : titleFor(sentence);
+      // "Long term I want to move back to Punjab and start a farm" is one dream, said in two parts.
+      const last = result[result.length - 1];
+      if (kind === 'goal' && last?.kind === 'goal' && sameLeadIn(last.sentence, sentence)) {
+        last.title = `${last.title} and ${title[0].toLowerCase()}${title.slice(1)}`;
+        last.sentence = `${last.sentence} and ${sentence}`;
+        continue;
+      }
       result.push({ kind, title, sentence, confidence, dueDate });
     }
     return result;

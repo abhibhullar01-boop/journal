@@ -87,14 +87,17 @@ export class SoftmaxModel {
     for (let i = 0; i < weight * 4; i++) this.step(fs, label, this.learningRate);
   }
 
-  /** Compact, rounded weights for bundling with the app (see `npm run train`). */
+  /**
+   * Compact, rounded weights for bundling with the app (see `npm run train`). Words whose weights
+   * are all tiny are left out: it halves the file and changes no score on any test set.
+   */
   exportWeights(): ModelWeights {
     const weights: Record<string, number[]> = {};
     const keys = [...this.weights.keys()].sort();
     for (const key of keys) {
       const w = this.weights.get(key)!;
-      if (w.every((v) => Math.abs(v) < 0.005)) continue;
-      weights[key] = w.map((v) => Math.round(v * 1000) / 1000);
+      if (w.every((v) => Math.abs(v) < 0.05)) continue;
+      weights[key] = w.map((v) => Math.round(v * 100) / 100);
     }
     return { kinds: [...ALL_KINDS], weights };
   }

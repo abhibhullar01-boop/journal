@@ -71,22 +71,26 @@ It lives in `mobile/src/brain` and is plain TypeScript, so it runs and is tested
 
 | Piece | What it does |
 | --- | --- |
-| `splitter.ts` | Splits text on punctuation and on spoken joins like "and I…", "…, carry the documents", "at 3 then groceries" |
+| `splitter.ts` | Splits text on punctuation and on spoken joins like "and I…", "…, carry the documents", "at 3 then groceries". Keeps a want with its next verb ("I want to move back and start a farm"), keeps ", pay it by Friday" with what it points back to, puts a stray "so tomorrow morning" back with its thought, and splits a dictated schedule ("Tomorrow: gym at 7, standup at 10") into one item each |
 | `softmax.ts` | Small logistic-regression text model over words, word pairs and how the sentence opens |
-| `shopping.ts` | Turns "we're out of milk and eggs" into separate items |
+| `shopping.ts` | Turns "we're out of milk and eggs" or "groceries for the week: atta, toor dal, bhindi" into separate items, and knows Hindi grocery names and brands (Harpic, Surf Excel…) |
 | `rules.ts` | Hand-written cue phrases ("need to", "get better at", "someday"…) for phrasing the data never covered |
 | `analyzer.ts` | Blends the two (65% model, 35% cues) and produces titled items |
 | `titles.ts` | Turns a sentence into a short title |
-| `dueDate.ts` | Finds reminder times: "tomorrow evening", "in 2 hours", "on the 1st", "after work", "day after tomorrow"… |
+| `dueDate.ts` | Finds reminder times: "tomorrow evening", "in 2 hours", "on the 1st", "after work", "4:30pm", "before 10" (9:30), "around 8" said in the morning (8 pm). "For Saturday" and "before the 18th" name the day of the thing itself, so the reminder comes the day before |
 
-The starting model is trained on 6,500 everyday sentences, including chat-style questions and requests, made by `tools/generate_seed_data.py`
-(`npm run train` saves its weights into the app). It is scored two ways, never on its training data:
+The starting model is trained on 15,000 everyday sentences made by `tools/generate_seed_data.py`: home repairs,
+kids and school, money and paperwork, health, pets, festivals, travel, work and family, chat-style questions,
+and the news and feelings that are not things to track. `npm run train` saves its weights into the app (about
+350 KB; the training sentences themselves stay out of the app). It is scored on sentences it never trained on:
 
-- 86 hand-written single sentences: **98%** right.
-- 120 hand-written whole messages (`npm run bench`), checking every item it should find, the ones it
-  shouldn't, and reminder times. Set B (journal entries, written after tuning) gets **90%** (F1);
-  set D (chat messages, written after all tuning) gets **100%**; every reminder time is right.
-- A sweep of about 40 time phrases at two times of day in `dueDate.test.ts`.
+- 86 hand-written single sentences: **99%** right.
+- 270 hand-written whole messages (`npm run bench`), checking every item it should find, the ones it
+  shouldn't, and reminder times. Set B (journal entries, written after the first tuning) gets **94%** (F1);
+  set D (chat messages) **100%**. Set F (70 everyday entries written before the October 26 training round)
+  went from **81%** to **88%** on its first check, and its reminder times from 84% to **100%**; it was then
+  used to find a few more general fixes. Every reminder time in every set is right.
+- A sweep of about 60 time phrases in `dueDate.test.ts`.
 
 ```bash
 cd mobile
