@@ -33,3 +33,5 @@ jobs:
         run: npm run classify -- "Long day. I need to email Sarah tomorrow at 10 and I want to get better at public speaking and someday I want to run a marathon."
       - name: Bundle for iOS (what Expo Go loads)
         run: npx expo export --platform ios --output-dir /tmp/expo-export
+      - name: Build the website (what Netlify publishes)
+        run: npm run build:web && test -f dist/index.html && ls dist/_expo/static/js/web/*.js
