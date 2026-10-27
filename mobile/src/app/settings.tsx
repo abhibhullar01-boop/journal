@@ -228,13 +228,17 @@ export default function SettingsScreen() {
       </View>
 
       <Section title="Notifications">
-        {WEB ? <BrowserNotificationsRow /> : null}
-        <SwitchRow
-          title="When something is saved"
-          subtitle="A quick note listing what went to your lists, and when you'll be reminded."
-          value={prefs.savedNotifications}
-          onChange={(v) => setPref('savedNotifications', v)}
-        />
+        {WEB ? (
+          // The chat already shows what was saved, so the website has no "saved" note to turn off.
+          <BrowserNotificationsRow />
+        ) : (
+          <SwitchRow
+            title="When something is saved"
+            subtitle="A quick note listing what went to your lists, and when you'll be reminded."
+            value={prefs.savedNotifications}
+            onChange={(v) => setPref('savedNotifications', v)}
+          />
+        )}
         <SwitchRow
           title="Morning plan and evening check"
           subtitle="At 8:30 am and 8:30 pm, plus a Sunday check-in on your goals."
