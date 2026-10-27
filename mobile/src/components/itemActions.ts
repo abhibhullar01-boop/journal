@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
-import { ActionSheetIOS, Alert, Platform } from 'react-native';
 import { ALL_KINDS, dueDateIn, InsightKind, KIND_LABEL } from '../brain';
 import { formatDue } from '../store/format';
 import type { TrackedItem } from '../store/types';
+import { alert, askText, SheetOption, showSheet } from './dialog';
 
 interface Actions {
   toggleDone(id: string): void;
@@ -13,53 +13,10 @@ interface Actions {
   setDue(id: string, due: Date | null): void;
 }
 
-export interface SheetOption {
-  text: string;
-  destructive?: boolean;
-  onPress: () => void;
-}
+export type { SheetOption };
+export { askText, showSheet };
 
-/** A native action sheet on iPhone; a simple alert elsewhere. */
-function sheet(title: string, message: string | undefined, options: SheetOption[]) {
-  if (Platform.OS === 'ios') {
-    const destructive = options.findIndex((o) => o.destructive);
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        title,
-        message,
-        options: [...options.map((o) => o.text), 'Cancel'],
-        cancelButtonIndex: options.length,
-        destructiveButtonIndex: destructive >= 0 ? destructive : undefined,
-      },
-      (index) => index < options.length && options[index].onPress(),
-    );
-  } else {
-    Alert.alert(title, message, [
-      ...options.map((o) => ({ text: o.text, style: o.destructive ? ('destructive' as const) : undefined, onPress: o.onPress })),
-      { text: 'Cancel', style: 'cancel' as const },
-    ]);
-  }
-}
-
-/** Asks for a line of text. iPhone shows a prompt; the web preview uses the browser's. */
-export function askText(title: string, message?: string, initial = ''): Promise<string | null> {
-  if (Platform.OS === 'ios') {
-    return new Promise((resolve) =>
-      Alert.prompt(
-        title,
-        message,
-        [
-          { text: 'Cancel', style: 'cancel', onPress: () => resolve(null) },
-          { text: 'Save', onPress: (value?: string) => resolve(value ?? '') },
-        ],
-        'plain-text',
-        initial,
-      ),
-    );
-  }
-  const ask = (globalThis as { prompt?: (message: string, value: string) => string | null }).prompt;
-  return Promise.resolve(ask ? ask(message ? `${title}\n${message}` : title, initial) : null);
-}
+const sheet = showSheet;
 
 /** "Remind me when?" in plain words: "tomorrow 6 pm", "Friday morning", "in 2 hours". */
 export async function askReminder(item: TrackedItem, actions: Actions) {
@@ -70,7 +27,7 @@ export async function askReminder(item: TrackedItem, actions: Actions) {
   if (!answer?.trim()) return;
   const due = dueDateIn(answer);
   if (!due) {
-    Alert.alert("I couldn't read a time from that", 'Try something like “tomorrow 9 am” or “in 30 minutes”.');
+    alert("I couldn't read a time from that", 'Try something like “tomorrow 9 am” or “in 30 minutes”.');
     return;
   }
   actions.setDue(item.id, due);
@@ -116,4 +73,3 @@ export function showItemActions(item: TrackedItem, actions: Actions) {
   sheet(item.title, item.dueDate && !item.done ? `${where}\nReminder: ${formatDue(item.dueDate)}` : where, options);
 }
 
-export { sheet as showSheet };

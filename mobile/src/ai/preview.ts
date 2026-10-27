@@ -72,6 +72,15 @@ export function parsePreview(html: string, url: string): LinkPreview {
 }
 
 const cache = new Map<string, Promise<LinkPreview>>();
+
+/**
+ * A browser may not read other sites' pages (CORS), so the website asks its own server for
+ * previews instead: GET <endpoint>?url=... answers with a LinkPreview.
+ */
+let endpoint: string | null = null;
+export function setPreviewEndpoint(url: string | null): void {
+  endpoint = url;
+}
 const BROWSER_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
 
@@ -126,6 +135,15 @@ export function fetchPreview(url: string): Promise<LinkPreview> {
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 8000);
+        if (endpoint) {
+          const response = await globalThis.fetch(`${endpoint}?url=${encodeURIComponent(url)}`, { signal: controller.signal });
+          clearTimeout(timer);
+          if (!response.ok) throw new Error(`Preview ${response.status}`);
+          const found = (await response.json()) as LinkPreview;
+          const preview = { url, title: found.title ?? null, image: found.image ?? null, site: found.site || siteOf(url), price: found.price ?? null };
+          remember(preview);
+          return preview;
+        }
         const response = await httpFetch(url, { headers: { 'User-Agent': BROWSER_UA, Accept: 'text/html' }, signal: controller.signal });
         const type = response.headers.get('content-type') ?? '';
         let preview: LinkPreview;

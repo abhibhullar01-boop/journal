@@ -1,14 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Alert, Keyboard, Linking, Pressable, ScrollView, Share, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { webSearchStatus } from '../ai/claude';
 import { KeyName, useKeys } from '../ai/keys';
 import { KIND_LABEL } from '../brain';
+import { alert } from '../components/dialog';
+import { useWide } from '../components/layout';
+import { shareText } from '../components/share';
 import { IconName, RADIUS, SPACE, tint, TYPE, usePalette } from '../components/theme';
 import { Button, Card, Footnote, Row, Section } from '../components/ui';
+import { OTHER_PROJECTS } from '../components/web/projects';
 import { formatDue } from '../store/format';
 import { useJournal } from '../store/JournalContext';
+import { notificationStatus, requestNotificationPermission } from '../store/reminders';
 import type { JournalEntry, TrackedItem } from '../store/types';
 
 const KEY_INFO: Record<KeyName, { title: string; icon: IconName; what: string; url: string; prefix: string }> = {
@@ -39,7 +44,7 @@ function KeyCard({ name }: { name: KeyName }) {
     const value = draft.trim();
     if (!value) return;
     if (!value.startsWith(info.prefix)) {
-      Alert.alert("That doesn't look like the right key", `${info.title} keys start with "${info.prefix}".`);
+      alert("That doesn't look like the right key", `${info.title} keys start with "${info.prefix}".`);
       return;
     }
     await keys.setKey(name, value);
@@ -48,7 +53,7 @@ function KeyCard({ name }: { name: KeyName }) {
   };
 
   const remove = () =>
-    Alert.alert(`Remove the ${info.title} key?`, undefined, [
+    alert(`Remove the ${info.title} key?`, undefined, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Remove', style: 'destructive', onPress: () => keys.setKey(name, null) },
     ]);
@@ -111,7 +116,7 @@ function WebSearchNote() {
         <Text style={[TYPE.headline, { color: p.text, flex: 1 }]}>Claude's web search is off</Text>
       </View>
       <Text style={[TYPE.footnote, { color: p.secondary }]}>
-        Links still work through the phone's own search. For better results, turn on web search in your Claude account settings.
+        Links still work through the app's own search. For better results, turn on web search in your Claude account settings.
         {problem ? `\n\nWhat Claude said: ${problem}` : ''}
       </Text>
       <Pressable onPress={() => Linking.openURL('https://platform.claude.com/settings')} hitSlop={8} style={styles.link}>
@@ -131,6 +136,39 @@ function SwitchRow({ title, subtitle, value, onChange, last }: { title: string; 
         <Text style={[TYPE.footnote, { color: p.secondary, marginTop: 2 }]}>{subtitle}</Text>
       </View>
       <Switch value={value} onValueChange={onChange} trackColor={{ true: p.accent, false: p.border }} accessibilityLabel={title} />
+    </View>
+  );
+}
+
+const WEB = Platform.OS === 'web';
+
+/** The website: whether this browser may show reminders, with a button to allow them. */
+function BrowserNotificationsRow() {
+  const p = usePalette();
+  const [status, setStatus] = useState<'granted' | 'denied' | 'default' | 'unsupported' | null>(null);
+  useEffect(() => {
+    notificationStatus().then(setStatus);
+  }, []);
+  const allow = async () => {
+    await requestNotificationPermission();
+    setStatus(await notificationStatus());
+  };
+  const subtitle =
+    status === 'granted'
+      ? 'On. Reminders pop up while the journal is open in a tab.'
+      : status === 'denied'
+        ? 'Blocked. Allow notifications for this site in your browser settings.'
+        : status === 'unsupported'
+          ? "This browser can't show them; reminders appear on the page instead."
+          : 'Get reminders as pop-ups, even when this tab is in the background.';
+  return (
+    <View style={[styles.switchRow, { borderBottomColor: p.hairline, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+      <View style={{ flex: 1 }}>
+        <Text style={[TYPE.body, { color: p.text }]}>Browser notifications</Text>
+        <Text style={[TYPE.footnote, { color: p.secondary, marginTop: 2 }]}>{subtitle}</Text>
+      </View>
+      {status === 'default' ? <Button compact title="Turn on" onPress={allow} /> : null}
+      {status === 'granted' ? <Ionicons name="checkmark-circle" size={22} color={p.accent} /> : null}
     </View>
   );
 }
@@ -159,13 +197,14 @@ function journalText(entries: JournalEntry[], items: TrackedItem[]): string {
 export default function SettingsScreen() {
   const p = usePalette();
   const { facts, forgetFact, prefs, setPref, entries, items } = useJournal();
+  const wide = useWide();
 
   const exportJournal = () => {
     if (!entries.length) {
-      Alert.alert('Nothing to export yet', 'Your messages become journal entries. Once there are some, you can export them here.');
+      alert('Nothing to export yet', 'Your messages become journal entries. Once there are some, you can export them here.');
       return;
     }
-    Share.share({ title: 'My journal', message: journalText(entries, items) }).catch(() => {});
+    shareText(journalText(entries, items), { title: 'My journal', filename: `journal-${new Date().toISOString().slice(0, 10)}.txt` });
   };
 
   return (
@@ -182,12 +221,14 @@ export default function SettingsScreen() {
         <View style={{ height: SPACE.m }} />
         <KeyCard name="openai" />
         <Footnote>
-          Keys stay in your iPhone's keychain. Recordings go to OpenAI to be written down, and your messages go to Claude when you
-          chat. Without keys, everything still works on the phone, just less smartly.
+          {WEB
+            ? 'Keys are kept in this browser only, never on a server. Recordings go to OpenAI to be written down, and your messages go to Claude when you chat. Without keys, everything still works here, just less smartly.'
+            : "Keys stay in your iPhone's keychain. Recordings go to OpenAI to be written down, and your messages go to Claude when you chat. Without keys, everything still works on the phone, just less smartly."}
         </Footnote>
       </View>
 
       <Section title="Notifications">
+        {WEB ? <BrowserNotificationsRow /> : null}
         <SwitchRow
           title="When something is saved"
           subtitle="A quick note listing what went to your lists, and when you'll be reminded."
@@ -202,7 +243,11 @@ export default function SettingsScreen() {
           last
         />
       </Section>
-      <Footnote>Task reminders always come at their time. If none arrive, allow notifications for Expo Go in iPhone Settings.</Footnote>
+      <Footnote>
+        {WEB
+          ? 'On the website, reminders come while the journal is open in a browser tab, so keep a tab open. Your phone app reminds you as usual.'
+          : 'Task reminders always come at their time. If none arrive, allow notifications for Expo Go in iPhone Settings.'}
+      </Footnote>
 
       <Section title="What your companion remembers" count={facts.length || undefined}>
         {facts.length ? (
@@ -222,9 +267,30 @@ export default function SettingsScreen() {
       </Section>
 
       <Section title="Your journal">
-        <Row icon="hardware-chip-outline" title="On-phone brain" subtitle="How well it sorts, and what it has learned from you" onPress={() => router.push('/brain')} />
+        <Row
+          icon="hardware-chip-outline"
+          title={WEB ? 'Built-in brain' : 'On-phone brain'}
+          subtitle="How well it sorts, and what it has learned from you"
+          onPress={() => router.push('/brain')}
+        />
         <Row icon="share-outline" title="Export your journal" subtitle={`${entries.length} entries as plain text`} onPress={exportJournal} last />
       </Section>
+
+      {WEB && !wide ? (
+        <Section title="Your other projects">
+          {OTHER_PROJECTS.map((project, k) => (
+            <Row
+              key={project.url}
+              icon={project.icon}
+              title={project.name}
+              subtitle={project.note}
+              onPress={() => Linking.openURL(project.url).catch(() => {})}
+              right={<Ionicons name="open-outline" size={16} color={p.tertiary} />}
+              last={k === OTHER_PROJECTS.length - 1}
+            />
+          ))}
+        </Section>
+      ) : null}
     </ScrollView>
   );
 }

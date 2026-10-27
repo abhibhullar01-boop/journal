@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { alert } from '../../components/dialog';
 import { ItemRow } from '../../components/ItemRow';
 import { SERIF, SPACE, TYPE, usePalette } from '../../components/theme';
 import { Card, EmptyState, Footnote, IconButton, Section } from '../../components/ui';
@@ -24,7 +25,7 @@ export default function EntryScreen() {
   }
 
   const remove = () =>
-    Alert.alert('Delete this entry?', 'It goes from the chat too, with everything saved from it.', [
+    alert('Delete this entry?', 'It goes from the chat too, with everything saved from it.', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
@@ -67,7 +68,9 @@ export default function EntryScreen() {
           <Text style={[TYPE.callout, styles.quiet, { color: p.secondary }]}>Nothing to track. It's kept as a note.</Text>
         )}
       </Section>
-      <Footnote>Tap a label to move an item to another list. Each fix teaches the brain on your phone.</Footnote>
+      <Footnote>
+        Tap a label to move an item to another list. Each fix teaches the {Platform.OS === 'web' ? 'built-in brain' : 'brain on your phone'}.
+      </Footnote>
     </ScrollView>
   );
 }

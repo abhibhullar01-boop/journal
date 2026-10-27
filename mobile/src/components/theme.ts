@@ -69,7 +69,8 @@ export const PALETTE = palette;
 export const SERIF = Platform.select({
   ios: 'Iowan Old Style',
   android: 'serif',
-  default: 'Iowan Old Style, Charter, Georgia, "Times New Roman", serif',
+  // The website: Iowan where the system has it (iPhone, Mac), else Source Serif from Google Fonts.
+  default: '"Iowan Old Style", "Source Serif 4", Charter, Georgia, "Times New Roman", serif',
 });
 
 export const TYPE = {

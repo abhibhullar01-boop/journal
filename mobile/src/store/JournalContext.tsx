@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { ChatTurn, claudeErrorMessage, CompanionContext, companionReply, extractWithClaude, warmCompanion } from '../ai/claude';
 import { useKeys } from '../ai/keys';
 import { AnalyzerState, dueDateIn, ExtractedInsight, InsightKind, JournalAnalyzer, shoppingItems, taskTitle } from '../brain';
@@ -35,7 +35,9 @@ const HISTORY_STEP = 20;
 const CACHE_WARM_MS = 4 * 60_000;
 
 const NO_KEY_NOTICE =
-  "I saved that, and sorted it on your phone. To chat back and double-check how things are sorted, add your Claude key in Settings (the gear at the top).";
+  Platform.OS === 'web'
+    ? 'I saved that, and sorted it here in your browser. To chat back and double-check how things are sorted, add your Claude key in Settings.'
+    : "I saved that, and sorted it on your phone. To chat back and double-check how things are sorted, add your Claude key in Settings (the gear at the top).";
 
 export interface JournalData {
   ready: boolean;

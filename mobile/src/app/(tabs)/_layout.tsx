@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router/js-tabs';
 import { endOfDay, useNow } from '../../components/clock';
+import { useWide } from '../../components/layout';
 import { usePalette } from '../../components/theme';
 import { useJournal } from '../../store/JournalContext';
 
@@ -8,12 +9,15 @@ export default function TabsLayout() {
   const p = usePalette();
   const { items } = useJournal();
   const now = useNow(5 * 60_000);
+  // A wide browser window has the sidebar instead of the tab bar.
+  const wide = useWide();
   // The badge counts what needs you today (due or overdue), not every open item.
   const end = endOfDay(now).getTime();
   const due = items.filter((i) => !i.done && i.dueDate && (i.kind === 'task' || i.kind === 'shopping') && new Date(i.dueDate).getTime() <= end).length;
 
   return (
     <Tabs
+      tabBar={wide ? () => null : undefined}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: p.accent,

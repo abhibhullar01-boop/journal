@@ -39,6 +39,21 @@ export async function setUpNotifications(): Promise<void> {
   }
 }
 
+/** Whether notifications are allowed: 'default' means not asked yet. */
+export async function notificationStatus(): Promise<'granted' | 'denied' | 'default' | 'unsupported'> {
+  try {
+    const current = await Notifications.getPermissionsAsync();
+    return current.granted ? 'granted' : current.canAskAgain ? 'default' : 'denied';
+  } catch {
+    return 'unsupported';
+  }
+}
+
+/** Asks for notifications (the same as the website's version, for Settings). */
+export function requestNotificationPermission(): Promise<boolean> {
+  return ensurePermission().catch(() => false);
+}
+
 /** Asks once; later calls return the stored answer. */
 export async function ensurePermission(): Promise<boolean> {
   const current = await Notifications.getPermissionsAsync();

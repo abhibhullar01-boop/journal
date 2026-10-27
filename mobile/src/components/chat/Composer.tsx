@@ -11,8 +11,10 @@ import {
 } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Keyboard, Pressable, StyleSheet, Text, TextInput, TextInputInstance, View } from 'react-native';
+import { ActivityIndicator, Animated, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, TextInputInstance, View } from 'react-native';
+import { browserSpeechAvailable, Listening, startListening } from '../../ai/browserSpeech';
 import { transcribe } from '../../ai/transcribe';
+import { hasFinePointer } from '../layout';
 import { RADIUS, SPACE, tint, TYPE, usePalette } from '../theme';
 
 /**
@@ -56,6 +58,11 @@ interface Props {
 
 type Phase = 'idle' | 'recording' | 'transcribing';
 
+const WEB = Platform.OS === 'web';
+const MIC_BLOCKED = WEB
+  ? 'Microphone access is blocked. Allow it for this site (the icon left of the web address), then try again.'
+  : 'Microphone access is off. Turn it on in iPhone Settings > Expo Go.';
+
 /** The message bar: type, or tap the mic and talk. */
 export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
   { onSend, openaiKey, vocabulary, keyboardOpen, onError, onStart, editing, onSaveEdit, onCancelEdit },
@@ -76,6 +83,13 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
   const recorder = useAudioRecorder(RECORDING);
   const state = useAudioRecorderState(recorder, 80);
   const pulse = useRef(new Animated.Value(0)).current;
+  /** On the website without an OpenAI key, the browser's own speech recognition listens. */
+  const listening = useRef<Listening | null>(null);
+  const [heardSoFar, setHeardSoFar] = useState('');
+  const [listenStart, setListenStart] = useState(0);
+  const [listenTime, setListenTime] = useState(0);
+  /** A computer: Enter sends, Shift+Enter starts a new line. */
+  const desktop = useRef(hasFinePointer()).current;
 
   // Editing an earlier message puts its words in the box.
   useEffect(() => {
@@ -94,6 +108,17 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
     if (state.durationMillis > MAX_RECORDING_MS) stop('send');
   }, [state.metering, state.durationMillis, phase]);
 
+  // The browser's listening has no recorder clock, so it keeps its own.
+  useEffect(() => {
+    if (phase !== 'recording' || !listenStart) return;
+    const timer = setInterval(() => {
+      const ms = Date.now() - listenStart;
+      setListenTime(ms);
+      if (ms > MAX_RECORDING_MS) stop('send');
+    }, 250);
+    return () => clearInterval(timer);
+  }, [phase, listenStart]);
+
   useEffect(() => {
     if (phase !== 'recording') return;
     const loop = Animated.loop(
@@ -108,14 +133,39 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
 
   useEffect(
     () => () => {
+      listening.current?.cancel();
       setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
     },
     [],
   );
 
+  /** The website, no OpenAI key: listen with the browser's speech recognition. */
+  const listenInBrowser = () => {
+    try {
+      setHeardSoFar('');
+      listening.current = startListening(setHeardSoFar, (message) => {
+        listening.current?.cancel();
+        listening.current = null;
+        setListenStart(0);
+        setPhase('idle');
+        onError(message);
+      });
+      setListenStart(Date.now());
+      setListenTime(0);
+      setPhase('recording');
+    } catch {
+      listening.current = null;
+      onError("This browser can't listen. Add an OpenAI key in Settings, or type instead.");
+    }
+  };
+
   const start = async () => {
     onStart?.();
     if (!openaiKey) {
+      if (WEB && browserSpeechAvailable()) {
+        listenInBrowser();
+        return;
+      }
       // No speech key: the keyboard's own mic does the talking.
       setDictationTip(true);
       input.current?.focus();
@@ -125,7 +175,7 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
       Keyboard.dismiss();
       const permission = await requestRecordingPermissionsAsync();
       if (!permission.granted) {
-        onError('Microphone access is off. Turn it on in iPhone Settings > Expo Go.');
+        onError(MIC_BLOCKED);
         return;
       }
       await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
@@ -136,7 +186,8 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     } catch (e) {
       console.warn(e);
-      onError("Couldn't start the microphone. You can type instead.");
+      // A browser that was refused the microphone throws here rather than returning "not granted".
+      onError(WEB && /denied|allowed|permission/i.test(String(e)) ? MIC_BLOCKED : "Couldn't start the microphone. You can type instead.");
       setPhase('idle');
     }
   };
@@ -151,14 +202,26 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
     sendAfter.current = how === 'send';
     setPhase(how === 'cancel' ? 'idle' : 'transcribing');
     try {
-      await recorder.stop();
-      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
-      if (how === 'cancel') return;
-      const uri = recorder.uri;
-      if (!uri) throw new Error('No recording');
-      const heard = await transcribe(uri, openaiKey!, vocabulary());
+      let heard: string;
+      if (listening.current) {
+        const session = listening.current;
+        listening.current = null;
+        setListenStart(0);
+        if (how === 'cancel') {
+          session.cancel();
+          return;
+        }
+        heard = (await session.stop()).trim();
+      } else {
+        await recorder.stop();
+        await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
+        if (how === 'cancel') return;
+        const uri = recorder.uri;
+        if (!uri) throw new Error('No recording');
+        heard = await transcribe(uri, openaiKey!, vocabulary());
+      }
       if (!heard) {
-        onError("I didn't catch anything. Try again, a little closer to the phone.");
+        onError(WEB ? "I didn't catch anything. Try again, a little closer to the mic." : "I didn't catch anything. Try again, a little closer to the phone.");
       } else if (sendAfter.current && !editing) {
         const typed = text.trim();
         onSend(typed ? `${typed} ${heard}` : heard, 'voice');
@@ -201,7 +264,11 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
     return (
       <View style={[styles.wrap, { borderTopColor: p.hairline, backgroundColor: p.background }]}>
         <Text style={[TYPE.caption, styles.hint, { color: p.secondary }]}>
-          {recording ? 'Listening… tap ↑ to send, or the pencil to check the words first' : sendAfter.current ? 'Writing it down and sending…' : 'Writing it down…'}
+          {recording
+            ? `Listening… ${desktop ? 'click' : 'tap'} ↑ to send, or the pencil to check the words first`
+            : sendAfter.current
+              ? 'Writing it down and sending…'
+              : 'Writing it down…'}
         </Text>
         <View style={styles.bar}>
           <View style={[styles.pill, styles.recordPill, { backgroundColor: p.card, borderColor: recording ? tint(p.danger, 0.45) : p.border }]}>
@@ -211,12 +278,18 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
             {recording ? (
               <>
                 <Animated.View style={[styles.recDot, { backgroundColor: p.danger, opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.25] }) }]} />
-                <Text style={[styles.timer, { color: p.text }]}>{clock(state.durationMillis)}</Text>
-                <View style={styles.wave}>
-                  {levels.map((l, i) => (
-                    <View key={i} style={[styles.waveBar, { height: 3 + l * 24, backgroundColor: i > BARS - 4 ? p.accent : tint(p.accent, 0.55) }]} />
-                  ))}
-                </View>
+                <Text style={[styles.timer, { color: p.text }]}>{clock(listenStart ? listenTime : state.durationMillis)}</Text>
+                {listenStart ? (
+                  <Text style={[TYPE.callout, styles.heard, { color: heardSoFar ? p.text : p.tertiary }]} numberOfLines={1}>
+                    {heardSoFar ? (heardSoFar.length > 70 ? `…${heardSoFar.slice(-70)}` : heardSoFar) : 'Listening…'}
+                  </Text>
+                ) : (
+                  <View style={styles.wave}>
+                    {levels.map((l, i) => (
+                      <View key={i} style={[styles.waveBar, { height: 3 + l * 24, backgroundColor: i > BARS - 4 ? p.accent : tint(p.accent, 0.55) }]} />
+                    ))}
+                  </View>
+                )}
               </>
             ) : (
               <View style={styles.transcribing}>
@@ -262,7 +335,15 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
         <Pressable onPress={() => setDictationTip(false)} style={[styles.banner, { backgroundColor: p.accentSoft }]}>
           <Ionicons name="mic-outline" size={15} color={p.accent} />
           <Text style={[TYPE.footnote, { color: p.text, flex: 1 }]}>
-            Tap the <Text style={{ fontWeight: '700' }}>mic on your keyboard</Text> and talk. For better speech, add an OpenAI key in Settings.
+            {WEB ? (
+              <>
+                This browser can't listen by itself. Add an <Text style={{ fontWeight: '700' }}>OpenAI key</Text> in Settings to talk, or type here.
+              </>
+            ) : (
+              <>
+                Tap the <Text style={{ fontWeight: '700' }}>mic on your keyboard</Text> and talk. For better speech, add an OpenAI key in Settings.
+              </>
+            )}
           </Text>
           <Ionicons name="close" size={15} color={p.secondary} />
         </Pressable>
@@ -289,7 +370,18 @@ export const Composer = forwardRef<ComposerHandle, Props>(function Composer(
               if (!t) spoken.current = false;
             }}
             onFocus={onStart}
-            placeholder={editing ? 'Edit your message' : 'Message, or tap the mic'}
+            onKeyPress={
+              desktop
+                ? (e) => {
+                    const key = e.nativeEvent as unknown as { key: string; shiftKey?: boolean; isComposing?: boolean };
+                    if (key.key === 'Enter' && !key.shiftKey && !key.isComposing) {
+                      e.preventDefault();
+                      send();
+                    }
+                  }
+                : undefined
+            }
+            placeholder={editing ? 'Edit your message' : desktop ? 'Message, or click the mic' : 'Message, or tap the mic'}
             placeholderTextColor={p.tertiary}
             multiline
             style={[styles.input, { color: p.text }]}
@@ -334,6 +426,7 @@ const styles = StyleSheet.create({
   timer: { fontSize: 15, fontWeight: '600', fontVariant: ['tabular-nums'], minWidth: 38 },
   wave: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 2, height: 30, overflow: 'hidden' },
   waveBar: { width: 3, borderRadius: 2 },
+  heard: { flex: 1 },
   transcribing: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
   banner: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 12, marginBottom: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: RADIUS.m },
   hint: { marginHorizontal: SPACE.xl, marginBottom: 4 },

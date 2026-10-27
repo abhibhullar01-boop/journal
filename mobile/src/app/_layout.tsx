@@ -4,10 +4,15 @@ import * as Notifications from 'expo-notifications';
 import { DefaultTheme, router, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import { setFetch } from '../ai/claude';
 import { setCacheStore, setHttpFetch } from '../ai/http';
+import { setPreviewEndpoint } from '../ai/preview';
+import { setSearchEndpoint } from '../ai/websearch';
 import { KeysProvider } from '../ai/keys';
+import { DialogHost } from '../components/dialog';
 import { PALETTE } from '../components/theme';
+import { WebShell } from '../components/web/Sidebar';
 import { JournalProvider, useJournal } from '../store/JournalContext';
 import { MARK_DONE, setUpNotifications, SNOOZE } from '../store/reminders';
 
@@ -58,6 +63,12 @@ function NotificationBridge() {
 // previews can stop reading a page once they have what they need.
 setFetch(expoFetch);
 setHttpFetch(expoFetch);
+// The website can't read other sites from the browser, so its own server fetches link
+// previews and backup search results (see netlify/functions).
+if (Platform.OS === 'web') {
+  setPreviewEndpoint('/api/preview');
+  setSearchEndpoint('/api/search');
+}
 // Link previews are kept on the phone, so a link seen before shows its picture straight away.
 setCacheStore({ get: (key) => AsyncStorage.getItem(key), set: (key, value) => AsyncStorage.setItem(key, value) });
 
@@ -80,21 +91,24 @@ export default function RootLayout() {
         <JournalProvider>
           <NotificationBridge />
           <StatusBar style="dark" />
-          <Stack
-            screenOptions={{
-              headerStyle: { backgroundColor: PALETTE.background },
-              headerShadowVisible: false,
-              headerTintColor: PALETTE.accent,
-              headerTitleStyle: { color: PALETTE.text, fontWeight: '600' },
-              contentStyle: { backgroundColor: PALETTE.background },
-              headerBackButtonDisplayMode: 'minimal',
-            }}
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Home' }} />
-            <Stack.Screen name="entry/[id]" options={{ title: 'Entry' }} />
-            <Stack.Screen name="settings" options={{ title: 'Settings' }} />
-            <Stack.Screen name="brain" options={{ title: 'On-phone brain' }} />
-          </Stack>
+          <WebShell>
+            <Stack
+              screenOptions={{
+                headerStyle: { backgroundColor: PALETTE.background },
+                headerShadowVisible: false,
+                headerTintColor: PALETTE.accent,
+                headerTitleStyle: { color: PALETTE.text, fontWeight: '600' },
+                contentStyle: { backgroundColor: PALETTE.background },
+                headerBackButtonDisplayMode: 'minimal',
+              }}
+            >
+              <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Home' }} />
+              <Stack.Screen name="entry/[id]" options={{ title: 'Entry' }} />
+              <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+              <Stack.Screen name="brain" options={{ title: Platform.OS === 'web' ? 'Built-in brain' : 'On-phone brain' }} />
+            </Stack>
+          </WebShell>
+          <DialogHost />
         </JournalProvider>
       </KeysProvider>
     </ThemeProvider>

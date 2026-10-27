@@ -11,7 +11,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Share,
   StyleSheet,
   Text,
   View,
@@ -21,6 +20,8 @@ import { useKeys } from '../../ai/keys';
 import { linksIn } from '../../ai/markdown';
 import { journalVocabulary } from '../../ai/vocabulary';
 import { Composer, ComposerHandle } from '../../components/chat/Composer';
+import { hasFinePointer } from '../../components/layout';
+import { shareText } from '../../components/share';
 import { LinkCards } from '../../components/chat/LinkCards';
 import { RichText } from '../../components/chat/RichText';
 import { AddedChips, SavedCard } from '../../components/chat/SavedCard';
@@ -186,7 +187,7 @@ export default function ChatScreen() {
         options.push({ text: 'Edit', onPress: () => setEditing({ id: m.id, text: m.text }) });
         if (m.entryId) options.push({ text: 'Sort it again', onPress: () => actions.reanalyze(m.entryId!) });
       }
-      options.push({ text: 'Copy or share', onPress: () => Share.share({ message: m.text }).catch(() => {}) });
+      options.push({ text: hasFinePointer() ? 'Copy' : 'Copy or share', onPress: () => shareText(m.text) });
       options.push({
         text: m.entryId ? 'Delete, with what was saved from it' : 'Delete',
         destructive: true,
@@ -426,9 +427,9 @@ function Notice({ message: m, gap }: { message: ThreadMessage; gap: number }) {
     <View style={[styles.theirsWrap, { paddingTop: gap }]}>
       <View style={[styles.notice, { backgroundColor: noKey ? p.sunken : p.dangerSoft }]}>
         <View style={styles.noticeHead}>
-          <Ionicons name={noKey ? 'phone-portrait-outline' : 'cloud-offline-outline'} size={15} color={noKey ? p.secondary : p.danger} />
+          <Ionicons name={noKey ? (Platform.OS === 'web' ? 'laptop-outline' : 'phone-portrait-outline') : 'cloud-offline-outline'} size={15} color={noKey ? p.secondary : p.danger} />
           <Text style={[TYPE.footnote, { color: noKey ? p.secondary : p.danger, fontWeight: '600' }]}>
-            {noKey ? 'Saved on your phone' : "Couldn't reply"}
+            {noKey ? (Platform.OS === 'web' ? 'Saved in this browser' : 'Saved on your phone') : "Couldn't reply"}
           </Text>
         </View>
         <Text style={[TYPE.callout, { color: p.text }]}>{m.text}</Text>

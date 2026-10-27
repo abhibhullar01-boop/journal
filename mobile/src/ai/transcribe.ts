@@ -42,11 +42,33 @@ function prompt(vocabulary: string[], withNames: boolean): string {
     .join(' ');
 }
 
+/** The recording as an upload: a phone's file by uri, or the website's recording as a Blob. */
+type AudioFile = { blob: Blob; name: string } | { uri: string };
+
+/** A browser records webm (Chrome, Firefox) or mp4 (Safari); OpenAI reads the format from the name. */
+export function audioFileName(type: string): string {
+  if (/webm/i.test(type)) return 'entry.webm';
+  if (/ogg/i.test(type)) return 'entry.ogg';
+  if (/wav/i.test(type)) return 'entry.wav';
+  if (/mpeg|mp3/i.test(type)) return 'entry.mp3';
+  return 'entry.mp4';
+}
+
+async function audioFile(uri: string): Promise<AudioFile> {
+  // The website's recorder hands back a blob: URL; a phone gives a file:// path.
+  if (/^(blob|data):/i.test(uri)) {
+    const blob = await (await fetch(uri)).blob();
+    return { blob, name: audioFileName(blob.type) };
+  }
+  return { uri };
+}
+
 /** The form for one try. `hints` adds the language and keyword hints gpt-transcribe accepts. */
-function form(uri: string, model: Model, vocabulary: string[], hints: boolean): FormData {
+function form(file: AudioFile, model: Model, vocabulary: string[], hints: boolean): FormData {
   const data = new FormData();
+  if ('blob' in file) data.append('file', file.blob, file.name);
   // React Native's FormData accepts a file by uri.
-  data.append('file', { uri, name: 'entry.m4a', type: 'audio/m4a' } as unknown as Blob);
+  else data.append('file', { uri: file.uri, name: 'entry.m4a', type: 'audio/m4a' } as unknown as Blob);
   data.append('model', model);
   if (model === 'gpt-transcribe') {
     data.append('prompt', prompt(vocabulary, false));
@@ -67,6 +89,7 @@ function form(uri: string, model: Model, vocabulary: string[], hints: boolean): 
  */
 export async function transcribe(uri: string, apiKey: string, vocabulary: string[] = []): Promise<string> {
   let lastError: unknown = null;
+  const file = await audioFile(uri);
   for (const model of MODELS) {
     if (unavailable.has(model) && model !== MODELS[MODELS.length - 1]) continue;
     // gpt-transcribe gets one try with language and keyword hints, then one plain try.
@@ -76,7 +99,7 @@ export async function transcribe(uri: string, apiKey: string, vocabulary: string
         const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
           method: 'POST',
           headers: { Authorization: `Bearer ${apiKey}` },
-          body: form(uri, model, vocabulary, hints),
+          body: form(file, model, vocabulary, hints),
         });
         const body = await response.json().catch(() => ({}));
         if (response.status === 401) throw new TranscriptionError('The OpenAI key was not accepted. Check it in Settings.', true);

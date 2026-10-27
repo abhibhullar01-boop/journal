@@ -36,7 +36,9 @@
     "lint": "expo lint",
     "live": "node scripts/live.mjs",
     "bench": "tsx src/brain/bench/run.ts",
-    "train": "tsx src/brain/train.ts"
+    "train": "tsx src/brain/train.ts",
+    "build:web": "expo export --platform web --output-dir dist",
+    "web": "expo start --web"
   },
   "private": true
 }

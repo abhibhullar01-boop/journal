@@ -1,0 +1,51 @@
+# The journal website (journal.eventlab.world).
+# On Netlify this is its own project, built from this GitHub repo with the base directory set to
+# "mobile". It never touches the eventlab.world project (For You and the Grievance Cell).
+
+[build]
+  command = "npm run build:web"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  EXPO_NO_TELEMETRY = "1"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# The website's two helpers: link pictures and backup search (a browser can't read other sites).
+[[redirects]]
+  from = "/api/preview"
+  to = "/.netlify/functions/preview"
+  status = 200
+
+[[redirects]]
+  from = "/api/search"
+  to = "/.netlify/functions/search"
+  status = 200
+
+# A file that no longer exists after an update should fail, not come back as the page.
+[[redirects]]
+  from = "/_expo/*"
+  to = "/404.html"
+  status = 404
+
+# Every screen of the app is served by the one page.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/_expo/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "microphone=(self), camera=(), geolocation=()"

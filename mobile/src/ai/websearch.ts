@@ -64,9 +64,23 @@ async function get(url: string): Promise<string> {
   }
 }
 
+/** The website searches through its own server (GET <endpoint>?q=...), since a browser can't read the engines' pages. */
+let endpoint: string | null = null;
+export function setSearchEndpoint(url: string | null): void {
+  endpoint = url;
+}
+
 /** Searches the web from the phone. Returns an empty list when both engines fail. */
 export async function searchWeb(query: string): Promise<SearchResult[]> {
   const q = encodeURIComponent(query);
+  if (endpoint) {
+    try {
+      const response = await globalThis.fetch(`${endpoint}?q=${q}`);
+      return response.ok ? ((await response.json()) as SearchResult[]) : [];
+    } catch {
+      return [];
+    }
+  }
   try {
     const ddg = parseDuckDuckGo(await get(`https://html.duckduckgo.com/html/?q=${q}&kl=in-en`));
     if (ddg.length) return ddg;

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ALL_KINDS, evaluate, KIND_LABEL, KIND_PLURAL, SEED_EVALUATION, SEED_SIZE } from '../brain';
+import { alert } from '../components/dialog';
 import { KIND_COLOR, RADIUS, SERIF, SPACE, TYPE, usePalette } from '../components/theme';
 import { Footnote, ProgressBar, Section } from '../components/ui';
 import { formatDue } from '../store/format';
@@ -20,7 +21,7 @@ export default function BrainScreen() {
   const found = useMemo(() => (text ? analyzer.analyze(text) : []), [analyzer, text, modelVersion]);
 
   const confirmReset = () =>
-    Alert.alert('Forget what it learned from you?', 'The model goes back to how it came.', [
+    alert('Forget what it learned from you?', 'The model goes back to how it came.', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Reset', style: 'destructive', onPress: resetModel },
     ]);
@@ -110,7 +111,7 @@ export default function BrainScreen() {
       </Section>
       <Footnote>
         It started from {SEED_SIZE.toLocaleString()} example sentences of everyday life. Each time you fix a category, or Claude
-        double-checks a message, it learns from your own words. Your fixes count three times as much. It all stays on your phone.
+        double-checks a message, it learns from your own words. Your fixes count three times as much. It all stays {Platform.OS === 'web' ? 'in this browser' : 'on your phone'}.
       </Footnote>
     </ScrollView>
   );
