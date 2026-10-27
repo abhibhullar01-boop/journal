@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Voice Journal",
+    "slug": "voice-journal",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.abhibhullar.voicejournal"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "name": "Journal",
+      "shortName": "Journal",
+      "description": "Your journal and companion. Talk or type, and it keeps your tasks, shopping, skills and goals, with reminders.",
+      "themeColor": "#F6F4EF",
+      "backgroundColor": "#F6F4EF",
+      "favicon": "./assets/web-favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "asyncRoutes": {
+            "web": false
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {}
+      ],
+      "expo-status-bar",
+      "expo-audio",
+      "expo-secure-store"
+    ],
+    "scheme": "voicejournal",
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

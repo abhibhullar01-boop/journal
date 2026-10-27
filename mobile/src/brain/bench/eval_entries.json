@@ -1,0 +1,679 @@
+{
+ "note": "Hand-written realistic voice-journal entries. Never used for training (but used to tune the rules, so see eval_entries_b.json for an untouched score). 'now' is Tuesday 20 Oct 2026, 09:00 local. Each expected item lists words its title must contain; 'due' is the expected reminder (local time) or null. Later rule: \"for Saturday\" names the day of the thing itself, so its reminder comes the day before.",
+ "now": "2026-10-20T09:00:00",
+ "entries": [
+  {
+   "text": "Okay so today I woke up late again, kind of annoyed at myself. I need to call mom tomorrow evening about Diwali plans. Also I really want to get better at cooking, I keep ordering Swiggy. Felt pretty tired after the gym.",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "call",
+      "mom"
+     ],
+     "due": "2026-10-21T19:00"
+    },
+    {
+     "kind": "skill",
+     "must": [
+      "cooking"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "remind me to call mom tomorrow at 6 and I need to buy milk, also felt tired today",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "call",
+      "mom"
+     ],
+     "due": "2026-10-21T18:00"
+    },
+    {
+     "kind": "shopping",
+     "must": [
+      "milk"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "um so work was crazy today the client meeting went on for like three hours and honestly I was drained but it went well I think. I have to send the proposal to Rohan by Friday. and I want to start learning Python properly this time",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "proposal",
+      "rohan"
+     ],
+     "due": "2026-10-23T09:00"
+    },
+    {
+     "kind": "skill",
+     "must": [
+      "python"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Long term I really want to buy a house in Chandigarh before I turn 35. For now I should save more every month. Today I spent way too much on clothes.",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "house"
+     ],
+     "due": null
+    },
+    {
+     "kind": "goal",
+     "must": [
+      "save"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Had a good chat with Simran tonight. She's thinking of moving to Toronto. Made me think, someday I want to live abroad for a few years too.",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "abroad"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "dentist appointment day after tomorrow at 11 don't let me forget. also pay the electricity bill today",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "dentist"
+     ],
+     "due": "2026-10-22T11:00"
+    },
+    {
+     "kind": "task",
+     "must": [
+      "electricity",
+      "bill"
+     ],
+     "due": "2026-10-20T17:00"
+    }
+   ]
+  },
+  {
+   "text": "I've been practicing guitar for like twenty minutes every night and it's actually getting easier. My fingers don't hurt as much. I want to be able to play a full song for Priya's birthday.",
+   "items": [
+    {
+     "kind": "skill",
+     "must": [
+      "guitar"
+     ],
+     "due": null
+    },
+    {
+     "kind": "goal",
+     "must": [
+      "song"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Note to self, renew the car insurance before the end of the month. And book the Goa tickets this weekend before prices go up.",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "car",
+      "insurance"
+     ],
+     "due": "2026-10-31T09:00"
+    },
+    {
+     "kind": "task",
+     "must": [
+      "goa",
+      "tickets"
+     ],
+     "due": "2026-10-24T10:00"
+    }
+   ]
+  },
+  {
+   "text": "Feeling a bit low today. Nothing specific, just tired. Maybe I need more sleep. The weather is gloomy too.",
+   "items": []
+  },
+  {
+   "text": "My goal this year is to run a half marathon. I'm going to start with 5k runs three times a week. Need to buy proper running shoes this weekend.",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "half",
+      "marathon"
+     ],
+     "due": null
+    },
+    {
+     "kind": "shopping",
+     "must": [
+      "running",
+      "shoes"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "so in the meeting today my manager said I need to work on my presentation skills, which is fair I guess. I get nervous. I should practice presenting in front of the mirror.",
+   "items": [
+    {
+     "kind": "skill",
+     "must": [
+      "presentation"
+     ],
+     "due": null
+    },
+    {
+     "kind": "skill",
+     "must": [
+      "present"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Call the plumber in 2 hours, the kitchen sink is leaking again. Ugh.",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "plumber"
+     ],
+     "due": "2026-10-20T11:00"
+    }
+   ]
+  },
+  {
+   "text": "Grateful for my family today. Dad's health is much better. We had dinner together and laughed a lot.",
+   "items": []
+  },
+  {
+   "text": "I gotta reply to Arjun's email about the contract and also review the slides for Thursday's demo tonight",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "arjun"
+     ],
+     "due": null
+    },
+    {
+     "kind": "task",
+     "must": [
+      "slides"
+     ],
+     "due": "2026-10-20T19:00"
+    }
+   ]
+  },
+  {
+   "text": "One day I'd love to start my own design studio. I think I'm good at it. For that I need to get better at client communication and pricing.",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "design",
+      "studio"
+     ],
+     "due": null
+    },
+    {
+     "kind": "skill",
+     "must": [
+      "client",
+      "communication"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "pick up the kids from school at 3 then groceries, we need eggs bread and atta",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "pick",
+      "kids"
+     ],
+     "due": "2026-10-20T15:00"
+    },
+    {
+     "kind": "shopping",
+     "must": [
+      "eggs"
+     ],
+     "due": null
+    },
+    {
+     "kind": "shopping",
+     "must": [
+      "bread"
+     ],
+     "due": null
+    },
+    {
+     "kind": "shopping",
+     "must": [
+      "atta"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Watched a really good documentary on space tonight. I want to learn more about astronomy, maybe get a telescope someday.",
+   "items": [
+    {
+     "kind": "skill",
+     "must": [
+      "astronomy"
+     ],
+     "due": null
+    },
+    {
+     "kind": "goal",
+     "must": [
+      "telescope"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Remember to transfer rent to the landlord on the 1st. And message the society secretary about the parking.",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "rent"
+     ],
+     "due": "2026-11-01T09:00"
+    },
+    {
+     "kind": "task",
+     "must": [
+      "secretary"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "I'm trying to meditate every morning, did ten minutes today. It helps with the anxiety.",
+   "items": [
+    {
+     "kind": "skill",
+     "must": [
+      "meditate"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Tomorrow morning I have to drop the car at the service center. Then work from the cafe.",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "car",
+      "service"
+     ],
+     "due": "2026-10-21T08:00"
+    }
+   ]
+  },
+  {
+   "text": "Honestly I want to be financially independent by 40. That's the big one. I need to start investing in index funds, and learn how taxes work.",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "financially",
+      "independent"
+     ],
+     "due": null
+    },
+    {
+     "kind": "task",
+     "must": [
+      "investing"
+     ],
+     "due": null
+    },
+    {
+     "kind": "skill",
+     "must": [
+      "taxes"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "had lunch with the team, the new guy Kabir seems nice. traffic on the way back was horrible",
+   "items": []
+  },
+  {
+   "text": "need to email the HR about leave next week and ask Neha for the report",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "hr",
+      "leave"
+     ],
+     "due": "2026-10-26T09:00"
+    },
+    {
+     "kind": "task",
+     "must": [
+      "neha",
+      "report"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "I've been learning Punjabi script with my nani, it's fun. I'd like to be able to read her old letters.",
+   "items": [
+    {
+     "kind": "skill",
+     "must": [
+      "punjabi"
+     ],
+     "due": null
+    },
+    {
+     "kind": "goal",
+     "must": [
+      "letters"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Book a doctor's appointment for mom this Friday. Her back pain is getting worse.",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "doctor"
+     ],
+     "due": "2026-10-23T09:00"
+    }
+   ]
+  },
+  {
+   "text": "So yeah the gym was good today, did legs. My goal is to deadlift 100 kg by March.",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "deadlift"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Don't forget to water the plants before leaving tonight and lock the balcony door",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "water",
+      "plants"
+     ],
+     "due": "2026-10-20T19:00"
+    },
+    {
+     "kind": "task",
+     "must": [
+      "lock",
+      "balcony"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "I want to read more books. Like one a month at least. Currently halfway through Atomic Habits.",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "read",
+      "books"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Submit the GST return by the 25th, accountant reminded me. Also call Ravi uncle after work",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "gst"
+     ],
+     "due": "2026-10-25T09:00"
+    },
+    {
+     "kind": "task",
+     "must": [
+      "ravi"
+     ],
+     "due": "2026-10-20T18:00"
+    }
+   ]
+  },
+  {
+   "text": "It rained all day and I just stayed in and watched Netflix. Pretty lazy but I needed it.",
+   "items": []
+  },
+  {
+   "text": "Eventually I want to move into product management. I should talk to Meera about how she made the switch.",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "product",
+      "management"
+     ],
+     "due": null
+    },
+    {
+     "kind": "task",
+     "must": [
+      "meera"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "I'm getting better at saying no to extra work. Proud of that. Still need to improve my time management though.",
+   "items": [
+    {
+     "kind": "skill",
+     "must": [
+      "saying",
+      "no"
+     ],
+     "due": null
+    },
+    {
+     "kind": "skill",
+     "must": [
+      "time",
+      "management"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "cancel the Netflix subscription and order a birthday cake for Anaya for Saturday",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "netflix"
+     ],
+     "due": null
+    },
+    {
+     "kind": "task",
+     "must": [
+      "cake"
+     ],
+     "due": "2026-10-23T09:00"
+    }
+   ]
+  },
+  {
+   "text": "Fought with my brother over something stupid. I should apologize to him tomorrow.",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "apologize"
+     ],
+     "due": "2026-10-21T09:00"
+    }
+   ]
+  },
+  {
+   "text": "within five years I want to have my own house and a dog. Big dreams lol",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "house"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Interview with Infosys next Monday at 2 pm. I need to prepare system design questions and revise SQL.",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "interview"
+     ],
+     "due": "2026-10-26T14:00"
+    },
+    {
+     "kind": "task",
+     "must": [
+      "system",
+      "design"
+     ],
+     "due": null
+    },
+    {
+     "kind": "skill",
+     "must": [
+      "sql"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "The sunset from the terrace was beautiful. Took some photos. I want to get into photography seriously.",
+   "items": [
+    {
+     "kind": "skill",
+     "must": [
+      "photography"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Need to fix the wifi router, it keeps disconnecting. Maybe call Airtel support in the afternoon.",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "router"
+     ],
+     "due": null
+    },
+    {
+     "kind": "task",
+     "must": [
+      "airtel"
+     ],
+     "due": "2026-10-20T14:00"
+    }
+   ]
+  },
+  {
+   "text": "Took a typing test today, 55 words per minute. Want to get it to 80.",
+   "items": [
+    {
+     "kind": "goal",
+     "must": [
+      "80"
+     ],
+     "due": null
+    }
+   ]
+  },
+  {
+   "text": "Meeting with the bank at 10:30 tomorrow about the loan, carry the documents",
+   "items": [
+    {
+     "kind": "task",
+     "must": [
+      "bank"
+     ],
+     "due": "2026-10-21T10:30"
+    },
+    {
+     "kind": "task",
+     "must": [
+      "documents"
+     ],
+     "due": null
+    }
+   ]
+  }
+ ]
+}
